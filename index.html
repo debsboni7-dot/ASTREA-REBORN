@@ -40,7 +40,12 @@ const head=new THREE.Mesh(new THREE.SphereGeometry(.28,8,6),new THREE.MeshStanda
 player.add(fallback);
 const fallbackSword=box(.12,.95,.16,0xb8d7df,0,0,0);scene.remove(fallbackSword);fallbackSword.position.set(.48,1.1,0);player.add(fallbackSword);
 let swordVisual=fallbackSword,visualRoot=fallback,loadedHero=false,loadedHouse=false;
-let yaw=0,pitch=.22,vy=0,onGround=true,attackTimer=0,attackCooldown=0,mixer=null,currentAction=null,animationCache={};\nconst enemy=new THREE.Group();enemy.position.set(1.8,0,-4.5);scene.add(enemy);\nconst enemyBody=new THREE.Mesh(new THREE.CapsuleGeometry(.38,.82,3,6),new THREE.MeshStandardMaterial({color:0x9c493d,roughness:.85}));enemyBody.position.y=1.0;enemy.add(enemyBody);\nconst enemyHead=new THREE.Mesh(new THREE.SphereGeometry(.27,8,6),new THREE.MeshStandardMaterial({color:0xb77c61,roughness:.9}));enemyHead.position.y=1.78;enemy.add(enemyHead);\nconst enemyRing=new THREE.Mesh(new THREE.TorusGeometry(.62,.055,6,20),new THREE.MeshStandardMaterial({color:0xe7b55d,emissive:0x3d2100}));enemyRing.rotation.x=Math.PI/2;enemyRing.position.y=.08;enemy.add(enemyRing);\nlet enemyHP=3,enemyDefeated=false;const enemyStatus=document.getElementById("enemyStatus"),questStatus=document.getElementById("questStatus");
+let yaw=0,pitch=.22,vy=0,onGround=true,attackTimer=0,attackCooldown=0,mixer=null,currentAction=null,animationCache={};
+const enemy=new THREE.Group();enemy.position.set(1.8,0,-4.5);scene.add(enemy);
+const enemyBody=new THREE.Mesh(new THREE.CapsuleGeometry(.38,.82,3,6),new THREE.MeshStandardMaterial({color:0x9c493d,roughness:.85}));enemyBody.position.y=1.0;enemy.add(enemyBody);
+const enemyHead=new THREE.Mesh(new THREE.SphereGeometry(.27,8,6),new THREE.MeshStandardMaterial({color:0xb77c61,roughness:.9}));enemyHead.position.y=1.78;enemy.add(enemyHead);
+const enemyRing=new THREE.Mesh(new THREE.TorusGeometry(.62,.055,6,20),new THREE.MeshStandardMaterial({color:0xe7b55d,emissive:0x3d2100}));enemyRing.rotation.x=Math.PI/2;enemyRing.position.y=.08;enemy.add(enemyRing);
+let enemyHP=3,enemyDefeated=false;const enemyStatus=document.getElementById("enemyStatus"),questStatus=document.getElementById("questStatus");
 const keys={},touchMove={};
 function normalizeModel(object,targetHeight){
  const b=new THREE.Box3().setFromObject(object),size=b.getSize(new THREE.Vector3()),center=b.getCenter(new THREE.Vector3());
