@@ -1,0 +1,44 @@
+name: Generate missing ASTREA 3D models with Blender
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "tools/generate_missing_models.py"
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout ASTREA REBORN
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install Blender
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y blender
+      - name: Generate low-poly GLB assets
+        run: |
+          set -euo pipefail
+          blender --background --python tools/generate_missing_models.py
+          test -s 02-MODELS/vegetation/oak-tree.glb
+          test -s 02-MODELS/vegetation/pine-tree.glb
+          test -s 02-MODELS/vegetation/fern-cluster.glb
+          test -s 02-MODELS/props/rock-cluster.glb
+          test -s 02-MODELS/props/wooden-barrel.glb
+          test -s 02-MODELS/props/mana-crystal-cluster.glb
+          test -s 02-MODELS/props/health-potion.glb
+      - name: Commit generated GLB assets
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add 02-MODELS/vegetation/*.glb 02-MODELS/props/rock-cluster.glb 02-MODELS/props/wooden-barrel.glb 02-MODELS/props/mana-crystal-cluster.glb 02-MODELS/props/health-potion.glb
+          git commit -m "Add missing low-poly ASTREA 3D models"
+          git pull --rebase origin main
+          git push origin HEAD:main
