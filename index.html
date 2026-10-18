@@ -226,7 +226,7 @@ function tintNPC(model,tint){
    o.castShadow=false;o.receiveShadow=false;
    const tintMaterial=mat=>{
      if(!mat)return mat;
-     const m=mat.clone();
+     const m=makeMat();
      // La teinte multiplie les textures originales au lieu de les remplacer.
      if(m.color)m.color.lerp(target,.14);
      return m;
@@ -440,7 +440,7 @@ function playCharacterAnimation(kind){
  if(!name&&kind==='attack1')name=names.find(n=>/attack|slash|sword|combo/i.test(n));
  if(!name&&kind==='idle')name=names.find(n=>/animation/i.test(n));
  if(!name){
-   setProceduralPose(kind);
+   setProceduralPose(kind);if(currentAction&&currentAction.isRunning())currentAction.stop();currentAction=null;
    const externalFiles={idle:'anim-idle.glb',walk:'anim-walk.glb',run:'anim-walk.glb',attack1:'anim-attack-1.glb',attack2:'anim-attack-2.glb',attack3:'anim-attack-3.glb'};
    const file=externalFiles[kind];if(!file||animationCache[kind]===false)return true;
    if(!animationCache[kind]){
@@ -558,12 +558,12 @@ function spawnWeaponVFX(special=false,atTarget=false){
  const forward=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw));
  const pos=(atTarget&&enemy.visible&&!enemyDefeated)?enemy.position.clone():player.position.clone().addScaledVector(forward,1.05);
  const group=new THREE.Group();group.position.set(pos.x,player.position.y+(atTarget&&enemy.visible&&!enemyDefeated?1.05:1.12),pos.z);group.rotation.y=yaw;scene.add(group);
- const mat=new THREE.MeshBasicMaterial({color,transparent:true,opacity:.94,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide});
+ const makeMat=()=>new THREE.MeshBasicMaterial({color,transparent:true,opacity:.94,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide});
  let arc=null,ring=null,orb=null;
- if(!ranged){arc=new THREE.Mesh(new THREE.TorusGeometry(special?1.02:heavy?.78:.68,special?.075:.045,6,18,special?Math.PI*1.8:Math.PI*1.32),mat.clone());arc.rotation.z=special?-.35:-.78;group.add(arc)}
- if(ranged){const beam=new THREE.Mesh(new THREE.CylinderGeometry(.018,.045,special?1.65:1.05,6),mat.clone());beam.rotation.x=Math.PI/2;beam.position.set(0,.02,-.78);group.add(beam);const tip=new THREE.Mesh(new THREE.ConeGeometry(.07,.2,5),mat.clone());tip.rotation.x=-Math.PI/2;tip.position.set(0,.02,-1.55);group.add(tip)}
- if(magic){orb=new THREE.Mesh(new THREE.SphereGeometry(special?.24:.15,8,6),mat.clone());orb.position.set(0,.06,-.22);group.add(orb)}
- if(special||heavy){ring=new THREE.Mesh(new THREE.RingGeometry(special?.38:.25,special?.66:.46,24),mat.clone());ring.rotation.x=-Math.PI/2;ring.position.y=-.78;group.add(ring)}
+ if(!ranged){arc=new THREE.Mesh(new THREE.TorusGeometry(special?1.02:heavy?.78:.68,special?.075:.045,6,18,special?Math.PI*1.8:Math.PI*1.32),makeMat());arc.rotation.z=special?-.35:-.78;group.add(arc)}
+ if(ranged){const beam=new THREE.Mesh(new THREE.CylinderGeometry(.018,.045,special?1.65:1.05,6),makeMat());beam.rotation.x=Math.PI/2;beam.position.set(0,.02,-.78);group.add(beam);const tip=new THREE.Mesh(new THREE.ConeGeometry(.07,.2,5),makeMat());tip.rotation.x=-Math.PI/2;tip.position.set(0,.02,-1.55);group.add(tip)}
+ if(magic){orb=new THREE.Mesh(new THREE.SphereGeometry(special?.24:.15,8,6),makeMat());orb.position.set(0,.06,-.22);group.add(orb)}
+ if(special||heavy){ring=new THREE.Mesh(new THREE.RingGeometry(special?.38:.25,special?.66:.46,24),makeMat());ring.rotation.x=-Math.PI/2;ring.position.y=-.78;group.add(ring)}
  const count=special?42:22,positions=new Float32Array(count*3),velocities=[];
  for(let i=0;i<count;i++){positions[i*3]=(Math.random()-.5)*(special?1.1:.6);positions[i*3+1]=(Math.random()-.5)*(special?1.2:.7);positions[i*3+2]=(Math.random()-.5)*(special?1.1:.6);velocities.push([(Math.random()-.5)*2,(Math.random()*.9+.15)*(special?2.4:1.6),(Math.random()-.5)*2])}
  const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(positions,3));
