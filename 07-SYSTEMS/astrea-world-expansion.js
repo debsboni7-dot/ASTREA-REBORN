@@ -116,11 +116,9 @@ export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes }) 
         if(i%5===0){const lava=new THREE.Mesh(new THREE.CylinderGeometry(.45,.65,.08,8),new THREE.MeshStandardMaterial({color:0xff5b19,emissive:0xc92b0c,emissiveIntensity:.7}));lava.position.set(x,.12,z);g.add(lava)}
       }
     }
-    if(id==='elarion'||id==='solkar'){
-      const hull=new THREE.Mesh(new THREE.BoxGeometry(4,.7,1.3),mat(0x694329));hull.position.set(-10,.45,-12);g.add(hull);
-      const mast=new THREE.Mesh(new THREE.CylinderGeometry(.09,.12,4,5),mat(0x593b24));mast.position.set(-10,2.5,-12);g.add(mast);
-      const sail=new THREE.Mesh(new THREE.PlaneGeometry(2.2,2.3),mat(0xe7dfc7));sail.position.set(-9.4,2.8,-12);g.add(sail);
-    }
+    const hull=new THREE.Mesh(new THREE.BoxGeometry(4,.7,1.3),mat(0x694329));hull.position.set(-34,.45,-34);g.add(hull);
+    const mast=new THREE.Mesh(new THREE.CylinderGeometry(.09,.12,4,5),mat(0x593b24));mast.position.set(-34,2.5,-34);g.add(mast);
+    const sail=new THREE.Mesh(new THREE.PlaneGeometry(2.2,2.3),mat(0xe7dfc7));sail.position.set(-33.4,2.8,-34);g.add(sail);
     if(id==='frostholm')addCreatureModel(g,'mammoth',-7,0,-9);
     if(id==='drakorys')addCreatureModel(g,'dragon',8,0,-11);
     return g;
