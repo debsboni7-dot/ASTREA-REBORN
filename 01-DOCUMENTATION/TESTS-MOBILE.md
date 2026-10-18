@@ -17,10 +17,11 @@ Valider le premier prototype jouable sur Chrome Android avant d'ajouter plus de 
 
 ## Résultats à vérifier
 - [ ] La scène s'affiche sans écran noir.
-- [ ] Le personnage principal se charge, avec le personnage provisoire en secours si le GLB échoue.
+- [ ] Le personnage Meshy réel se charge ; si son archive échoue, le GLB riggé `hero.glb` sert de secours. Aucune silhouette primitive ne doit apparaître.
 - [ ] Le chemin et le terrain affichent leurs textures.
 - [ ] Les boutons tactiles répondent.
-- [ ] La cible affiche 3 PV puis 2, 1 et 0.
+- [ ] La cible 3D réelle se charge et ses PV diminuent à chaque coup valide.
+- [ ] Les attaques affichent des VFX colorés, les techniques spéciales ont un effet plus large et les effets disparaissent sans s'accumuler.
 - [ ] La quête affiche « Quête terminée » après le troisième coup.
 - [ ] Pas de blocage prolongé ni de chauffe anormale sur le téléphone.
 
