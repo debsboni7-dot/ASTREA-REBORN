@@ -16,6 +16,16 @@
 - [ ] Vérifier l'orientation, les textures et le point d'attache de l'épée sur Chrome Android.
 - [x] Réduire la taille des textures embarquées et des GLB de l'épée (conversion validée par GitHub Actions ; test mobile restant).
 
+## Phase 2B — Création de personnage
+- [x] Ajouter un atelier de création 3D avec bases masculine et féminine provisoires.
+- [x] Ajouter une taille réglable de 1,60 m à 2,10 m par pas de 1 cm.
+- [x] Ajouter la corpulence, les teintes de peau, les coiffures, les couleurs de cheveux et d'yeux, et les palettes de tenue.
+- [x] Ajouter l'export JSON et une sauvegarde locale dans le navigateur.
+- [ ] Générer les deux modèles de base GLB avec Blender et vérifier leur export.
+- [ ] Relier les options du créateur au modèle réellement utilisé dans index.html.
+- [ ] Passer des primitives à des pièces de personnage modulaires avec squelette compatible.
+- [ ] Tester le créateur sur Chrome Android.
+
 ## Phase 3 — Gameplay
 - [ ] Déplacement, course et saut avec animation confirmée.
 - [ ] Combos d'attaque synchronisés avec l'épée.
