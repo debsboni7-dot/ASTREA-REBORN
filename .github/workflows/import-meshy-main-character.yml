@@ -1,0 +1,48 @@
+name: Importer le personnage Meshy d'Astrea
+
+on:
+  push:
+    paths:
+      - "02-MODELS/characters/astrea-meshy-upload.zip"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import-character:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extraire le personnage et ses textures
+        shell: bash
+        run: |
+          set -euo pipefail
+          ZIP="02-MODELS/characters/astrea-meshy-upload.zip"
+          DEST="02-MODELS/characters/astrea-meshy"
+          test -f "$ZIP"
+          mkdir -p "$DEST"
+          TMP="$(mktemp -d)"
+          unzip -o "$ZIP" -d "$TMP" >/dev/null
+          find "$TMP" -type f \( -name '*_Character_output.fbx' -o -name '*_texture_0.png' -o -name '*_texture_0_metallic.png' -o -name '*_texture_0_normal.png' -o -name '*_texture_0_roughness.png' \) -exec cp {} "$DEST/" \;
+          test -f "$DEST/Meshy_AI_Un_personnage_homme_a_biped_Character_output.fbx"
+          test -f "$DEST/Meshy_AI_Un_personnage_homme_a_biped_texture_0.png"
+          rm -f "$ZIP"
+          rm -rf "$TMP"
+      - name: Enregistrer les fichiers importés
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A 02-MODELS/characters
+          if git diff --cached --quiet; then
+            echo "Aucun changement à enregistrer."
+          else
+            git commit -m "Importer le personnage masculin Meshy et ses textures"
+            git push
+          fi
