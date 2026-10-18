@@ -31,3 +31,8 @@
 7. Implémenter le multijoueur seulement après stabilisation du jeu solo.
 
 Les systèmes ajoutés ici n'ont pas encore été validés par un test de jeu sur un téléphone Android réel.
+
+## Mise à jour — 18 octobre 2026
+- Textures de sol générées localement avec CanvasTexture : herbe/forêt, sable, glace/neige et sol volcanique, avec petites variations visuelles et bordure sableuse.
+- Attaques normales et spéciales du joueur reliées aux PV des créatures dans leur région. Les récompenses de test ajoutent couronnes, XP et ressources.
+- À faire : IA de combat, animation et poursuite des créatures, attaque ennemie, réapparition, optimisation après test mobile.
