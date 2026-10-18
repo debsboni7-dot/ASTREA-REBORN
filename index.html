@@ -57,6 +57,11 @@ const enemyBody=new THREE.Mesh(new THREE.CapsuleGeometry(.38,.82,3,6),new THREE.
 const enemyHead=new THREE.Mesh(new THREE.SphereGeometry(.27,8,6),new THREE.MeshStandardMaterial({color:0xb77c61,roughness:.9}));enemyHead.position.y=1.78;enemy.add(enemyHead);
 const enemyRing=new THREE.Mesh(new THREE.TorusGeometry(.62,.055,6,20),new THREE.MeshStandardMaterial({color:0xe7b55d,emissive:0x3d2100}));enemyRing.rotation.x=Math.PI/2;enemyRing.position.y=.08;enemy.add(enemyRing);
 let enemyHP=3,enemyDefeated=false;const dialogue=document.getElementById('dialogue'),dialogueText=document.getElementById('dialogueText');const enemyStatus=document.getElementById("enemyStatus"),questStatus=document.getElementById("questStatus");
+let savedGame={};try{savedGame=JSON.parse(localStorage.getItem('astrea-save-v1')||'{}')||{}}catch(e){}
+if(Number.isFinite(savedGame.enemyHP))enemyHP=Math.max(0,Math.min(3,savedGame.enemyHP));
+enemyDefeated=!!savedGame.enemyDefeated||enemyHP===0;
+if(enemyDefeated){enemy.visible=false;enemyStatus.textContent='Cible vaincue';questStatus.textContent='Entraînement terminé : progression restaurée.'}else enemyStatus.textContent='Cible : '+enemyHP+' PV';
+if(savedGame.playerPosition&&Number.isFinite(savedGame.playerPosition.x)&&Number.isFinite(savedGame.playerPosition.z)){player.position.x=savedGame.playerPosition.x;player.position.z=savedGame.playerPosition.z;}
 const keys={},touchMove={};
 let insideHouse=false,doorOpen=false;
 const doorPivot=new THREE.Group();doorPivot.position.set(-5.83,0,-6.48);scene.add(doorPivot);
@@ -164,7 +169,8 @@ function playCharacterAnimation(kind){
 // Ils ne sont pas appliqués au mauvais squelette en attendant leur retargeting.
 
 const inventory={};
-function addItem(name,count=1){inventory[name]=(inventory[name]||0)+count;renderInventory()}
+if(savedGame.inventory&&typeof savedGame.inventory==='object')for(const [name,count] of Object.entries(savedGame.inventory)){if(typeof name==='string'&&Number.isFinite(count)&&count>0)inventory[name]=Math.floor(count)}
+function addItem(name,count=1){inventory[name]=(inventory[name]||0)+count;renderInventory();saveProgress()}
 function renderInventory(){const root=document.getElementById('inventoryItems');const entries=Object.entries(inventory);root.innerHTML=entries.length?entries.map(([name,count])=>'<p>• '+name+' : <strong>'+count+'</strong></p>').join(''):'<p>Ton sac est vide.</p>'}
 document.getElementById('inventoryToggle').addEventListener('click',()=>{const panel=document.getElementById('inventoryPanel');panel.hidden=!panel.hidden;renderInventory()});
 document.getElementById('inventoryClose').addEventListener('click',()=>{document.getElementById('inventoryPanel').hidden=true});
@@ -178,19 +184,24 @@ function makeChest(x,z,reward){
  const lidPivot=new THREE.Group();lidPivot.position.set(0,.54,-.29);group.add(lidPivot);
  const lid=new THREE.Mesh(new THREE.BoxGeometry(.92,.2,.64),wood);lid.position.set(0,.04,.29);lidPivot.add(lid);
  const lock=new THREE.Mesh(new THREE.BoxGeometry(.13,.18,.07),gold);lock.position.set(0,-.02,.61);lidPivot.add(lock);
- chests.push({group,lidPivot,reward,opened:false});
+ const opened=Array.isArray(savedGame.openedChests)&&savedGame.openedChests.includes(reward);
+ if(opened)lidPivot.rotation.x=-1.25;
+ chests.push({group,lidPivot,reward,opened});
  const marker=new THREE.Mesh(new THREE.OctahedronGeometry(.12),new THREE.MeshStandardMaterial({color:0xf4d37d,emissive:0x5d3e09}));marker.position.set(x,.95,z);scene.add(marker);
 }
 makeChest(3.5,-7,'Potion de soin');
 makeChest(-3.8,-13,'Cristal d’Astrea');
 makeChest(3.6,-19,'Pièces d’or');
+function saveProgress(){
+ try{localStorage.setItem('astrea-save-v1',JSON.stringify({version:1,inventory,openedChests:chests.filter(c=>c.opened).map(c=>c.reward),enemyHP,enemyDefeated,playerPosition:insideHouse?null:{x:player.position.x,z:player.position.z}}))}catch(e){console.warn('Sauvegarde locale indisponible',e)}
+}
 function nearestChest(){let best=null,dist=2.35;for(const chest of chests){if(chest.opened)continue;const d=Math.hypot(player.position.x-chest.group.position.x,player.position.z-chest.group.position.z);if(d<dist){best=chest;dist=d}}return best}
 function talkToGuide(){
  if(insideHouse){setHouseMode(false);return}
  const chest=nearestChest();
- if(chest){chest.opened=true;chest.lidPivot.rotation.x=-1.25;addItem(chest.reward);hint.textContent='Coffre ouvert : '+chest.reward+' ajouté au sac !';questStatus.textContent='Récompense récupérée : '+chest.reward;return}
+ if(chest){chest.opened=true;chest.lidPivot.rotation.x=-1.25;addItem(chest.reward);saveProgress();hint.textContent='Coffre ouvert : '+chest.reward+' ajouté au sac !';questStatus.textContent='Récompense récupérée : '+chest.reward;return}
  const homeDistance=Math.hypot(player.position.x+5.5,player.position.z+6.5);
- if(homeDistance<2.5){doorOpen=!doorOpen;doorPivot.rotation.y=doorOpen?-Math.PI/2:0;if(doorOpen){setHouseMode(true);questStatus.textContent='Découverte : intérieur de la maison'}else{hint.textContent='La porte est fermée.'}return}
+ if(homeDistance<2.5){doorOpen=!doorOpen;doorPivot.rotation.y=doorOpen?-Math.PI/2:0;if(doorOpen){setHouseMode(true);questStatus.textContent='Découverte : intérieur de la maison'}else{hint.textContent='La porte est fermée.'}saveProgress();return}
 
  const d=Math.hypot(player.position.x-guide.position.x,player.position.z-guide.position.z);
  if(d>3.1){questStatus.textContent='Approche-toi du guide pour lui parler.';hint.textContent='Guide trop éloigné : rapproche-toi.';return}
@@ -207,7 +218,8 @@ document.querySelectorAll('[data-move]').forEach(b=>bindMove(b,b.dataset.move));
 addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.code==='Space'){e.preventDefault();jump()}});
 addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
 document.getElementById('jump').addEventListener('pointerdown',e=>{e.preventDefault();jump()});
-document.getElementById('attack').addEventListener('pointerdown',async e=>{e.preventDefault();if(attackCooldown>0)return;attackCooldown=.48;attackTimer=.32;swordVisual.rotation.z=-1.2;const n=(Math.floor(Math.random()*3)+1);/* Retargeting des attaques externes à terminer avant leur activation. */if(!enemyDefeated&&Math.hypot(player.position.x-enemy.position.x,player.position.z-enemy.position.z)<2.35){enemyHP=Math.max(0,enemyHP-1);enemyStatus.textContent='Cible : '+enemyHP+' PV';enemyBody.material.color.set(enemyHP===0?0x555555:0x9c493d);if(enemyHP===0){enemyDefeated=true;enemy.visible=false;enemyStatus.textContent='Cible vaincue';questStatus.textContent='Quête terminée ! Récompense : 100 XP';hint.textContent='Bravo ! Première quête terminée.'}else{questStatus.textContent='Touché ! Continue le combo.'}}else if(!enemyDefeated){questStatus.textContent='Trop loin : approche de la cible.'}});
+document.getElementById('attack').addEventListener('pointerdown',async e=>{e.preventDefault();if(attackCooldown>0)return;attackCooldown=.48;attackTimer=.32;swordVisual.rotation.z=-1.2;const n=(Math.floor(Math.random()*3)+1);/* Retargeting des attaques externes à terminer avant leur activation. */if(!enemyDefeated&&Math.hypot(player.position.x-enemy.position.x,player.position.z-enemy.position.z)<2.35){enemyHP=Math.max(0,enemyHP-1);enemyStatus.textContent='Cible : '+enemyHP+' PV';enemyBody.material.color.set(enemyHP===0?0x555555:0x9c493d);if(enemyHP===0){enemyDefeated=true;enemy.visible=false;enemyStatus.textContent='Cible vaincue';questStatus.textContent='Quête terminée ! Récompense : 100 XP';hint.textContent='Bravo ! Première quête terminée.'}else{questStatus.textContent='Touché ! Continue le combo.'}saveProgress()}else if(!enemyDefeated){questStatus.textContent='Trop loin : approche de la cible.'}});
+addEventListener('pagehide',saveProgress);addEventListener('blur',saveProgress);
 let dragging=false,lastX=0,lastY=0;
 renderer.domElement.addEventListener('pointerdown',e=>{dragging=true;lastX=e.clientX;lastY=e.clientY});
 addEventListener('pointerup',()=>dragging=false);
