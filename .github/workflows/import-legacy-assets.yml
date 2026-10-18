@@ -114,11 +114,81 @@ jobs:
             encoding='utf-8')
           print(f'Assets copiés: {len(copied)}; fichiers audio: {len(audios)}')
           PY
+      - name: Integrate user-added sword archives and prototype files without overwriting
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import shutil, zipfile
+          root=Path('.')
+          legacy=Path('/tmp/astrea-assets')
+          imported=[]
+          # Preserve the user's existing mobile village and test prototypes as separate, runnable reference files.
+          prototypes=[
+            'ASTREA-MOBILE-VILLAGE-OPTIMISE-V2.html',
+            'ASTREA_ASSETS_TEST_CORRIGE.html',
+            'index-2-ASTREA-corrige.html',
+            'index-3.html'
+          ]
+          pdir=root/'10-PROTOTYPES'/'legacy'
+          pdir.mkdir(parents=True,exist_ok=True)
+          for name in prototypes:
+            src=legacy/name
+            if src.exists():
+              dst=pdir/name
+              if not dst.exists():
+                shutil.copy2(src,dst)
+              imported.append(f'Prototype conservé : `{dst}` ({src.stat().st_size} octets)')
+          # Extract user-added divine-sword packages into isolated source and texture folders.
+          archives=sorted((root/'02-MODELS'/'weapons').glob('*.zip'))
+          source_ext={'.fbx','.obj','.mtl','.glb','.gltf','.blend'}
+          texture_ext={'.png','.jpg','.jpeg','.webp','.tga','.bmp','.tif','.tiff'}
+          for archive in archives:
+            tag=archive.stem.replace(' ','-')
+            with zipfile.ZipFile(archive) as zf:
+              for info in zf.infolist():
+                if info.is_dir():
+                  continue
+                name=Path(info.filename).name
+                if not name or name in {'.','..'}:
+                  continue
+                ext=Path(name).suffix.lower()
+                if ext in texture_ext:
+                  destdir=root/'03-TEXTURES'/'weapons'/'divine-sword'/tag
+                elif ext in source_ext:
+                  destdir=root/'02-MODELS'/'weapons'/'source-divine-sword'/tag
+                else:
+                  destdir=root/'02-MODELS'/'weapons'/'source-divine-sword-archive'/tag
+                destdir.mkdir(parents=True,exist_ok=True)
+                dest=destdir/name
+                if dest.exists():
+                  # Never overwrite a file already present; add a deterministic archive-entry suffix.
+                  dest=destdir/(Path(name).stem+'-'+str(abs(hash(info.filename)))+Path(name).suffix)
+                with zf.open(info) as src, dest.open('wb') as out:
+                  shutil.copyfileobj(src,out)
+                imported.append(f'Extrait de `{archive}` : `{dest}` ({info.file_size} octets)')
+          (root/'10-PROTOTYPES').mkdir(parents=True,exist_ok=True)
+          readme=root/'10-PROTOTYPES'/'README.md'
+          if not readme.exists():
+            readme.write_text(
+              '# Prototypes de référence ASTREA\n\n'
+              'Ces fichiers sont conservés séparément du prototype principal afin de réutiliser les fonctionnalités sans écraser `index.html`.\n'
+              '- `legacy/ASTREA-MOBILE-VILLAGE-OPTIMISE-V2.html` : ancien prototype du village mobile.\n'
+              '- `legacy/ASTREA_ASSETS_TEST_CORRIGE.html` : prototype de test des assets.\n'
+              '- `legacy/index-2-ASTREA-corrige.html` et `legacy/index-3.html` : versions de référence précédentes.\n',
+              encoding='utf-8')
+          report=['# Intégration des fichiers ajoutés par l’utilisateur','',
+                  'Les fichiers originaux du dépôt ASTREA REBORN ont été conservés. Les archives ZIP ont été extraites dans des dossiers séparés ; aucun fichier existant n’a été remplacé.','']
+          report += ['- '+x for x in imported] if imported else ['Aucun nouveau fichier supplémentaire détecté à cette exécution.']
+          (root/'01-DOCUMENTATION'/'ASSETS-UTILISATEUR.md').write_text('\n'.join(report)+'\n',encoding='utf-8')
+          print(f'Prototypes/assets additionnels traités : {len(imported)}')
+          PY
       - name: Commit imported assets
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add 02-MODELS 03-TEXTURES 04-ANIMATIONS 09-AUDIO 01-DOCUMENTATION/ASSETS-IMPORTES.md 01-DOCUMENTATION/AUDIO-STATUS.md
+          git add 02-MODELS 03-TEXTURES 04-ANIMATIONS 09-AUDIO 10-PROTOTYPES 01-DOCUMENTATION/ASSETS-IMPORTES.md 01-DOCUMENTATION/AUDIO-STATUS.md 01-DOCUMENTATION/ASSETS-UTILISATEUR.md
           if git diff --cached --quiet; then echo "No assets to import"; exit 0; fi
           git commit -m "Import legacy ASTREA models, textures and animations"
           git push
