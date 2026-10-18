@@ -18,8 +18,10 @@ Le chargement des animations de marche, d'inactivité et d'attaque est tenté à
 
 ## Création de personnage
 - [Ouvrir le créateur 3D ASTREA](./08-UI/character-creator.html) — choix masculin/féminin, taille de 1,60 à 2,10 m, corpulence, teintes de peau, coiffures, couleurs des cheveux et des yeux, tenues, rotation de l'aperçu et export JSON.
-- [Documentation du créateur](./08-UI/CHARACTER-CREATOR.md). Le créateur est encore un prototype distinct du jeu principal : la configuration n'est pas encore appliquée au héros GLB de index.html.
+- [Documentation du créateur](./08-UI/CHARACTER-CREATOR.md). La configuration sauvegardée est maintenant lue par `index.html` : le jeu charge la base masculine ou féminine et applique plusieurs options. Ces bases restent provisoires et non riggées ; les animations et la validation sur Chrome Android restent à faire.
 - [Générateur Blender des bases de personnage](./tools/create_character_bases.py) et [exécutions GitHub Actions](https://github.com/debsboni7-dot/ASTREA-REBORN/actions).
+
+Les modèles de base du personnage sont disponibles dans [`02-MODELS/characters/base-male.glb`](./02-MODELS/characters/base-male.glb) et [`02-MODELS/characters/base-female.glb`](./02-MODELS/characters/base-female.glb). Ils ont été générés avec Blender par GitHub Actions ; ils sont provisoires et ne sont pas encore riggés.
 
 ## Modèles d'environnement créés avec Blender
 Les modèles d'arbre fantastique, de groupe de rochers, de cristal d'éther et de buisson fleuri sont dans `02-MODELS/environment/`. Le fichier de scène Blender modifiable est dans `02-MODELS/blender-source/`.
