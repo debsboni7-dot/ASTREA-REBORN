@@ -59,7 +59,7 @@ Les modèles d'arbre fantastique, de groupe de rochers, de cristal d'éther et d
 
 
 ## Systèmes du monde (première couche intégrée)
-Le bouton **MONDE 🌍** du jeu ouvre le prototype des systèmes d’expansion : monnaie en Couronnes, cinq zones/continents, voyages entre régions, sauvegarde locale, fondation et développement d’un pays, navire stylisé, dragon et mammouth procéduraux, récompenses de quête de test. Les régions sont générées à la demande pour limiter la charge initiale. Les créatures sont des modèles provisoires, et le combat contre elles est actuellement piloté par le panneau de système, pas encore par les collisions et animations de combat normales.
+Le bouton **MONDE 🌍** ouvre le prototype des systèmes d’expansion : monnaie en Couronnes, cinq zones/continents, voyages entre régions, sauvegarde locale, fondation et développement d’un pays et navire côtier décoratif. Les régions sont générées à la demande. Les dragons et mammouths factices ont été retirés : ils ne réapparaîtront que lorsque leurs vrais modèles GLB seront disponibles.
 
 - [Module d’expansion du monde](./07-SYSTEMS/astrea-world-expansion.js)
 - [Cahier des charges maître complet](./01-DOCUMENTATION/CAHIER-DES-CHARGES.md)
@@ -70,10 +70,10 @@ Le bouton **MONDE 🌍** du jeu ouvre le prototype des systèmes d’expansion :
 ## Systèmes de progression ajoutés
 Le panneau **MONDE 🌍** comprend maintenant une première boutique, un inventaire simplifié, des potions, une collecte de matériaux de test, deux recettes d’artisanat, trois quêtes à objectifs, des récompenses d’XP et une montée de niveau avec amélioration des PV. Ces mécaniques sont sauvegardées localement.
 
-Les limites et prochaines étapes sont documentées dans [07-SYSTEMS/README.md](./07-SYSTEMS/README.md). Les nouvelles armes achetées ne sont pas encore toutes reliées au modèle tenu en main et les créatures n'utilisent pas encore le combat animé standard.
+Les limites et prochaines étapes sont documentées dans [07-SYSTEMS/README.md](./07-SYSTEMS/README.md). Les armes possèdent maintenant un modèle visuel d'équipement et des VFX de combat légers. Le combat des créatures mythiques reste désactivé jusqu'à l'intégration de modèles GLB réels.
 
 ## Améliorations ajoutées — 18 octobre 2026
 - Les continents générés utilisent désormais des textures de terrain procédurales (variations de sol) et une bordure de plage sableuse autour de la zone terrestre.
-- Les boutons ATTAQUE et TECHNIQUE SPÉCIALE peuvent infliger des dégâts au dragon ou au mammouth quand le joueur est dans la bonne région et à portée.
-- Les créatures restent des modèles procéduraux provisoires; leur IA, leurs déplacements, leurs attaques ennemies et leurs animations restent à développer.
+- Les boutons ATTAQUE et TECHNIQUE SPÉCIALE déclenchent des VFX adaptés à l'arme ; les combats de créatures non représentées par un GLB réel sont désactivés.
+- Les dragons et mammouths ne sont pas affichés tant que leurs modèles 3D réels ne sont pas disponibles.
 - Les contrôles et le rendu doivent encore être vérifiés sur un vrai téléphone Android; le contrôle de syntaxe automatique est en cours pour la dernière modification.
