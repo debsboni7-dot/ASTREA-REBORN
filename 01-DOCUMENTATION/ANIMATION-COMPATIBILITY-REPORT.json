@@ -1,0 +1,1528 @@
+{
+  "purpose": "Inspect glTF skeleton and animation compatibility; no source assets are modified.",
+  "files": [
+    {
+      "path": "02-MODELS/characters/hero.glb",
+      "exists": true,
+      "ok": true,
+      "object_count": 3,
+      "mesh_count": 2,
+      "armatures": [
+        {
+          "name": "Armature",
+          "bones": [
+            "hips",
+            "spine",
+            "chest",
+            "neck",
+            "head",
+            "shoulder.L",
+            "upperArm.L",
+            "lowerArm.L",
+            "hand.L",
+            "shoulder.R",
+            "upperArm.R",
+            "lowerArm.R",
+            "hand.R",
+            "upperLeg.L",
+            "lowerLeg.L",
+            "foot.L",
+            "upperLeg.R",
+            "lowerLeg.R",
+            "foot.R"
+          ],
+          "bone_count": 19,
+          "animated_bones": [
+            "chest",
+            "foot.L",
+            "foot.R",
+            "hand.L",
+            "hand.R",
+            "head",
+            "hips",
+            "lowerArm.L",
+            "lowerArm.R",
+            "lowerLeg.L",
+            "lowerLeg.R",
+            "neck",
+            "shoulder.L",
+            "shoulder.R",
+            "spine",
+            "upperArm.L",
+            "upperArm.R",
+            "upperLeg.L",
+            "upperLeg.R"
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "name": "idle_Armature",
+          "frame_range": [
+            0.0,
+            48.0
+          ],
+          "curve_count": 79,
+          "bone_track_count": 19,
+          "bone_tracks": [
+            "chest",
+            "foot.L",
+            "foot.R",
+            "hand.L",
+            "hand.R",
+            "head",
+            "hips",
+            "lowerArm.L",
+            "lowerArm.R",
+            "lowerLeg.L",
+            "lowerLeg.R",
+            "neck",
+            "shoulder.L",
+            "shoulder.R",
+            "spine",
+            "upperArm.L",
+            "upperArm.R",
+            "upperLeg.L",
+            "upperLeg.R"
+          ]
+        },
+        {
+          "name": "jump_Armature",
+          "frame_range": [
+            0.0,
+            26.400001525878906
+          ],
+          "curve_count": 79,
+          "bone_track_count": 19,
+          "bone_tracks": [
+            "chest",
+            "foot.L",
+            "foot.R",
+            "hand.L",
+            "hand.R",
+            "head",
+            "hips",
+            "lowerArm.L",
+            "lowerArm.R",
+            "lowerLeg.L",
+            "lowerLeg.R",
+            "neck",
+            "shoulder.L",
+            "shoulder.R",
+            "spine",
+            "upperArm.L",
+            "upperArm.R",
+            "upperLeg.L",
+            "upperLeg.R"
+          ]
+        },
+        {
+          "name": "run_Armature",
+          "frame_range": [
+            0.0,
+            16.0
+          ],
+          "curve_count": 79,
+          "bone_track_count": 19,
+          "bone_tracks": [
+            "chest",
+            "foot.L",
+            "foot.R",
+            "hand.L",
+            "hand.R",
+            "head",
+            "hips",
+            "lowerArm.L",
+            "lowerArm.R",
+            "lowerLeg.L",
+            "lowerLeg.R",
+            "neck",
+            "shoulder.L",
+            "shoulder.R",
+            "spine",
+            "upperArm.L",
+            "upperArm.R",
+            "upperLeg.L",
+            "upperLeg.R"
+          ]
+        },
+        {
+          "name": "walk-casual_Armature",
+          "frame_range": [
+            0.0,
+            24.0
+          ],
+          "curve_count": 79,
+          "bone_track_count": 19,
+          "bone_tracks": [
+            "chest",
+            "foot.L",
+            "foot.R",
+            "hand.L",
+            "hand.R",
+            "head",
+            "hips",
+            "lowerArm.L",
+            "lowerArm.R",
+            "lowerLeg.L",
+            "lowerLeg.R",
+            "neck",
+            "shoulder.L",
+            "shoulder.R",
+            "spine",
+            "upperArm.L",
+            "upperArm.R",
+            "upperLeg.L",
+            "upperLeg.R"
+          ]
+        },
+        {
+          "name": "walk_Armature",
+          "frame_range": [
+            0.0,
+            24.0
+          ],
+          "curve_count": 79,
+          "bone_track_count": 19,
+          "bone_tracks": [
+            "chest",
+            "foot.L",
+            "foot.R",
+            "hand.L",
+            "hand.R",
+            "head",
+            "hips",
+            "lowerArm.L",
+            "lowerArm.R",
+            "lowerLeg.L",
+            "lowerLeg.R",
+            "neck",
+            "shoulder.L",
+            "shoulder.R",
+            "spine",
+            "upperArm.L",
+            "upperArm.R",
+            "upperLeg.L",
+            "upperLeg.R"
+          ]
+        },
+        {
+          "name": "wave_Armature",
+          "frame_range": [
+            0.0,
+            38.400001525878906
+          ],
+          "curve_count": 79,
+          "bone_track_count": 19,
+          "bone_tracks": [
+            "chest",
+            "foot.L",
+            "foot.R",
+            "hand.L",
+            "hand.R",
+            "head",
+            "hips",
+            "lowerArm.L",
+            "lowerArm.R",
+            "lowerLeg.L",
+            "lowerLeg.R",
+            "neck",
+            "shoulder.L",
+            "shoulder.R",
+            "spine",
+            "upperArm.L",
+            "upperArm.R",
+            "upperLeg.L",
+            "upperLeg.R"
+          ]
+        }
+      ],
+      "scene_animation_count": 6
+    },
+    {
+      "path": "02-MODELS/characters/main-character-meshy.glb",
+      "exists": true,
+      "ok": true,
+      "object_count": 2,
+      "mesh_count": 2,
+      "armatures": [],
+      "actions": [],
+      "scene_animation_count": 0
+    },
+    {
+      "path": "02-MODELS/characters/base-male.glb",
+      "exists": true,
+      "ok": true,
+      "object_count": 30,
+      "mesh_count": 30,
+      "armatures": [],
+      "actions": [],
+      "scene_animation_count": 0
+    },
+    {
+      "path": "02-MODELS/characters/base-female.glb",
+      "exists": true,
+      "ok": true,
+      "object_count": 29,
+      "mesh_count": 29,
+      "armatures": [],
+      "actions": [],
+      "scene_animation_count": 0
+    },
+    {
+      "path": "04-ANIMATIONS/anim-idle.glb",
+      "exists": true,
+      "ok": true,
+      "object_count": 27,
+      "mesh_count": 1,
+      "armatures": [],
+      "actions": [
+        {
+          "name": "Armature|Idle|baselayer_Head",
+          "frame_range": [
+            0.8000000715255737,
+            96.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Idle|baselayer_head_end",
+          "frame_range": [
+            0.8000000715255737,
+            96.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Idle|baselayer_headfront",
+          "frame_range": [
+            0.8000000715255737,
+            96.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Idle|baselayer_Hips",
+          "frame_range": [
+            0.8000000715255737,
+            96.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Idle|baselayer_LeftArm",
+          "frame_range": [
+            0.8000000715255737,
+            96.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Idle|baselayer_LeftFoot",
+          "frame_range": [
+            0.8000000715255737,
+            96.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Idle|baselayer_LeftForeArm",
+          "frame_range": [
+            0.8000000715255737,
+            96.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Idle|baselayer_LeftHand",
+          "frame_range": [
+            0.8000000715255737,
+            96.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Idle|baselayer_LeftLeg",
+          "frame_range": [
+            0.8000000715255737,
+            96.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Idle|baselayer_LeftShoulder",
+          "frame_range": [
+            0.8000000715255737,
+            96.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Idle|baselayer_LeftToeBase",
+          "frame_range": [
+            0.8000000715255737,
+            96.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Idle|baselayer_LeftUpLeg",
+          "frame_range": [
+            0.8000000715255737,
+            96.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Idle|baselayer_neck",
+          "frame_range": [
+            0.8000000715255737,
+            96.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Idle|baselayer_RightArm",
+          "frame_range": [
+            0.8000000715255737,
+            96.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Idle|baselayer_RightFoot",
+          "frame_range": [
+            0.8000000715255737,
+            96.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Idle|baselayer_RightForeArm",
+          "frame_range": [
+            0.8000000715255737,
+            96.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Idle|baselayer_RightHand",
+          "frame_range": [
+            0.8000000715255737,
+            96.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Idle|baselayer_RightLeg",
+          "frame_range": [
+            0.8000000715255737,
+            96.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Idle|baselayer_RightShoulder",
+          "frame_range": [
+            0.8000000715255737,
+            96.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Idle|baselayer_RightToeBase",
+          "frame_range": [
+            0.8000000715255737,
+            96.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Idle|baselayer_RightUpLeg",
+          "frame_range": [
+            0.8000000715255737,
+            96.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Idle|baselayer_Spine",
+          "frame_range": [
+            0.8000000715255737,
+            96.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Idle|baselayer_Spine01",
+          "frame_range": [
+            0.8000000715255737,
+            96.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Idle|baselayer_Spine02",
+          "frame_range": [
+            0.8000000715255737,
+            96.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        }
+      ],
+      "scene_animation_count": 24
+    },
+    {
+      "path": "04-ANIMATIONS/anim-walk.glb",
+      "exists": true,
+      "ok": true,
+      "object_count": 27,
+      "mesh_count": 1,
+      "armatures": [],
+      "actions": [
+        {
+          "name": "Armature|walking_man|baselayer_Head",
+          "frame_range": [
+            0.8000000715255737,
+            25.60000228881836
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|walking_man|baselayer_head_end",
+          "frame_range": [
+            0.8000000715255737,
+            25.60000228881836
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|walking_man|baselayer_headfront",
+          "frame_range": [
+            0.8000000715255737,
+            25.60000228881836
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|walking_man|baselayer_Hips",
+          "frame_range": [
+            0.8000000715255737,
+            25.60000228881836
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|walking_man|baselayer_LeftArm",
+          "frame_range": [
+            0.8000000715255737,
+            25.60000228881836
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|walking_man|baselayer_LeftFoot",
+          "frame_range": [
+            0.8000000715255737,
+            25.60000228881836
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|walking_man|baselayer_LeftForeArm",
+          "frame_range": [
+            0.8000000715255737,
+            25.60000228881836
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|walking_man|baselayer_LeftHand",
+          "frame_range": [
+            0.8000000715255737,
+            25.60000228881836
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|walking_man|baselayer_LeftLeg",
+          "frame_range": [
+            0.8000000715255737,
+            25.60000228881836
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|walking_man|baselayer_LeftShoulder",
+          "frame_range": [
+            0.8000000715255737,
+            25.60000228881836
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|walking_man|baselayer_LeftToeBase",
+          "frame_range": [
+            0.8000000715255737,
+            25.60000228881836
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|walking_man|baselayer_LeftUpLeg",
+          "frame_range": [
+            0.8000000715255737,
+            25.60000228881836
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|walking_man|baselayer_neck",
+          "frame_range": [
+            0.8000000715255737,
+            25.60000228881836
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|walking_man|baselayer_RightArm",
+          "frame_range": [
+            0.8000000715255737,
+            25.60000228881836
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|walking_man|baselayer_RightFoot",
+          "frame_range": [
+            0.8000000715255737,
+            25.60000228881836
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|walking_man|baselayer_RightForeArm",
+          "frame_range": [
+            0.8000000715255737,
+            25.60000228881836
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|walking_man|baselayer_RightHand",
+          "frame_range": [
+            0.8000000715255737,
+            25.60000228881836
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|walking_man|baselayer_RightLeg",
+          "frame_range": [
+            0.8000000715255737,
+            25.60000228881836
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|walking_man|baselayer_RightShoulder",
+          "frame_range": [
+            0.8000000715255737,
+            25.60000228881836
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|walking_man|baselayer_RightToeBase",
+          "frame_range": [
+            0.8000000715255737,
+            25.60000228881836
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|walking_man|baselayer_RightUpLeg",
+          "frame_range": [
+            0.8000000715255737,
+            25.60000228881836
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|walking_man|baselayer_Spine",
+          "frame_range": [
+            0.8000000715255737,
+            25.60000228881836
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|walking_man|baselayer_Spine01",
+          "frame_range": [
+            0.8000000715255737,
+            25.60000228881836
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|walking_man|baselayer_Spine02",
+          "frame_range": [
+            0.8000000715255737,
+            25.60000228881836
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        }
+      ],
+      "scene_animation_count": 24
+    },
+    {
+      "path": "04-ANIMATIONS/anim-attack-1.glb",
+      "exists": true,
+      "ok": true,
+      "object_count": 27,
+      "mesh_count": 1,
+      "armatures": [],
+      "actions": [
+        {
+          "name": "Armature|Left_Slash|baselayer_Head",
+          "frame_range": [
+            0.8000000715255737,
+            76.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Left_Slash|baselayer_head_end",
+          "frame_range": [
+            0.8000000715255737,
+            76.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Left_Slash|baselayer_headfront",
+          "frame_range": [
+            0.8000000715255737,
+            76.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Left_Slash|baselayer_Hips",
+          "frame_range": [
+            0.8000000715255737,
+            76.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Left_Slash|baselayer_LeftArm",
+          "frame_range": [
+            0.8000000715255737,
+            76.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Left_Slash|baselayer_LeftFoot",
+          "frame_range": [
+            0.8000000715255737,
+            76.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Left_Slash|baselayer_LeftForeArm",
+          "frame_range": [
+            0.8000000715255737,
+            76.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Left_Slash|baselayer_LeftHand",
+          "frame_range": [
+            0.8000000715255737,
+            76.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Left_Slash|baselayer_LeftLeg",
+          "frame_range": [
+            0.8000000715255737,
+            76.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Left_Slash|baselayer_LeftShoulder",
+          "frame_range": [
+            0.8000000715255737,
+            76.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Left_Slash|baselayer_LeftToeBase",
+          "frame_range": [
+            0.8000000715255737,
+            76.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Left_Slash|baselayer_LeftUpLeg",
+          "frame_range": [
+            0.8000000715255737,
+            76.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Left_Slash|baselayer_neck",
+          "frame_range": [
+            0.8000000715255737,
+            76.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Left_Slash|baselayer_RightArm",
+          "frame_range": [
+            0.8000000715255737,
+            76.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Left_Slash|baselayer_RightFoot",
+          "frame_range": [
+            0.8000000715255737,
+            76.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Left_Slash|baselayer_RightForeArm",
+          "frame_range": [
+            0.8000000715255737,
+            76.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Left_Slash|baselayer_RightHand",
+          "frame_range": [
+            0.8000000715255737,
+            76.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Left_Slash|baselayer_RightLeg",
+          "frame_range": [
+            0.8000000715255737,
+            76.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Left_Slash|baselayer_RightShoulder",
+          "frame_range": [
+            0.8000000715255737,
+            76.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Left_Slash|baselayer_RightToeBase",
+          "frame_range": [
+            0.8000000715255737,
+            76.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Left_Slash|baselayer_RightUpLeg",
+          "frame_range": [
+            0.8000000715255737,
+            76.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Left_Slash|baselayer_Spine",
+          "frame_range": [
+            0.8000000715255737,
+            76.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Left_Slash|baselayer_Spine01",
+          "frame_range": [
+            0.8000000715255737,
+            76.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Left_Slash|baselayer_Spine02",
+          "frame_range": [
+            0.8000000715255737,
+            76.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        }
+      ],
+      "scene_animation_count": 24
+    },
+    {
+      "path": "04-ANIMATIONS/anim-attack-2.glb",
+      "exists": true,
+      "ok": true,
+      "object_count": 27,
+      "mesh_count": 1,
+      "armatures": [],
+      "actions": [
+        {
+          "name": "Armature|Thrust_Slash|baselayer_Head",
+          "frame_range": [
+            0.8000000715255737,
+            72.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Thrust_Slash|baselayer_head_end",
+          "frame_range": [
+            0.8000000715255737,
+            72.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Thrust_Slash|baselayer_headfront",
+          "frame_range": [
+            0.8000000715255737,
+            72.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Thrust_Slash|baselayer_Hips",
+          "frame_range": [
+            0.8000000715255737,
+            72.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Thrust_Slash|baselayer_LeftArm",
+          "frame_range": [
+            0.8000000715255737,
+            72.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Thrust_Slash|baselayer_LeftFoot",
+          "frame_range": [
+            0.8000000715255737,
+            72.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Thrust_Slash|baselayer_LeftForeArm",
+          "frame_range": [
+            0.8000000715255737,
+            72.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Thrust_Slash|baselayer_LeftHand",
+          "frame_range": [
+            0.8000000715255737,
+            72.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Thrust_Slash|baselayer_LeftLeg",
+          "frame_range": [
+            0.8000000715255737,
+            72.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Thrust_Slash|baselayer_LeftShoulder",
+          "frame_range": [
+            0.8000000715255737,
+            72.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Thrust_Slash|baselayer_LeftToeBase",
+          "frame_range": [
+            0.8000000715255737,
+            72.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Thrust_Slash|baselayer_LeftUpLeg",
+          "frame_range": [
+            0.8000000715255737,
+            72.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Thrust_Slash|baselayer_neck",
+          "frame_range": [
+            0.8000000715255737,
+            72.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Thrust_Slash|baselayer_RightArm",
+          "frame_range": [
+            0.8000000715255737,
+            72.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Thrust_Slash|baselayer_RightFoot",
+          "frame_range": [
+            0.8000000715255737,
+            72.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Thrust_Slash|baselayer_RightForeArm",
+          "frame_range": [
+            0.8000000715255737,
+            72.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Thrust_Slash|baselayer_RightHand",
+          "frame_range": [
+            0.8000000715255737,
+            72.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Thrust_Slash|baselayer_RightLeg",
+          "frame_range": [
+            0.8000000715255737,
+            72.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Thrust_Slash|baselayer_RightShoulder",
+          "frame_range": [
+            0.8000000715255737,
+            72.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Thrust_Slash|baselayer_RightToeBase",
+          "frame_range": [
+            0.8000000715255737,
+            72.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Thrust_Slash|baselayer_RightUpLeg",
+          "frame_range": [
+            0.8000000715255737,
+            72.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Thrust_Slash|baselayer_Spine",
+          "frame_range": [
+            0.8000000715255737,
+            72.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Thrust_Slash|baselayer_Spine01",
+          "frame_range": [
+            0.8000000715255737,
+            72.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Thrust_Slash|baselayer_Spine02",
+          "frame_range": [
+            0.8000000715255737,
+            72.80000305175781
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        }
+      ],
+      "scene_animation_count": 24
+    },
+    {
+      "path": "04-ANIMATIONS/anim-attack-3.glb",
+      "exists": true,
+      "ok": true,
+      "object_count": 27,
+      "mesh_count": 1,
+      "armatures": [],
+      "actions": [
+        {
+          "name": "Armature|Charged_Slash|baselayer_Head",
+          "frame_range": [
+            0.8000000715255737,
+            54.400001525878906
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Charged_Slash|baselayer_head_end",
+          "frame_range": [
+            0.8000000715255737,
+            54.400001525878906
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Charged_Slash|baselayer_headfront",
+          "frame_range": [
+            0.8000000715255737,
+            54.400001525878906
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Charged_Slash|baselayer_Hips",
+          "frame_range": [
+            0.8000000715255737,
+            54.400001525878906
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Charged_Slash|baselayer_LeftArm",
+          "frame_range": [
+            0.8000000715255737,
+            54.400001525878906
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Charged_Slash|baselayer_LeftFoot",
+          "frame_range": [
+            0.8000000715255737,
+            54.400001525878906
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Charged_Slash|baselayer_LeftForeArm",
+          "frame_range": [
+            0.8000000715255737,
+            54.400001525878906
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Charged_Slash|baselayer_LeftHand",
+          "frame_range": [
+            0.8000000715255737,
+            54.400001525878906
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Charged_Slash|baselayer_LeftLeg",
+          "frame_range": [
+            0.8000000715255737,
+            54.400001525878906
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Charged_Slash|baselayer_LeftShoulder",
+          "frame_range": [
+            0.8000000715255737,
+            54.400001525878906
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Charged_Slash|baselayer_LeftToeBase",
+          "frame_range": [
+            0.8000000715255737,
+            54.400001525878906
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Charged_Slash|baselayer_LeftUpLeg",
+          "frame_range": [
+            0.8000000715255737,
+            54.400001525878906
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Charged_Slash|baselayer_neck",
+          "frame_range": [
+            0.8000000715255737,
+            54.400001525878906
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Charged_Slash|baselayer_RightArm",
+          "frame_range": [
+            0.8000000715255737,
+            54.400001525878906
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Charged_Slash|baselayer_RightFoot",
+          "frame_range": [
+            0.8000000715255737,
+            54.400001525878906
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Charged_Slash|baselayer_RightForeArm",
+          "frame_range": [
+            0.8000000715255737,
+            54.400001525878906
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Charged_Slash|baselayer_RightHand",
+          "frame_range": [
+            0.8000000715255737,
+            54.400001525878906
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Charged_Slash|baselayer_RightLeg",
+          "frame_range": [
+            0.8000000715255737,
+            54.400001525878906
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Charged_Slash|baselayer_RightShoulder",
+          "frame_range": [
+            0.8000000715255737,
+            54.400001525878906
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Charged_Slash|baselayer_RightToeBase",
+          "frame_range": [
+            0.8000000715255737,
+            54.400001525878906
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Charged_Slash|baselayer_RightUpLeg",
+          "frame_range": [
+            0.8000000715255737,
+            54.400001525878906
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Charged_Slash|baselayer_Spine",
+          "frame_range": [
+            0.8000000715255737,
+            54.400001525878906
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Charged_Slash|baselayer_Spine01",
+          "frame_range": [
+            0.8000000715255737,
+            54.400001525878906
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        },
+        {
+          "name": "Armature|Charged_Slash|baselayer_Spine02",
+          "frame_range": [
+            0.8000000715255737,
+            54.400001525878906
+          ],
+          "curve_count": 10,
+          "bone_track_count": 0,
+          "bone_tracks": []
+        }
+      ],
+      "scene_animation_count": 24
+    }
+  ]
+}
