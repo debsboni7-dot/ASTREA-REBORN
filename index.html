@@ -112,6 +112,7 @@ async function loadPrimaryAssets(){
      player.scale.y=savedCharacter.height/190;
      const outfit=new THREE.Color(outfitColors[savedCharacter.outfit]||0x315c9b);
      const buildScale=[.88,1,1.13][Math.max(0,Math.min(2,Number(savedCharacter.buildIndex??({fine:0,normal:1,robust:2}[savedCharacter.build]??1))))];
+     player.scale.x=buildScale;
      model.traverse(o=>{
        if(!o.isMesh)return;
        const n=(o.name||'').toLowerCase();
@@ -229,7 +230,7 @@ function talkToGuide(){
 }
 document.getElementById('interact').addEventListener('pointerdown',e=>{e.preventDefault();talkToGuide()});
 document.getElementById('dialogueClose').addEventListener('click',()=>{dialogue.hidden=true;if(enemyDefeated){questStatus.textContent='Guide informé : entraînement terminé.'}});
-function jump(){if(onGround){vy=6.2;onGround=false}}
+function jump(){if(onGround){vy=6.2;onGround=false;if(loadedHero)playCharacterAnimation('jump')}}
 function bindMove(btn,dir){const down=e=>{e.preventDefault();touchMove[dir]=true},up=e=>{e.preventDefault();touchMove[dir]=false};btn.addEventListener('pointerdown',down);['pointerup','pointercancel','pointerleave'].forEach(ev=>btn.addEventListener(ev,up))}
 document.querySelectorAll('[data-move]').forEach(b=>bindMove(b,b.dataset.move));
  const joy=document.getElementById('joystick'),knob=document.getElementById('joystickKnob');let joyPointer=null;
