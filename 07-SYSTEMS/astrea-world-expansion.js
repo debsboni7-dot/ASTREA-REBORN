@@ -156,6 +156,6 @@ export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes }) 
     persist();
   }
   window.ASTREA_BOUNDS=currentRegion.bounds;
-  if(currentRegion.id!=='village'){setZone(currentRegion.id);window.ASTREA_BOUNDS=currentRegion.bounds;if(collisionBoxes)collisionBoxes.forEach(c=>c.active=false)}
+  if(currentRegion.id!=='village'){setZone(currentRegion.id);player.position.set(0,0,5);window.ASTREA_BOUNDS=currentRegion.bounds;if(collisionBoxes)collisionBoxes.forEach(c=>c.active=false)}
   return {open:()=>{renderPanel();panel.hidden=false},getState:()=>({...save,region:currentRegion.id}),travel};
 }
