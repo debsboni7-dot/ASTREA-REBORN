@@ -166,11 +166,15 @@ async function loadPrimaryAssets(){
    }
    // Clips coupés temporairement pour éviter le root-motion qui déplace le modèle hors des collisions.
    mixer=null;currentAction=null;heroClips={};
-   // Le repère local des os de main du GLB n'est pas confirmé. Pour éviter une épée retournée/décalée,
-   // le support reste dans le repère du joueur, placé au niveau de sa main droite en pose statique.
+   // Utilise la position réelle de l'os de la main droite, mais pas sa rotation locale
+   // (qui pouvait retourner ou décaler l'épée). L'arme garde ainsi une orientation stable.
+   let handBone=null;model.traverse(o=>{if(o.isBone&&/right.?hand|hand.?r$|r.?hand|mixamorig.*right.?hand/i.test(o.name||''))handBone=handBone||o});
    if(weaponMount.parent!==player){weaponMount.parent?.remove(weaponMount);player.add(weaponMount)}
-   weaponMount.position.set(.58,1.23,.02);weaponMount.rotation.set(0,0,0);weaponHandAttached=false;
-   return 'personnage stable sans animation; arme alignée sur la zone de la main droite';
+   model.updateMatrixWorld(true);
+   if(handBone){const handPos=new THREE.Vector3();handBone.getWorldPosition(handPos);player.worldToLocal(handPos);weaponMount.position.copy(handPos);weaponMount.position.y-=.015;weaponHandAttached=true}
+   else{weaponMount.position.set(.58,1.23,.02);weaponHandAttached=false}
+   weaponMount.rotation.set(0,0,0);
+   return handBone?'personnage stable sans animation; arme positionnée sur l’os de la main droite':'personnage stable sans animation; support d’arme de secours actif';
  })().catch(e=>{console.warn('Personnage GLB indisponible',e);return 'personnage provisoire'}));
 jobs.push(Promise.resolve('arsenal 3D ASTREA chargé depuis le catalogue procédural'));
  jobs.push(loadGLB('02-MODELS/buildings/small-house.glb').then(g=>{
