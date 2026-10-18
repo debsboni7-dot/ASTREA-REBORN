@@ -5,7 +5,7 @@ Prototype de RPG 3D d'action et d'exploration, avec priorité à la stabilité e
 ## Tester le prototype principal
 Ouvrir [le prototype GitHub Pages](https://debsboni7-dot.github.io/ASTREA-REBORN/) si GitHub Pages est activé et publié, ou consulter [`index.html`](./index.html). Garder Internet actif : Three.js et GLTFLoader sont chargés depuis jsDelivr. Le prototype comprend commandes tactiles/clavier, saut, caméra, attaque, une cible d'entraînement, une quête simple, chargement des modèles GLB du personnage et de l'épée divine, maisons et textures d'herbe/pavage.
 
-Le chargement des animations de marche, d'inactivité et d'attaque est tenté à la demande. La compatibilité des clips avec le squelette du personnage doit encore être vérifiée visuellement sur le navigateur cible. L'épée divine est convertie et chargée en priorité, avec une épée de secours en cas d'échec.
+Les animations intégrées à `hero.glb` sont utilisées pour le repos et la marche lorsque les clips correspondants sont présents. Les cinq GLB externes ont été inspectés : leur transfert vers le squelette du héros n'est pas encore validé. Utiliser le [laboratoire mobile d'animations](./08-UI/animation-lab.html) pour examiner les clips séparément. L'épée divine est convertie et chargée en priorité, avec une épée de secours en cas d'échec.
 
 ## Fichiers ajoutés par l'utilisateur — conservés et classés
 - [Inventaire des ajouts et extractions](./01-DOCUMENTATION/ASSETS-UTILISATEUR.md)
@@ -18,7 +18,7 @@ Le chargement des animations de marche, d'inactivité et d'attaque est tenté à
 
 ## Création de personnage
 - [Ouvrir le créateur 3D ASTREA](./08-UI/character-creator.html) — choix masculin/féminin, taille de 1,60 à 2,10 m, corpulence, teintes de peau, coiffures, couleurs des cheveux et des yeux, tenues, rotation de l'aperçu et export JSON.
-- [Documentation du créateur](./08-UI/CHARACTER-CREATOR.md). La configuration sauvegardée est maintenant lue par `index.html` : le jeu charge la base masculine ou féminine et applique plusieurs options. Ces bases restent provisoires et non riggées ; les animations et la validation sur Chrome Android restent à faire.
+- [Laboratoire de test des animations](./08-UI/animation-lab.html) — aperçu mobile des clips intégrés et des cinq GLB externes, sans prétendre qu'ils sont déjà retargetés.\n- [Rapport de compatibilité des animations](./01-DOCUMENTATION/ANIMATION-COMPATIBILITY-REPORT.json) et [plan de retargeting](./01-DOCUMENTATION/ANIMATION-RETARGETING-PLAN.md).\n- [Documentation du créateur](./08-UI/CHARACTER-CREATOR.md). La configuration sauvegardée est maintenant lue par `index.html` : le jeu charge la base masculine ou féminine et applique plusieurs options. Ces bases restent provisoires et non riggées ; les animations et la validation sur Chrome Android restent à faire.
 - [Générateur Blender des bases de personnage](./tools/create_character_bases.py) et [exécutions GitHub Actions](https://github.com/debsboni7-dot/ASTREA-REBORN/actions).
 
 Les modèles de base du personnage sont disponibles dans [`02-MODELS/characters/base-male.glb`](./02-MODELS/characters/base-male.glb) et [`02-MODELS/characters/base-female.glb`](./02-MODELS/characters/base-female.glb). Ils ont été générés avec Blender par GitHub Actions ; ils sont provisoires et ne sont pas encore riggés.
