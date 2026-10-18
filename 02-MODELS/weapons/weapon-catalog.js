@@ -34,7 +34,9 @@ export const ASTREA_WEAPONS = [
  {id:'divine-sword-ember',name:'Épée divine : Brasier',type:'sun',level:32,rank:'Mythique',damage:57,speed:1.2,reach:2.7,color:0xff633a,skill:'Brasier royal'},
  {id:'divine-sword-eclipse',name:'Épée divine : Éclipse',type:'abyss',level:33,rank:'Divine',damage:62,speed:1.3,reach:2.8,color:0x9b65ff,skill:'Éclipse totale'},
  {id:'divine-sword-infinity',name:'Épée divine : Infini',type:'cosmic',level:34,rank:'Divine',damage:66,speed:1.25,reach:2.9,color:0x75e7ff,skill:'Singularité'},
- {id:'divine-sword-astrea',name:'Épée divine : ASTREA',type:'shin',level:35,rank:'Divine',damage:75,speed:1.4,reach:3,color:0xffe6a0,skill:'Sentence d’Astrea'}
+ {id:'divine-sword-astrea',name:'Épée divine : ASTREA',type:'shin',level:35,rank:'Divine',damage:75,speed:1.4,reach:3,color:0xffe6a0,skill:'Sentence d’Astrea'},
+ {id:'divine-sword-aurora',name:'Épée divine : Aurore',type:'sun',level:36,rank:'Divine',damage:70,speed:1.35,reach:2.9,color:0xffa9dc,skill:'Aurore flamboyante'},
+ {id:'divine-sword-eternity',name:'Épée divine : Éternité',type:'cosmic',level:37,rank:'Divine',damage:72,speed:1.3,reach:3,color:0xb7c6ff,skill:'Temps éternel'}
 ];
 export function createWeaponModel(THREE, weapon){
  const root=new THREE.Group();
