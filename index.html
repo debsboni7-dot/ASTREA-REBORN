@@ -235,8 +235,8 @@ const npcZones=[
  {role:'camp',x:-13,z:-97.5,r:2.6}
 ];
 const npcCrowdSpecs=[];
-for(let i=0;i<88;i++){
- const zone=npcZones[i%npcZones.length],angle=i*2.399963229728653,radius=1.2+(i%5)*.35;
+for(let i=0;i<188;i++){
+ const zone=npcZones[i%npcZones.length],angle=i*2.399963229728653,radius=1.5+(i%12)*.34;
  const tintPalette=[0x4d8dbe,0xc17b45,0x5d9d67,0x9272b8,0xb65a57,0x9b9a55,0x438f91,0x8e6c50,0x6d85b2,0xb77b9b];
  const x=Math.max(-18,Math.min(18,zone.x+Math.cos(angle)*radius));
  const z=Math.max(-115,Math.min(-4,zone.z+Math.sin(angle)*radius*1.35));
@@ -256,6 +256,7 @@ function addNPCWeapon(group,color){
  return {weapon,badge};
 }
 const npcFabricTextureCache=new Map();
+const npcMaterialVariantCache=new Map();
 function getNPCFabricTexture(color){
  const key=color.getHexString();
  if(npcFabricTextureCache.has(key))return npcFabricTextureCache.get(key);
@@ -275,6 +276,8 @@ function tintNPC(model,tint){
    o.castShadow=false;o.receiveShadow=false;
    const partName=String(o.name||'').toLowerCase();
    const tintMaterial=mat=>{
+     const cacheKey=(mat?.uuid||'fallback')+':'+target.getHexString();
+     if(npcMaterialVariantCache.has(cacheKey))return npcMaterialVariantCache.get(cacheKey);
      const m=mat&&mat.clone?mat.clone():new THREE.MeshStandardMaterial({color:target,roughness:.82});
      if(!m.color)m.color=new THREE.Color(0xffffff);
      if(m.map){
@@ -292,6 +295,7 @@ function tintNPC(model,tint){
      }
      if('roughness' in m && !Number.isFinite(m.roughness))m.roughness=.82;
      m.needsUpdate=true;
+     npcMaterialVariantCache.set(cacheKey,m);
      return m;
    };
    o.material=Array.isArray(o.material)?o.material.map(tintMaterial):tintMaterial(o.material);
@@ -704,6 +708,7 @@ function talkToGuide(){
 
  const nearbyNPC=nearestVillageNPC(2.8);
  if(nearbyNPC){
+   nearbyNPC.talkingUntil=clock.elapsedTime+4;
    document.getElementById('dialogueTitle').textContent=nearbyNPC.name;
    dialogueText.textContent=villageNPCDialogue(nearbyNPC);
    dialogue.hidden=false;hint.textContent='Tu parles à '+nearbyNPC.name+'. Cet habitant est pacifique.';
@@ -881,9 +886,11 @@ function updateVillageNPCs(dt){
  const t=clock.elapsedTime;
  for(const npc of npcGroups){
    const dist=Math.hypot(player.position.x-npc.group.position.x,player.position.z-npc.group.position.z);
-   npc.group.visible=dist<28;
-   if(dist>35)continue;
-   npc.targetTimer-=dt;
+   npc.group.visible=dist<22;
+   if(dist>28)continue;
+   const talking=dist<4&&t<(npc.talkingUntil||0);
+   if(!talking)npc.targetTimer-=dt;
+   else{npc.targetX=npc.group.position.x;npc.targetZ=npc.group.position.z;}
    let dx=npc.targetX-npc.group.position.x,dz=npc.targetZ-npc.group.position.z,d=Math.hypot(dx,dz);
    if(npc.targetTimer<=0||d<.65){
      const radius=npc.wanderRadius;
@@ -892,7 +899,7 @@ function updateVillageNPCs(dt){
      npc.targetTimer=2.5+Math.random()*4.5;
      dx=npc.targetX-npc.group.position.x;dz=npc.targetZ-npc.group.position.z;d=Math.hypot(dx,dz);
    }
-   const moving=d>.45&&npc.targetTimer>0;
+   const moving=!talking&&d>.45&&npc.targetTimer>0;
    if(moving){
      const step=Math.min(d,npc.speed*dt);
      npc.group.position.x+=dx/(d||1)*step;npc.group.position.z+=dz/(d||1)*step;
@@ -920,6 +927,11 @@ function updateVillageNPCs(dt){
        if(la)la.bone.rotation.x=la.base.x-wave*.28;if(ra)ra.bone.rotation.x=ra.base.x+wave*.28;
        if(ll)ll.bone.rotation.x=ll.base.x+wave*.42;if(rl)rl.bone.rotation.x=rl.base.x-wave*.42;
        if(lf)lf.bone.rotation.x=lf.base.x+Math.max(0,-wave)*.3;if(rf)rf.bone.rotation.x=rf.base.x+Math.max(0,wave)*.3;
+     }else if(talking){
+       if(la)la.bone.rotation.z=la.base.z+Math.sin(t*5+npc.phase)*.32;
+       if(ra)ra.bone.rotation.z=ra.base.z-Math.sin(t*4+npc.phase)*.2;
+       const head=npc.bones.find(b=>/head/.test(b.name));
+       if(head)head.bone.rotation.y=head.base.y+Math.sin(t*2+npc.phase)*.08;
      }else{
        if(la)la.bone.rotation.z=la.base.z+Math.sin(t*1.1+npc.phase)*.025;
        if(ra)ra.bone.rotation.z=ra.base.z-Math.sin(t*1.1+npc.phase)*.025;
