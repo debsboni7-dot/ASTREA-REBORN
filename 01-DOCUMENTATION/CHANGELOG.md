@@ -42,7 +42,7 @@
 - Correction du tinting des PNJ : suppression de l'appel à `makeMat()` hors de sa portée, qui empêchait le chargement des PNJ ; les matériaux sont clonés et les maillages sans texture reçoivent des couleurs cohérentes.
 - Connexion des timings des prototypes de combos de poings et d'épée aux os du héros, avec impacts et VFX sur chaque frappe.
 - Ajout de quatre variantes d'attaque ultime, sélectionnées à chaque utilisation, et de l'ultime ultime de 20 secondes avec plusieurs phases et impacts.
-- Population du village portée à 100 instances de PNJ utilisant les GLB masculins présents, avec teintes de tenues, itinéraires locaux, animations intégrées lorsqu'elles existent, mouvement procédural de secours et dialogues amicaux.
+- Population du village portée à 200 instances de PNJ utilisant les GLB masculins présents, avec teintes de tenues, itinéraires locaux, animations intégrées lorsqu'elles existent, mouvement procédural de secours et dialogues amicaux.
 - Ajout du marché, de la forge, de la mairie, du château et du camp d'aventuriers en 3D ; aucun PNJ civil n'attaque le joueur.
 - Distance d'affichage et animation des PNJ limitées autour du joueur pour préserver les performances Android. Contrôle syntaxique automatique réussi ; test visuel et FPS réels encore nécessaires.
 
@@ -55,3 +55,11 @@
 - Les valeurs de déplacement `dx` des séquences servent désormais à faire avancer/reculer le héros pendant les coups, au lieu de ne jouer que les rotations des os.
 - Les couleurs appliquées aux matériaux texturés des PNJ sont légèrement renforcées pour mieux distinguer les tenues sans effacer leurs textures d’origine.
 - Le test syntaxique GitHub Actions est déclenché sur ce commit ; test de rendu, d’enchaînement tactile et de fluidité Android encore requis.
+
+
+## 2026-10-18 — Combos chaînables et foule du village
+- Ajout de deux variantes de combo dérivées des prototypes de l’utilisateur : poings + magie et épée + magie, avec frappes supplémentaires et impacts renforcés.
+- Appuyer sur COMBO pendant une séquence normale met l’attaque suivante en file ; les attaques utilisent aussi les décalages de déplacement de leurs poses pour donner de vrais élans au héros.
+- Foule du village augmentée à 200 PNJ 3D répartis dans les quartiers. Le rayon d’affichage et les animations proches sont limités pour préserver le mobile ; les matériaux de tenue sont mis en cache afin de réduire les clones GPU.
+- Les habitants proches s’arrêtent pour discuter et bougent les bras/la tête pendant le dialogue lorsqu’un rig compatible est disponible. Aucun civil n’est rendu agressif.
+- Les 5 démonstrations HTML d’animation restent des sources de données/prototypes ; elles ne sont pas chargées pendant la partie et ne sont donc pas supprimées comme fichiers défaillants. Le contrôle syntaxique passe, mais le test visuel Android reste à faire.
