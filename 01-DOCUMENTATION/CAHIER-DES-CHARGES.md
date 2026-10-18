@@ -90,4 +90,4 @@ Explorer → rencontrer des PNJ/créatures → accepter des quêtes → combattr
 8. Toute fonction non testée reste explicitement marquée à vérifier.
 
 ## 15. État honnête
-Le jeu disponible reste un prototype. Ce cahier des charges décrit l'ensemble visé; tous les systèmes ne sont pas encore finalisés. Le module astrea-world-expansion.js constitue une première couche jouable de monnaie, navigation entre zones générées, fondation de pays et combats de créatures procédurales; il ne remplace pas encore les assets 3D finaux, les quêtes narratives, l'artisanat complet ou le multijoueur.
+Le jeu disponible reste un prototype. Ce cahier des charges décrit l'ensemble visé; tous les systèmes ne sont pas encore finalisés. Le module astrea-world-expansion.js constitue une première couche jouable de monnaie, navigation entre zones générées et fondation de pays. Les combats de dragons et mammouths restent désactivés jusqu'à l'intégration de leurs vrais modèles GLB ; le module ne remplace pas encore les assets finaux, les quêtes narratives, l'artisanat complet ou le multijoueur.
