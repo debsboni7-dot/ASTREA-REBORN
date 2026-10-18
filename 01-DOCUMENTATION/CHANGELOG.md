@@ -34,3 +34,5 @@
 - Le contrôle de syntaxe JavaScript est exécuté automatiquement par GitHub Actions ; la validation visuelle et les FPS sur Galaxy A06 restent à effectuer.
 
 - Suppression des dragons et mammouths procéduraux du système Monde : aucun combat de créature n'est proposé sans modèle GLB réel correspondant.
+
+- Les animations externes sans squelette source exploitable ne sont plus téléchargées pendant la partie ; le héros utilise ses clips intégrés ou l'animation procédurale de secours, ce qui évite des téléchargements inutiles sur mobile.
