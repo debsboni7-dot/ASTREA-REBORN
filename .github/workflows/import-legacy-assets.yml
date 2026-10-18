@@ -168,6 +168,39 @@ jobs:
                 with zf.open(info) as src, dest.open('wb') as out:
                   shutil.copyfileobj(src,out)
                 imported.append(f'Extrait de `{archive}` : `{dest}` ({info.file_size} octets)')
+          # Also unpack the user's existing environment texture packs into domain-specific libraries.
+          envdir=root/'03-TEXTURES'/'environment'
+          pack_targets={
+            'textures_bois.zip':root/'03-TEXTURES'/'buildings'/'wood-pack',
+            'textures_murs_sols.zip':root/'03-TEXTURES'/'buildings'/'walls-floors-pack',
+            'textures_pave.zip':root/'03-TEXTURES'/'terrain'/'paving-pack',
+            'textures_roche.zip':root/'03-TEXTURES'/'terrain'/'rock-pack',
+            'textures_sable_plage.zip':root/'03-TEXTURES'/'terrain'/'sand-pack',
+            'textures_lot3.zip':root/'03-TEXTURES'/'environment'/'material-pack-lot3',
+          }
+          for archive_name,destbase in pack_targets.items():
+            archive=envdir/archive_name
+            if not archive.exists():
+              continue
+            with zipfile.ZipFile(archive) as zf:
+              for info in zf.infolist():
+                if info.is_dir():
+                  continue
+                name=Path(info.filename).name
+                if not name or name in {'.','..'}:
+                  continue
+                ext=Path(name).suffix.lower()
+                if ext not in texture_ext and ext not in source_ext and ext not in {'.json','.txt','.xml','.yaml','.yml'}:
+                  continue
+                destdir=destbase
+                destdir.mkdir(parents=True,exist_ok=True)
+                dest=destdir/name
+                if dest.exists():
+                  # Keep original files untouched; only skip an already extracted same-name entry.
+                  continue
+                with zf.open(info) as src, dest.open('wb') as out:
+                  shutil.copyfileobj(src,out)
+                imported.append(f'Pack de texture `{archive}` : `{dest}` ({info.file_size} octets)')
           (root/'10-PROTOTYPES').mkdir(parents=True,exist_ok=True)
           readme=root/'10-PROTOTYPES'/'README.md'
           if not readme.exists():
@@ -191,4 +224,5 @@ jobs:
           git add 02-MODELS 03-TEXTURES 04-ANIMATIONS 09-AUDIO 10-PROTOTYPES 01-DOCUMENTATION/ASSETS-IMPORTES.md 01-DOCUMENTATION/AUDIO-STATUS.md 01-DOCUMENTATION/ASSETS-UTILISATEUR.md
           if git diff --cached --quiet; then echo "No assets to import"; exit 0; fi
           git commit -m "Import legacy ASTREA models, textures and animations"
+          git pull --rebase origin main
           git push
