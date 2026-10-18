@@ -1,0 +1,50 @@
+name: Generate ASTREA environment models with Blender
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "tools/create_environment_pack.py"
+      - ".github/workflows/generate-environment-models.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout ASTREA REBORN
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install Blender
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y blender
+      - name: Generate four low-poly environment assets and editable source
+        run: |
+          set -euo pipefail
+          mkdir -p 02-MODELS/environment 02-MODELS/blender-source
+          blender --background --python tools/create_environment_pack.py -- \
+            "$GITHUB_WORKSPACE/02-MODELS/environment" \
+            "$GITHUB_WORKSPACE/02-MODELS/blender-source/astrea-environment-pack.blend"
+          test -s 02-MODELS/environment/fantasy-tree.glb
+          test -s 02-MODELS/environment/rock-cluster.glb
+          test -s 02-MODELS/environment/aether-crystal-node.glb
+          test -s 02-MODELS/environment/flowering-bush.glb
+          test -s 02-MODELS/blender-source/astrea-environment-pack.blend
+      - name: Commit generated models to main
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add 02-MODELS/environment/*.glb 02-MODELS/blender-source/*.blend
+          if git diff --cached --quiet; then
+            echo "No generated files changed."
+            exit 0
+          fi
+          git commit -m "Add Blender-generated ASTREA environment models"
+          git pull --rebase origin main
+          git push origin HEAD:main
