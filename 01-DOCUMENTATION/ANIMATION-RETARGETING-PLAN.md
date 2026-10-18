@@ -23,7 +23,8 @@ Les animations intégrées à `hero.glb` sont celles dont la compatibilité avec
 ## Changements déjà faits dans le jeu
 
 - Le jeu mémorise les animations intégrées au héros et utilise celles nommées `idle_Armature` et `walk_Armature` (avec solutions de repli) pour l'arrêt et le déplacement.
-- Le jeu ne tente plus d'appliquer aveuglément la première animation des GLB externes au squelette du héros.
+- Le jeu fusionne désormais les pistes des clips séparés par os avant la tentative de retargeting, au lieu d'utiliser uniquement la première action.
+- Le héros riggé possède une animation procédurale de secours (inactivité, marche, saut et combos) si aucun clip compatible n'est trouvé ; cela ne remplace pas encore la validation des clips 3D externes.
 - Les coups gardent pour l'instant le mouvement visuel de l'épée et les dégâts de combat. Les trois animations d'attaque externes ne sont pas encore considérées comme intégrées au personnage.
 
 ## Travail restant — nécessaire avant de déclarer toutes les animations compatibles
