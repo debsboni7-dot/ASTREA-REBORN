@@ -47,3 +47,11 @@
 - Distance d'affichage et animation des PNJ limitées autour du joueur pour préserver les performances Android. Contrôle syntaxique automatique réussi ; test visuel et FPS réels encore nécessaires.
 
 - Ajout de textures textiles procédurales légères (motif de tissage) et de couleurs de matériaux pour les vêtements/maillages de PNJ dépourvus de texture, avec cache partagé pour limiter la mémoire GPU.
+
+## 2026-10-18 — Enchaînement des combos
+- Ajout de deux séquences supplémentaires dérivées des démonstrations `03-combos-poings-epee.html` : poings + magie et épée + magie.
+- Les attaques normales alternent désormais avec une variante renforcée tous les trois enchaînements ; les armes à distance conservent leur combo magique.
+- Ajout d’une mise en file du combo suivant si le joueur appuie sur COMBO pendant l’animation en cours.
+- Les valeurs de déplacement `dx` des séquences servent désormais à faire avancer/reculer le héros pendant les coups, au lieu de ne jouer que les rotations des os.
+- Les couleurs appliquées aux matériaux texturés des PNJ sont légèrement renforcées pour mieux distinguer les tenues sans effacer leurs textures d’origine.
+- Le test syntaxique GitHub Actions est déclenché sur ce commit ; test de rendu, d’enchaînement tactile et de fluidité Android encore requis.
