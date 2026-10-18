@@ -33,7 +33,7 @@ const loader=new GLTFLoader(),clock=new THREE.Clock();
 const asset=(p)=>new URL(p,document.baseURI).href;
 const loadGLB=(p)=>new Promise((resolve,reject)=>{let settled=false;const timer=setTimeout(()=>{if(!settled){settled=true;reject(new Error('Délai dépassé : '+p))}},15000);loader.load(asset(p),g=>{if(!settled){settled=true;clearTimeout(timer);resolve(g)}},undefined,e=>{if(!settled){settled=true;clearTimeout(timer);reject(e)}})});
 function box(w,h,d,c,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial({color:c,roughness:.92}));m.position.set(x,y,z);scene.add(m);return m}
-const collisionBoxes=[];function addCollider(x,z,hw,hz,tag='obstacle'){collisionBoxes.push({x,z,hw,hz,tag})}function addHouseColliders(x,z,hw=1.9,hz=1.7,door=false){if(!door){addCollider(x,z,hw,hz,'maison');return}const side=.72,frontZ=z+hz-.12,wall=.18;addCollider(x-hw+wall/2,z,wall/2,hz,'maison');addCollider(x+hw-wall/2,z,wall/2,hz,'maison');addCollider(x,z-hz+wall/2,hw,wall/2,'maison');addCollider(x-(hw-side)/2,frontZ,(hw-side)/2,wall/2,'maison');addCollider(x+(hw-side)/2,frontZ,(hw-side)/2,wall/2,'maison')}
+const collisionBoxes=[];function addCollider(x,z,hw,hz,tag='obstacle'){const collider={x,z,hw,hz,tag,active:true};collisionBoxes.push(collider);return collider}function addHouseColliders(x,z,hw=1.9,hz=1.7,door=false){if(!door){addCollider(x,z,hw,hz,'maison');return}const side=.72,frontZ=z+hz-.12,wall=.18;addCollider(x-hw+wall/2,z,wall/2,hz,'maison');addCollider(x+hw-wall/2,z,wall/2,hz,'maison');addCollider(x,z-hz+wall/2,hw,wall/2,'maison');addCollider(x-(hw-side)/2,frontZ,(hw-side)/2,wall/2,'maison');addCollider(x+(hw-side)/2,frontZ,(hw-side)/2,wall/2,'maison')}
 const groundMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1});
 const ground=new THREE.Mesh(new THREE.PlaneGeometry(260,260),groundMat);ground.rotation.x=-Math.PI/2;ground.position.y=-.06;scene.add(ground);
 const pathMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1});
@@ -70,7 +70,7 @@ for(const x of [-2.45,2.45]){
  roof.position.set(x,4.8,1.9);scene.add(roof);addCollider(x,1.9,.5,.7,'tour de porte');
 }
 box(4.9,.28,.4,0x68452d,0,4.15,1.9);
-addCollider(0,1.9,2.5,.5,'porte');
+/* Passage central volontairement libre : pas de collider invisible dans la porte de ville. */
 
 const player=new THREE.Group();player.position.set(0,0,2);scene.add(player);const weaponMount=new THREE.Group();weaponMount.position.set(.43,1.03,-.08);player.add(weaponMount);let weaponHandAttached=false;
 let savedCharacter=null;try{savedCharacter=JSON.parse(localStorage.getItem('astrea-character-v1')||'null')?.character||null}catch(e){}
@@ -109,7 +109,7 @@ if(enemyDefeated){enemy.visible=false;enemyStatus.textContent='Cible vaincue';qu
 if(savedGame.playerPosition&&Number.isFinite(savedGame.playerPosition.x)&&Number.isFinite(savedGame.playerPosition.z)){player.position.x=savedGame.playerPosition.x;player.position.z=savedGame.playerPosition.z;}
 const keys={},touchMove={};
 let insideHouse=false,doorOpen=false;
-const doorPivot=new THREE.Group();doorPivot.position.set(-5.83,0,-3.36);scene.add(doorPivot);
+const doorPivot=new THREE.Group();doorPivot.position.set(-5.83,0,-3.36);scene.add(doorPivot);const doorCollider=addCollider(-5.5,-3.41,.38,.14,'porte de maison');
 const doorPanel=new THREE.Mesh(new THREE.BoxGeometry(.66,1.35,.09),new THREE.MeshStandardMaterial({color:0x68452d,roughness:.92}));doorPanel.position.set(.33,.68,0);doorPivot.add(doorPanel);
 const doorFrameMat=new THREE.MeshStandardMaterial({color:0x4b3326,roughness:1});
 for(const p of [{x:-5.83,y:.72,z:-3.41,w:.1,h:1.48,d:.14},{x:-5.17,y:.72,z:-3.41,w:.1,h:1.48,d:.14},{x:-5.5,y:1.45,z:-3.41,w:.76,h:.12,d:.14}]){const m=new THREE.Mesh(new THREE.BoxGeometry(p.w,p.h,p.d),doorFrameMat);m.position.set(p.x,p.y,p.z);scene.add(m)}
@@ -126,7 +126,7 @@ roomBox(.9,.6,.9,0x805633,13.2,.3,-9.2);
 roomBox(.8,.12,.8,0xd4b875,13.2,.66,-9.2);
 roomBox(.75,.6,.55,0x77502e,13.2,.3,-11);
 roomBox(.78,.12,.58,0xe0bd5f,13.2,.65,-11);
-function setHouseMode(enter){insideHouse=enter;room.visible=enter;if(enter){player.position.set(12,0,-10);hint.textContent='Intérieur : explore la maison, puis appuie sur SORTIR.'}else{doorOpen=false;doorPivot.rotation.y=0;player.position.set(-5.5,0,-2.5);hint.textContent='Retour dans le village.'}}
+function setHouseMode(enter){insideHouse=enter;room.visible=enter;if(enter){player.position.set(12,0,-10);hint.textContent='Intérieur : explore la maison, puis appuie sur SORTIR.'}else{doorOpen=false;doorPivot.rotation.y=0;doorCollider.active=true;player.position.set(-5.5,0,-2.5);hint.textContent='Retour dans le village.'}}
 function normalizeModel(object,targetHeight){
  const b=new THREE.Box3().setFromObject(object),size=b.getSize(new THREE.Vector3()),center=b.getCenter(new THREE.Vector3());
  const h=Math.max(size.y,.001),s=targetHeight/h;object.scale.multiplyScalar(s);
@@ -220,7 +220,7 @@ function makeChest(x,z,reward){
  const lock=new THREE.Mesh(new THREE.BoxGeometry(.13,.18,.07),gold);lock.position.set(0,-.02,.61);lidPivot.add(lock);
  const opened=Array.isArray(savedGame.openedChests)&&savedGame.openedChests.includes(reward);
  if(opened)lidPivot.rotation.x=-1.25;
- chests.push({group,lidPivot,reward,opened});
+ chests.push({group,lidPivot,reward,opened});addCollider(x,z,.58,.45,'coffre');
  const marker=new THREE.Mesh(new THREE.OctahedronGeometry(.12),new THREE.MeshStandardMaterial({color:0xf4d37d,emissive:0x5d3e09}));marker.position.set(x,.95,z);scene.add(marker);
 }
 makeChest(3.5,-7,'Potion de soin');
@@ -236,7 +236,7 @@ function talkToGuide(){
  const chest=nearestChest();
  if(chest){chest.opened=true;chest.lidPivot.rotation.x=-1.25;addItem(chest.reward);saveProgress();hint.textContent='Coffre ouvert : '+chest.reward+' ajouté au sac !';questStatus.textContent='Récompense récupérée : '+chest.reward;return}
  const homeDistance=Math.hypot(player.position.x+5.5,player.position.z+3.35);
- if(homeDistance<2.5){doorOpen=!doorOpen;doorPivot.rotation.y=doorOpen?-Math.PI/2:0;if(doorOpen){setHouseMode(true);questStatus.textContent='Découverte : intérieur de la maison'}else{hint.textContent='La porte est fermée.'}saveProgress();return}
+ if(homeDistance<2.5){doorOpen=!doorOpen;doorPivot.rotation.y=doorOpen?-Math.PI/2:0;doorCollider.active=!doorOpen;if(doorOpen){setHouseMode(true);questStatus.textContent='Découverte : intérieur de la maison'}else{hint.textContent='La porte est fermée.'}saveProgress();return}
 
  const d=Math.hypot(player.position.x-guide.position.x,player.position.z-guide.position.z);
  if(d>3.1){questStatus.textContent='Approche-toi du guide pour lui parler.';hint.textContent='Guide trop éloigné : rapproche-toi.';return}
@@ -273,7 +273,7 @@ function frame(){
  const moving=!!(f||s);
  if(moving!==moveAnim.moving){moveAnim.moving=moving;if(loadedHero)playCharacterAnimation(moving?'walk':'idle')}
  const len=Math.hypot(f,s)||1;f/=len;s/=len;const speed=4.2*dt;
- const dx=(-Math.sin(yaw)*f+Math.cos(yaw)*s)*speed;const dz=(-Math.cos(yaw)*f-Math.sin(yaw)*s)*speed;if(!insideHouse){const radius=.46;const blocked=(x,z)=>collisionBoxes.some(b=>x+radius>b.x-b.hw&&x-radius<b.x+b.hw&&z+radius>b.z-b.hz&&z-radius<b.z+b.hz);const nx=Math.max(-21,Math.min(21,player.position.x+dx));if(!blocked(nx,player.position.z))player.position.x=nx;const nz=Math.max(-117,Math.min(1,player.position.z+dz));if(!blocked(player.position.x,nz))player.position.z=nz;for(const obj of [guide,enemy]){if(!obj.visible)continue;const ox=player.position.x-obj.position.x,oz=player.position.z-obj.position.z,d=Math.hypot(ox,oz);if(d<.85){player.position.x=obj.position.x+(ox/(d||1))*.85;player.position.z=obj.position.z+(oz/(d||1))*.85}}}else{player.position.x=Math.max(9.1,Math.min(14.9,player.position.x+dx));player.position.z=Math.max(-12.2,Math.min(-7.8,player.position.z+dz))}if(moving)player.rotation.y=Math.atan2(-dx,-dz);
+ const dx=(-Math.sin(yaw)*f+Math.cos(yaw)*s)*speed;const dz=(-Math.cos(yaw)*f-Math.sin(yaw)*s)*speed;if(!insideHouse){const radius=.46;const blocked=(x,z)=>collisionBoxes.some(b=>b.active!==false&&x+radius>b.x-b.hw&&x-radius<b.x+b.hw&&z+radius>b.z-b.hz&&z-radius<b.z+b.hz);const nx=Math.max(-21,Math.min(21,player.position.x+dx));if(!blocked(nx,player.position.z))player.position.x=nx;const nz=Math.max(-117,Math.min(1,player.position.z+dz));if(!blocked(player.position.x,nz))player.position.z=nz;for(const obj of [guide,enemy]){if(!obj.visible)continue;const ox=player.position.x-obj.position.x,oz=player.position.z-obj.position.z,d=Math.hypot(ox,oz);if(d<.85){player.position.x=obj.position.x+(ox/(d||1))*.85;player.position.z=obj.position.z+(oz/(d||1))*.85}}}else{player.position.x=Math.max(9.1,Math.min(14.9,player.position.x+dx));player.position.z=Math.max(-12.2,Math.min(-7.8,player.position.z+dz))}if(moving)player.rotation.y=Math.atan2(-dx,-dz);
  vy-=14*dt;player.position.y+=vy*dt;if(player.position.y<=0){player.position.y=0;vy=0;onGround=true}
  if(attackTimer>0){attackTimer-=dt;if(attackTimer<=0){swordVisual.rotation.z=0;swordVisual.rotation.x=0;swordVisual.rotation.y=0}}
  
