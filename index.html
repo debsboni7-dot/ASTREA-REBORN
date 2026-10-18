@@ -709,7 +709,7 @@ function talkToGuide(){
 }
 document.getElementById('interact').addEventListener('pointerdown',e=>{e.preventDefault();talkToGuide()});
 document.getElementById('dialogueClose').addEventListener('click',()=>{dialogue.hidden=true;if(enemyDefeated){questStatus.textContent='Guide informé : entraînement terminé.'}});
-function jump(){if(onGround){vy=6.2;onGround=false;if(loadedHero)playCharacterAnimation('jump')}}
+function jump(){if(onGround){vy=6.2;onGround=false;astreaSfx('jump');if(loadedHero)playCharacterAnimation('jump')}}
 function bindMove(btn,dir){const down=e=>{e.preventDefault();touchMove[dir]=true},up=e=>{e.preventDefault();touchMove[dir]=false};btn.addEventListener('pointerdown',down);['pointerup','pointercancel','pointerleave'].forEach(ev=>btn.addEventListener(ev,up))}
 document.querySelectorAll('[data-move]').forEach(b=>bindMove(b,b.dataset.move));
  const joy=document.getElementById('joystick'),knob=document.getElementById('joystickKnob');let joyPointer=null;
@@ -775,6 +775,16 @@ const COMBAT_SEQUENCES={
  ultimateCataclysm:{label:'Ultime cataclysme',duration:4,frames:[[.6,{rs:3.1,re:0,ls:-.5,le:-.8,sp:-.15,dx:-6}],[3.3,{rs:3.1,re:0,ls:-.5,le:-.8,sp:-.15,dx:-6}],[3.7,{rs:1.2,re:0,ls:-1,le:0,sp:.55,rh:.6,rk:-.4,dx:30}],[4,{}]],hits:[{t:1.1,m:.55},{t:1.5,m:.65},{t:1.9,m:.75},{t:2.3,m:.75},{t:2.7,m:.8},{t:3.15,m:1.1,big:true},{t:3.7,m:1.8,big:true}]},
  ultimateUltimate:{label:'Ultime ultime — 20 secondes',duration:20,frames:[[.1,{rs:.9,re:1.1,ls:-.4,le:-.8,sp:0}],[.35,{rs:1.5,re:0,ls:-.4,le:-.8,sp:.25}],[.6,{rs:.9,re:1.1,ls:-.4,le:-.8,sp:0}],[.85,{rs:-.3,re:-.8,ls:1.5,le:0,sp:.25}],[1.1,{rs:.9,re:1.1,ls:-.4,le:-.8,sp:0}],[2.1,{rs:1.5,re:0,ls:-.3,le:-.8,sp:.25}],[4.1,{rs:1.5,re:0,ls:-.3,le:-.8,sp:.25}],[6.1,{rs:1.5,re:0,ls:-.3,le:-.8,sp:.25}],[8.15,{rs:3.6,re:.2,ls:-.6,le:-.6,sp:-.2,dx:-4}],[8.4,{rs:.7,re:.1,sp:.45,rh:.5,rk:-.3,ls:-.9,dx:16}],[9.1,{rs:2.7,re:-.3,sp:.35,rh:.5,rk:-.3,ls:-.9,dx:28}],[9.85,{rs:1.6,re:0,sp:.4,rh:.55,rk:-.3,ls:-1,dx:40}],[10.7,{rs:.5,re:.2,sp:.55,rh:.6,rk:-.4,ls:-1,dx:46}],[12.2,{rs:3.1,re:0,ls:-.5,le:-.8,sp:-.15,dx:-6}],[16.5,{rs:3.1,re:0,ls:-.5,le:-.8,sp:-.15,dx:-6}],[16.75,{rs:3.7,re:.1,ls:-.5,le:-.8,sp:-.3,dx:-8}],[17.05,{rs:1.2,re:0,ls:-1,le:0,sp:.55,rh:.6,rk:-.4,dx:30}],[18.4,{rs:1.2,re:0,ls:-1,le:0,sp:.55,rh:.6,rk:-.4,dx:30}],[19.4,{}],[20,{}]],hits:[{t:.35,m:.28},{t:.85,m:.28},{t:1.35,m:.32},{t:1.8,m:.42,big:true},{t:2.35,m:.28},{t:2.85,m:.28},{t:3.35,m:.32},{t:3.8,m:.42,big:true},{t:4.35,m:.28},{t:4.85,m:.28},{t:5.35,m:.32},{t:5.8,m:.42,big:true},{t:6.35,m:.28},{t:6.85,m:.28},{t:7.35,m:.32},{t:7.8,m:.5,big:true},{t:8.4,m:.75},{t:9.1,m:.85},{t:9.85,m:1.05,big:true},{t:10.7,m:1.2,big:true},{t:17.9,m:4.5,big:true}]}
 };
+let astreaAudioContext=null;
+function astreaSfx(kind='hit'){
+ try{
+  const AudioCtx=window.AudioContext||window.webkitAudioContext;if(!AudioCtx)return;
+  astreaAudioContext=astreaAudioContext||new AudioCtx();if(astreaAudioContext.state==='suspended')astreaAudioContext.resume();
+  const ctx=astreaAudioContext,now=ctx.currentTime;
+  const specs={hit:[150,.075,'triangle',.035],heavy:[85,.19,'sawtooth',.045],magic:[520,.22,'sine',.035],ultimate:[240,.34,'sawtooth',.045],jump:[280,.09,'sine',.018],purchase:[680,.12,'sine',.025]};
+  const [freq,dur,wave,gainValue]=specs[kind]||specs.hit;const osc=ctx.createOscillator(),gain=ctx.createGain();osc.type=wave;osc.frequency.setValueAtTime(freq,now);osc.frequency.exponentialRampToValueAtTime(Math.max(45,freq*.48),now+dur);gain.gain.setValueAtTime(gainValue,now);gain.gain.exponentialRampToValueAtTime(.0001,now+dur);osc.connect(gain);gain.connect(ctx.destination);osc.start(now);osc.stop(now+dur);
+ }catch(e){/* audio optionnel : ne doit jamais bloquer le combat */}
+}
 function startCombatSequence(name){
  const config=COMBAT_SEQUENCES[name];if(!config)return 0;
  if(currentAction){currentAction.stop();currentAction=null}
@@ -782,6 +792,7 @@ function startCombatSequence(name){
  proceduralPose=null;attackTimer=config.duration;attackStyle=selectedWeapon.type;
  player.rotation.y=yaw;
  hint.textContent=config.label+' !';
+ astreaSfx(name==='ultimateUltimate'?'ultimate':name.toLowerCase().includes('ultimate')?'magic':selectedWeapon.type==='axe'||selectedWeapon.type==='hammer'?'heavy':'hit');
  return config.duration;
 }
 function applyCombatHit(event,sequenceName){
