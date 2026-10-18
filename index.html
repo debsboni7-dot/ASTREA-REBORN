@@ -145,6 +145,10 @@ function playCharacterAnimation(kind){
 // Ils ne sont pas appliqués au mauvais squelette en attendant leur retargeting.
 
 function talkToGuide(){
+ if(insideHouse){setHouseMode(false);return}
+ const homeDistance=Math.hypot(player.position.x+5.5,player.position.z+6.5);
+ if(homeDistance<2.5){setHouseMode(true);questStatus.textContent='Découverte : intérieur de la maison';return}
+
  const d=Math.hypot(player.position.x-guide.position.x,player.position.z-guide.position.z);
  if(d>3.1){questStatus.textContent='Approche-toi du guide pour lui parler.';hint.textContent='Guide trop éloigné : rapproche-toi.';return}
  dialogueText.textContent=enemyDefeated
@@ -177,14 +181,16 @@ function frame(){
  const len=Math.hypot(f,s)||1;f/=len;s/=len;const speed=4.2*dt;
  player.position.x+=(Math.sin(yaw)*f+Math.cos(yaw)*s)*speed;
  player.position.z+=(-Math.cos(yaw)*f+Math.sin(yaw)*s)*speed;
- player.position.x=Math.max(-18,Math.min(18,player.position.x));player.position.z=Math.max(-70,Math.min(8,player.position.z));
+ if(!insideHouse){player.position.x=Math.max(-18,Math.min(18,player.position.x));player.position.z=Math.max(-70,Math.min(8,player.position.z));}else{player.position.x=Math.max(9.1,Math.min(14.9,player.position.x));player.position.z=Math.max(-12.2,Math.min(-7.8,player.position.z));}
  if(moving)player.rotation.y=Math.atan2(s,f)+yaw;
  vy-=14*dt;player.position.y+=vy*dt;if(player.position.y<=0){player.position.y=0;vy=0;onGround=true}
  if(attackTimer>0){attackTimer-=dt;if(attackTimer<=0)swordVisual.rotation.z=0}
  if(mixer)mixer.update(dt);
  const guideDistance=Math.hypot(player.position.x-guide.position.x,player.position.z-guide.position.z);
- document.getElementById('interact').style.opacity=guideDistance<=3.1?'1':'.68';
- document.getElementById('interact').textContent=guideDistance<=3.1?'PARLER':'PNJ';
+ const homeDistance=Math.hypot(player.position.x+5.5,player.position.z+6.5);
+ const interact=document.getElementById('interact');
+ interact.style.opacity=(insideHouse||guideDistance<=3.1||homeDistance<2.5)?'1':'.68';
+ interact.textContent=insideHouse?'SORTIR':homeDistance<2.5?'MAISON':guideDistance<=3.1?'PARLER':'PNJ';
  const target=new THREE.Vector3(player.position.x,player.position.y+1.1,player.position.z),dist=7.5;
  camera.position.set(target.x+Math.sin(yaw)*dist,target.y+2.4+pitch*5,target.z+Math.cos(yaw)*dist);camera.lookAt(target);
  renderer.render(scene,camera);
