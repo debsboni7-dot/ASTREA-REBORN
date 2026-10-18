@@ -22,6 +22,7 @@ def clear_scene():
 
 def mat(name, color, roughness=0.85, metallic=0.0):
     m = bpy.data.materials.new(name)
+    m.use_fake_user = True
     m.diffuse_color = (*color, 1.0)
     m.use_nodes = True
     bsdf = m.node_tree.nodes.get("Principled BSDF")
