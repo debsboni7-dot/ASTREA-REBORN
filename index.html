@@ -21,6 +21,7 @@
 <script type="module">
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js';
+import { FBXLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/FBXLoader.js';
 import { clone as cloneSkeleton } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/utils/SkeletonUtils.js';
 import { ASTREA_WEAPONS, createWeaponModel } from './02-MODELS/weapons/weapon-catalog.js';
 import { initAstreaWorld } from './07-SYSTEMS/astrea-world-expansion.js';
@@ -31,9 +32,11 @@ const camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,220);
 const renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'low-power'});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.15));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=false;renderer.outputColorSpace=THREE.SRGBColorSpace;document.body.appendChild(renderer.domElement);
 scene.add(new THREE.HemisphereLight(0xdaf3ff,0x53634a,2));
 const sun=new THREE.DirectionalLight(0xffe2b3,2);sun.position.set(-8,15,7);scene.add(sun);
-const loader=new GLTFLoader(),clock=new THREE.Clock();
+const loader=new GLTFLoader(),fbxLoader=new FBXLoader(),clock=new THREE.Clock();
 const asset=(p)=>new URL(p,document.baseURI).href;
 const loadGLB=(p)=>new Promise((resolve,reject)=>{let settled=false;const timer=setTimeout(()=>{if(!settled){settled=true;reject(new Error('Délai dépassé : '+p))}},15000);loader.load(asset(p),g=>{if(!settled){settled=true;clearTimeout(timer);resolve(g)}},undefined,e=>{if(!settled){settled=true;clearTimeout(timer);reject(e)}})});
+const loadFBX=(p)=>new Promise((resolve,reject)=>{let settled=false;const timer=setTimeout(()=>{if(!settled){settled=true;reject(new Error('Délai FBX dépassé : '+p))}},20000);fbxLoader.load(asset(p),o=>{if(!settled){settled=true;clearTimeout(timer);resolve(o)}},undefined,e=>{if(!settled){settled=true;clearTimeout(timer);reject(e)}})});
+async function loadPrimaryCharacter(){try{const fbx=await loadFBX('02-MODELS/characters/astrea-meshy/Meshy_AI_Un_personnage_homme_a_biped_Character_output.fbx');return {scene:fbx,animations:fbx.animations||[],source:'Meshy FBX'};}catch(e){console.warn('Personnage Meshy FBX non disponible, repli sur hero.glb',e);const glb=await loadGLB('02-MODELS/characters/hero.glb');return {...glb,source:'hero.glb'};}}
 function box(w,h,d,c,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial({color:c,roughness:.92}));m.position.set(x,y,z);scene.add(m);return m}
 const collisionBoxes=[];function addCollider(x,z,hw,hz,tag='obstacle'){const collider={x,z,hw,hz,tag,active:true};collisionBoxes.push(collider);return collider}function addHouseColliders(x,z,hw=1.9,hz=1.7,door=false){if(!door){addCollider(x,z,hw,hz,'maison');return}const side=.72,frontZ=z+hz-.12,wall=.18;addCollider(x-hw+wall/2,z,wall/2,hz,'maison');addCollider(x+hw-wall/2,z,wall/2,hz,'maison');addCollider(x,z-hz+wall/2,hw,wall/2,'maison');addCollider(x-(hw-side)/2,frontZ,(hw-side)/2,wall/2,'maison');addCollider(x+(hw-side)/2,frontZ,(hw-side)/2,wall/2,'maison')}
 const groundMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1});
@@ -235,8 +238,8 @@ function normalizeModel(object,targetHeight){
 async function loadPrimaryAssets(){
  const jobs=[];
  jobs.push((async()=>{
-   // Même modèle dans le créateur et le jeu : hero.glb est le seul personnage inspecté avec squelette et clips intégrés.
-   const g=await loadGLB('02-MODELS/characters/hero.glb');
+   // Priorité au personnage masculin Meshy fourni par l'utilisateur ; hero.glb reste le repli si la source n'a pas encore été importée.
+   const g=await loadPrimaryCharacter();
    const model=g.scene;normalizeModel(model,1.9);player.remove(fallback);player.add(model);visualRoot=model;loadedHero=true;
    if(savedCharacter){
      player.scale.y=savedCharacter.height/190;
@@ -262,8 +265,9 @@ async function loadPrimaryAssets(){
        }
      });
    }
-   // Clips coupés temporairement pour éviter le root-motion qui déplace le modèle hors des collisions.
+   // Le squelette et les clips éventuels sont conservés ; lecture désactivée temporairement tant que le root-motion n'est pas corrigé.
    mixer=null;currentAction=null;heroClips={};
+   (g.animations||[]).forEach(clip=>{heroClips[clip.name||'animation']=clip;});
    // Utilise la position réelle de l'os de la main droite, mais pas sa rotation locale
    // (qui pouvait retourner ou décaler l'épée). L'arme garde ainsi une orientation stable.
    let handBone=null;model.traverse(o=>{if(o.isBone&&/right.?hand|hand.?r$|r.?hand|mixamorig.*right.?hand/i.test(o.name||''))handBone=handBone||o});
@@ -285,7 +289,7 @@ jobs.push(Promise.resolve('arsenal 3D ASTREA chargé depuis le catalogue procéd
    const timer=setTimeout(()=>{console.warn('Délai texture pavage dépassé');resolve('pavage provisoire')},10000);new THREE.TextureLoader().load(asset('03-TEXTURES/terrain/paving-village-1.jpg'),t=>{clearTimeout(timer);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(2,24);pathMat.map=t;pathMat.needsUpdate=true;resolve('pavage')},undefined,e=>{clearTimeout(timer);console.warn('Paving texture indisponible',e);resolve('pavage provisoire')});
  }));
  const result=await Promise.all(jobs);
- status.textContent='Ville médiévale chargée';hint.textContent='20 maisons • remparts • porte fortifiée • collisions • animations désactivées pour stabiliser le héros';
+ status.textContent='Ville médiévale chargée';hint.textContent='20 maisons • remparts • personnage Meshy prioritaire si importé • animations en attente de stabilisation';
 }
 function playCharacterAnimation(kind){
  // Clips désactivés tant que le root-motion n'est pas corrigé.
