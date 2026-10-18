@@ -819,8 +819,8 @@ function updateVillageNPCs(dt){
  const t=clock.elapsedTime;
  for(const npc of npcGroups){
    const dist=Math.hypot(player.position.x-npc.group.position.x,player.position.z-npc.group.position.z);
-   npc.group.visible=dist<34;
-   if(dist>42)continue;
+   npc.group.visible=dist<28;
+   if(dist>35)continue;
    npc.targetTimer-=dt;
    let dx=npc.targetX-npc.group.position.x,dz=npc.targetZ-npc.group.position.z,d=Math.hypot(dx,dz);
    if(npc.targetTimer<=0||d<.65){
@@ -836,8 +836,8 @@ function updateVillageNPCs(dt){
      npc.group.position.x+=dx/(d||1)*step;npc.group.position.z+=dz/(d||1)*step;
      npc.group.rotation.y=Math.atan2(-dx,-dz);
    }
-   npc.group.position.y=dist<18?(moving?Math.abs(Math.sin(t*8+npc.phase))*.035:Math.sin(t*1.8+npc.phase)*.012):0;
-   if(npc.mixerNPC&&dist<18){
+   npc.group.position.y=dist<15?(moving?Math.abs(Math.sin(t*8+npc.phase))*.035:Math.sin(t*1.8+npc.phase)*.012):0;
+   if(npc.mixerNPC&&dist<15){
      if(moving!==npc.isMoving){
        const next=moving?(npc.walkAction||npc.idleAction):(npc.idleAction||npc.walkAction);
        if(next&&next!==npc.activeNPCAction){
@@ -847,7 +847,7 @@ function updateVillageNPCs(dt){
        }
      }
      npc.mixerNPC.update(dt);
-   }else if(npc.bones?.length&&dist<18){
+   }else if(npc.bones?.length&&dist<15){
      const wave=Math.sin(t*7+npc.phase);
      for(const b of npc.bones)b.bone.rotation.copy(b.base);
      const find=re=>npc.bones.find(b=>re.test(b.name));
