@@ -165,7 +165,12 @@ async function loadPrimaryAssets(){
      });
    }
    // Clips coupés temporairement pour éviter le root-motion qui déplace le modèle hors des collisions.
-   mixer=null;currentAction=null;heroClips={};let hand=null;model.traverse(o=>{if(o.isBone&&/right.?hand|hand.?r$|r.?hand|mixamorig.*right.?hand/i.test(o.name||''))hand=hand||o});if(hand){weaponMount.parent?.remove(weaponMount);hand.add(weaponMount);weaponMount.position.set(0,-.035,.045);weaponMount.rotation.set(0,0,0);weaponHandAttached=true}else{player.add(weaponMount);weaponMount.position.set(.38,1.02,-.08);weaponMount.rotation.set(0,0,0);weaponHandAttached=false}return hand?'personnage 3D stable, animations désactivées, arme attachée à la main droite':'personnage 3D stable sans animation; support d’arme de secours actif';
+   mixer=null;currentAction=null;heroClips={};
+   // Le repère local des os de main du GLB n'est pas confirmé. Pour éviter une épée retournée/décalée,
+   // le support reste dans le repère du joueur, placé au niveau de sa main droite en pose statique.
+   if(weaponMount.parent!==player){weaponMount.parent?.remove(weaponMount);player.add(weaponMount)}
+   weaponMount.position.set(.58,1.23,.02);weaponMount.rotation.set(0,0,0);weaponHandAttached=false;
+   return 'personnage stable sans animation; arme alignée sur la zone de la main droite';
  })().catch(e=>{console.warn('Personnage GLB indisponible',e);return 'personnage provisoire'}));
 jobs.push(Promise.resolve('arsenal 3D ASTREA chargé depuis le catalogue procédural'));
  jobs.push(loadGLB('02-MODELS/buildings/small-house.glb').then(g=>{
@@ -189,8 +194,8 @@ function playCharacterAnimation(kind){
 
 let selectedWeapon=ASTREA_WEAPONS.find(w=>w.id===savedGame.selectedWeapon)||ASTREA_WEAPONS[0];
 function equipWeapon(id){
- const next=ASTREA_WEAPONS.find(w=>w.id===id);if(!next)return;selectedWeapon=next;const model=createWeaponModel(THREE,next);model.position.set(0,-.1,0);model.rotation.set(0,0,0);if(swordVisual.parent)swordVisual.parent.remove(swordVisual);swordVisual=model;weaponMount.add(model);
- const isSword=['sword','katana','greatsword','sun','abyss','divine','cosmic','chaos','hakai','shin'].includes(next.type);if(isSword){const swordPath=(next.type==='sword'||next.type==='katana')?'02-MODELS/weapons/sword-meshy.glb':'02-MODELS/weapons/converted/divine-red-sword-4643.glb';loadGLB(swordPath).then(g=>{if(selectedWeapon.id!==next.id)return;const actual=g.scene;normalizeModel(actual,next.type==='greatsword'?1.55:1.25);actual.position.set(0,-.035,.025);actual.rotation.set(0,0,0);if(swordVisual.parent)swordVisual.parent.remove(swordVisual);swordVisual=actual;weaponMount.add(actual)}).catch(e=>console.warn('Modèle Meshy indisponible, secours conservé',e))}
+ const next=ASTREA_WEAPONS.find(w=>w.id===id);if(!next)return;selectedWeapon=next;const model=createWeaponModel(THREE,next);model.position.set(0,-.12,0);model.rotation.set(0,0,0);if(swordVisual.parent)swordVisual.parent.remove(swordVisual);swordVisual=model;weaponMount.add(model);
+ const isSword=['sword','katana','greatsword','sun','abyss','divine','cosmic','chaos','hakai','shin'].includes(next.type);if(isSword){const swordPath=(next.type==='sword'||next.type==='katana')?'02-MODELS/weapons/sword-meshy.glb':'02-MODELS/weapons/converted/divine-red-sword-4643.glb';loadGLB(swordPath).then(g=>{if(selectedWeapon.id!==next.id)return;const actual=g.scene;normalizeModel(actual,next.type==='greatsword'?1.55:1.25);actual.position.set(0,-.12,0);actual.rotation.set(0,0,0);if(swordVisual.parent)swordVisual.parent.remove(swordVisual);swordVisual=actual;weaponMount.add(actual)}).catch(e=>console.warn('Modèle Meshy indisponible, secours conservé',e))}
  const info=document.getElementById('weaponInfo');
  if(info)info.innerHTML='<strong>'+next.name+'</strong><br>Niveau unique : '+next.level+' — Rang '+next.rank+'<br>Dégâts : '+next.damage+' • Portée : '+next.reach+'<br>Vitesse : '+next.speed.toFixed(2)+' • Technique : '+next.skill;
  const select=document.getElementById('weaponSelect');if(select)select.value=next.id;
