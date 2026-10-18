@@ -1,7 +1,7 @@
 // ASTREA REBORN — systèmes monde v1
 // Monnaie, continents, voyages maritimes, royaumes et créatures.
 // Les créatures procédurales sont provisoires et seront remplacées par les GLB finaux.
-export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes }) {
+export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes, equipWeapon, addItem }) {
   const SAVE_KEY = 'astrea-world-save-v1';
   const regions = [
     { id:'village', name:'Village d’Astrea', biome:'Plaine verdoyante', color:0x6b9b52, sky:0x9dc5d0, price:0, bounds:{minX:-21,maxX:21,minZ:-117,maxZ:1}, description:'Ton point de départ : la grande ville médiévale.' },
@@ -71,17 +71,17 @@ export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes }) 
     panel.append(el('h3',{},'🛒 MARCHANDS & ÉQUIPEMENT'));
     const shopItems=[
       {id:'potion',name:'Potion de soin',desc:'Restaure 35 PV hors combat.',price:35},
-      {id:'iron-sword',name:'Épée en fer',desc:'Une arme fiable pour l’aventure.',price:120},
-      {id:'forest-blade',name:'Lame sylvestre',desc:'Une lame ornée inspirée des forêts.',price:260},
-      {id:'dragon-edge',name:'Lame draconique',desc:'Arme rare. La légende dit qu’elle résiste au feu.',price:650}
+      {id:'iron-sword',name:'Épée classique',weaponId:'basic-sword',desc:'Une arme fiable pour l’aventure.',price:120},
+      {id:'forest-blade',name:'Katana du voyageur',weaponId:'katana',desc:'Une lame rapide pour l’exploration.',price:260},
+      {id:'dragon-edge',name:'Épée du Soleil',weaponId:'sun-sword',desc:'Une arme rare de rang supérieur.',price:650}
     ];
     shopItems.forEach(item=>panel.append(makeCard(item.name,item.desc+' · '+item.price+' Couronnes',[
       button(item.id==='potion'?'ACHETER':save.inventory.includes(item.name)?'DÉJÀ POSSÉDÉ':'ACHETER / ÉQUIPER',()=>{
         if(item.id!=='potion'&&save.inventory.includes(item.name)){save.equipment=item.name;persist();hint.textContent=item.name+' équipée dans la progression.';renderPanel();return}
         if(save.coins<item.price){hint.textContent='Pas assez de Couronnes.';return}
         save.coins-=item.price;
-        if(item.id==='potion')save.potions=(save.potions||0)+1;
-        else {save.inventory.push(item.name);save.equipment=item.name}
+        if(item.id==='potion'){save.potions=(save.potions||0)+1;if(addItem)addItem('Potion de soin',1)}
+        else {save.inventory.push(item.name);save.equipment=item.name;if(item.weaponId&&equipWeapon)equipWeapon(item.weaponId)}
         persist();hint.textContent=item.name+' acheté.';renderPanel();
       },item.id!=='potion'&&save.inventory.includes(item.name)&&save.equipment===item.name)
     ])));
@@ -99,7 +99,7 @@ export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes }) 
     panel.append(makeCard('Fabriquer une potion','Coût : 2 herbes + 25 Couronnes.',[
       button('FABRIQUER',()=>{
         if(save.resources.herbes<2||save.coins<25){hint.textContent='Il faut 2 herbes et 25 Couronnes.';return}
-        save.resources.herbes-=2;save.coins-=25;save.potions=(save.potions||0)+1;persist();hint.textContent='Potion fabriquée.';renderPanel();
+        save.resources.herbes-=2;save.coins-=25;save.potions=(save.potions||0)+1;if(addItem)addItem('Potion de soin',1);persist();hint.textContent='Potion fabriquée.';renderPanel();
       },save.resources.herbes<2||save.coins<25)
     ]));
     panel.append(makeCard('Fabriquer une lame en fer','Coût : 4 pierres + 3 bois + 90 Couronnes.',[
