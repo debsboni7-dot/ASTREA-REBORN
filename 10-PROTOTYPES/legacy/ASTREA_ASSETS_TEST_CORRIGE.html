@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>ASTREA — Test des ressources 3D</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#10151d;color:#fff;font-family:Arial,sans-serif}#scene{position:fixed;inset:0}canvas{display:block;width:100%;height:100%}#panel{position:fixed;left:10px;right:10px;top:10px;z-index:5;max-width:520px;background:#111d2bea;border:1px solid #ffffff30;border-radius:14px;padding:12px;backdrop-filter:blur(8px);max-height:calc(100dvh - 20px);overflow:auto}h1{font-size:19px;margin:0 0 5px}p{font-size:12px;line-height:1.4;color:#c6d1e2;margin:0 0 10px}label{font-size:12px;color:#d7e1f0;display:block;margin:8px 0 4px}select,button{width:100%;border:1px solid #6d829e;border-radius:9px;background:#1b2a3e;color:#fff;padding:10px;font-size:14px}button{margin-top:8px;background:#2c5482;font-weight:bold}#status{font-size:12px;line-height:1.45;color:#a8e5b5;margin-top:9px;white-space:pre-wrap}#elements{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}.elem{width:37px;height:37px;object-fit:contain;background:#fff;border-radius:50%;padding:4px;border:2px solid #ffffff66}.hint{font-size:11px;color:#a9b8ca;margin-top:7px}@media(min-width:700px){#panel{left:16px;top:16px;width:340px}}
+</style>
+</head>
+<body>
+<div id="scene"></div>
+<section id="panel">
+<h1>ASTREA — Test des modèles 3D</h1>
+<p>Cette page teste les fichiers du dépôt ASTREA-ASSETS. Choisis un modèle pour le charger. Les fichiers sont chargés à la demande pour éviter de télécharger les 145 Mo en une seule fois.</p>
+<label for="model">Modèle à afficher</label><select id="model"></select>
+<button id="reload">Charger le modèle sélectionné</button>
+<label for="ground">Texture du sol</label><select id="ground"><option value="textures/grass-1.jpg">Herbe</option><option value="textures/dirt-1.jpg">Terre</option><option value="textures/paving-village-1.jpg">Pavés du village</option><option value="textures/rock-1.jpg">Roche</option></select>
+<label for="sky">Texture du ciel</label><select id="sky"><option value="textures/sky-1.jpg">Ciel</option><option value="none">Ciel bleu simple</option></select>
+<div id="elements" aria-label="Textures des éléments"></div>
+<div id="status">Préparation de la scène…</div>
+<div class="hint">Astuce : fais glisser le doigt pour tourner la caméra, pince pour zoomer si ton navigateur le permet. Ce fichier est une page de test des ressources, pas encore la version complète du jeu.</div>
+</section>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import {GLTFLoader} from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js';
+import {FBXLoader} from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/FBXLoader.js';
+const MODELS = [
+  [
+    "Create a low poly 3D 1011090201.fbx",
+    "modelsmodels/Meshy_AI_Create_a_low_poly_3D__1011090201_generate.fbx",
+    "fbx"
+  ],
+  [
+    "Create a low poly 3D 1011090217.fbx",
+    "modelsmodels/Meshy_AI_Create_a_low_poly_3D__1011090217_generate.fbx",
+    "fbx"
+  ],
+  [
+    "Create a low poly 3D 1011090241.fbx",
+    "modelsmodels/Meshy_AI_Create_a_low_poly_3D__1011090241_generate.fbx",
+    "fbx"
+  ],
+  [
+    "Create a low poly 3D 1011092922.glb",
+    "modelsmodels/Meshy_AI_Create_a_low_poly_3D__1011092922_generate.glb",
+    "glb"
+  ],
+  [
+    "Create a low poly 3D 1011093049.glb",
+    "modelsmodels/Meshy_AI_Create_a_low_poly_3D__1011093049_generate.glb",
+    "glb"
+  ],
+  [
+    "Create a low poly 3D 1011093141.glb",
+    "modelsmodels/Meshy_AI_Create_a_low_poly_3D__1011093141_generate.glb",
+    "glb"
+  ],
+  [
+    "Create a low poly 3D 1011093211.glb",
+    "modelsmodels/Meshy_AI_Create_a_low_poly_3D__1011093211_generate.glb",
+    "glb"
+  ],
+  [
+    "Create a low poly 3D 1011093240.glb",
+    "modelsmodels/Meshy_AI_Create_a_low_poly_3D__1011093240_generate.glb",
+    "glb"
+  ],
+  [
+    "Create a stylized 3D 1011085550.fbx",
+    "modelsmodels/Meshy_AI_Create_a_stylized_3D__1011085550_generate.fbx",
+    "fbx"
+  ],
+  [
+    "Create a stylized 3D 1011085606.fbx",
+    "modelsmodels/Meshy_AI_Create_a_stylized_3D__1011085606_generate.fbx",
+    "fbx"
+  ],
+  [
+    "Coffre",
+    "modelsmodels/Meshy_AI_Créer_un_coffre_au_t_1011040438_generate.fbx",
+    "fbx"
+  ],
+  [
+    "Loup sauvage",
+    "modelsmodels/Meshy_AI_Créer_un_loup_sauvag_1011040318_generate.fbx",
+    "fbx"
+  ],
+  [
+    "Monstre humain",
+    "modelsmodels/Meshy_AI_Créer_un_monstre_hum_1011034908_generate.glb",
+    "glb"
+  ],
+  [
+    "Personnage",
+    "modelsmodels/Meshy_AI_Créer_un_personnage__1011035439_generate.glb",
+    "glb"
+  ],
+  [
+    "Feu de camp",
+    "modelsmodels/Meshy_AI_Créer_un_petit_feu_d_1011034618_generate.glb",
+    "glb"
+  ],
+  [
+    "Pont piéton",
+    "modelsmodels/Meshy_AI_Créer_un_pont_piéto_1011034748_generate.glb",
+    "glb"
+  ],
+  [
+    "Puits médiéval",
+    "modelsmodels/Meshy_AI_Créer_un_puits_médi_1011033954_generate.glb",
+    "glb"
+  ],
+  [
+    "Établi",
+    "modelsmodels/Meshy_AI_Créer_un_établi_de__1011034127_generate.glb",
+    "glb"
+  ],
+  [
+    "Petite maison",
+    "modelsmodels/Meshy_AI_Créer_une_petite_mai_1011033315_generate.glb",
+    "glb"
+  ],
+  [
+    "Épée",
+    "modelsmodels/Meshy_AI_Créer_une_épée_cou_1011035332_generate.glb",
+    "glb"
+  ],
+  [
+    "Pièce / salle",
+    "modelsmodels/Meshy_AI_La_pièce_doit_être__1011035207_generate.glb",
+    "glb"
+  ],
+  [
+    "Personnage principal",
+    "modelsmodels/Meshy_AI_Personnage_principal__1011110936_generate.glb",
+    "glb"
+  ],
+  [
+    "Chariot en bois",
+    "modelsmodels/Meshy_AI_Un_chariot_en_bois_co_1011093312_generate.glb",
+    "glb"
+  ],
+  [
+    "Cheval brun",
+    "modelsmodels/Meshy_AI_Un_cheval_brun_de_tai_1011093257_generate.glb",
+    "glb"
+  ],
+  [
+    "Jeune aventurier",
+    "modelsmodels/Meshy_AI_Un_jeune_aventurier_d_1011031733_generate.glb",
+    "glb"
+  ],
+  [
+    "Boîtier métallique",
+    "modelsmodels/Meshy_AI_Un_petit_boîtier_mé_1011095143_generate.glb",
+    "glb"
+  ],
+  [
+    "Diligence en bois",
+    "modelsmodels/Meshy_AI_Une_diligence_en_bois_1011093347_generate.glb",
+    "glb"
+  ],
+  [
+    "Grande roue métallique",
+    "modelsmodels/Meshy_AI_Une_grande_roue_méta_1011095112_generate.glb",
+    "glb"
+  ],
+  [
+    "Grille verticale",
+    "modelsmodels/Meshy_AI_Une_lourde_grille_ver_1011095156_generate.glb",
+    "glb"
+  ],
+  [
+    "Boussole",
+    "modelsmodels/Meshy_AI_Une_petite_boussole_c_1011095209_generate.glb",
+    "glb"
+  ],
+  [
+    "Plateforme circulaire",
+    "modelsmodels/Meshy_AI_Une_plateforme_circul_1011095126_generate.glb",
+    "glb"
+  ],
+  [
+    "Porte massive",
+    "modelsmodels/Meshy_AI_Une_porte_massive_com_1011095101_generate.glb",
+    "glb"
+  ],
+  [
+    "Animation attaque 1 (à vérifier)",
+    "modelsmodels/anim-attack-1.glb",
+    "glb"
+  ],
+  [
+    "Animation attaque 2 (à vérifier)",
+    "modelsmodels/anim-attack-2.glb",
+    "glb"
+  ],
+  [
+    "Animation attaque 3 (à vérifier)",
+    "modelsmodels/anim-attack-3.glb",
+    "glb"
+  ],
+  [
+    "Héros (hero.glb)",
+    "modelsmodels/hero.glb",
+    "glb"
+  ]
+];
+const root=document.querySelector('#scene');
+const scene=new THREE.Scene(); scene.background=new THREE.Color(0x76a9d8); scene.fog=new THREE.Fog(0x9db9cf,45,130);
+const camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,.1,500); camera.position.set(8,6,11);
+const renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'low-power'}); renderer.setPixelRatio(Math.min(devicePixelRatio,1.5)); renderer.setSize(innerWidth,innerHeight); renderer.outputColorSpace=THREE.SRGBColorSpace; root.appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xddeeff,0x6d5b42,2)); const sun=new THREE.DirectionalLight(0xffffff,2.2);sun.position.set(8,15,7);scene.add(sun);
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(250,250),new THREE.MeshStandardMaterial({color:0xffffff,roughness:1}));ground.rotation.x=-Math.PI/2;ground.position.y=-.04;scene.add(ground);
+const grid=new THREE.GridHelper(100,50,0x29455c,0x567085);grid.position.y=.005;scene.add(grid);
+const stage=new THREE.Mesh(new THREE.CylinderGeometry(3.2,3.2,.22,32),new THREE.MeshStandardMaterial({color:0x536a7c,roughness:.8}));stage.position.y=.07;scene.add(stage);
+const gltf=new GLTFLoader(), fbx=new FBXLoader(), texLoader=new THREE.TextureLoader();let current=null, mixer=null, last=performance.now(), groundTex=null, skyTex=null;
+const status=document.querySelector('#status');
+function report(t){status.textContent=t;}
+function url(p){return './'+p.split('/').map((part,i)=>i===0?part:encodeURIComponent(part)).join('/');}
+function setTexture(select){const path=select.value;if(path==='none'){scene.background=new THREE.Color(0x76a9d8);if(skyTex){skyTex.dispose();skyTex=null;}return;}texLoader.load(url(path),t=>{t.colorSpace=THREE.SRGBColorSpace;if(select.id==='ground'){if(groundTex)groundTex.dispose();groundTex=t;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(35,35);ground.material.map=t;ground.material.color.set(0xffffff);ground.material.needsUpdate=true;}else{if(skyTex)skyTex.dispose();skyTex=t;scene.background=t;}},undefined,e=>report('Texture introuvable : '+path+'\nVérifie que ce fichier est bien dans le dépôt.'));}
+function disposeCurrent(){if(mixer){mixer.stopAllAction();mixer=null;}if(current){scene.remove(current);current.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){const mats=Array.isArray(o.material)?o.material:[o.material];mats.forEach(m=>{if(m.map && m.map!==groundTex && m.map!==skyTex)m.map.dispose();m.dispose();});}});current=null;}}
+function loadSelected(){const item=MODELS[Number(document.querySelector('#model').value)||0];disposeCurrent();report('Chargement : '+item[0]+'…\nLe modèle est téléchargé depuis le dossier modelsmodels.');const loader=item[2]==='fbx'?fbx:gltf;loader.load(url(item[1]),obj=>{current=item[2]==='fbx'?obj:obj.scene;if(!current){report('Le fichier ne contient pas de scène 3D affichable.');return;}const box=new THREE.Box3().setFromObject(current);const size=box.getSize(new THREE.Vector3());const center=box.getCenter(new THREE.Vector3());if(!Number.isFinite(size.x+size.y+size.z)||Math.max(size.x,size.y,size.z)<1e-5){report('Fichier chargé, mais aucune géométrie visible détectée. Ce fichier peut être une animation seule.');current=null;return;}current.position.sub(center);const max=Math.max(size.x,size.y,size.z);current.scale.setScalar(4.2/max);current.position.y=4.2*(0.5-(center.y-box.min.y)/(max||1));scene.add(current);if(item[2]==='glb'&&obj.animations?.length){mixer=new THREE.AnimationMixer(current);obj.animations.forEach(c=>mixer.clipAction(c).play());}report('Chargé : '+item[0]+'\nFormat : '+item[2].toUpperCase()+'\nAnimations intégrées : '+(obj.animations?.length||0)+'\nSi le modèle paraît vide, essaye un autre fichier ou vérifie le modèle dans un outil 3D.');},p=>{if(p.total)report('Chargement '+item[0]+' : '+Math.round(p.loaded/p.total*100)+' %');},e=>report('Échec du chargement : '+item[1]+'\nVérifie le chemin et que la page est publiée à la racine du dépôt.'));
+}
+const select=document.querySelector('#model');MODELS.forEach((m,i)=>{const o=document.createElement('option');o.value=i;o.textContent=m[0]+' ('+m[2].toUpperCase()+')';select.appendChild(o);});
+document.querySelector('#reload').addEventListener('click',loadSelected);select.addEventListener('change',loadSelected);document.querySelector('#ground').addEventListener('change',e=>setTexture(e.target));document.querySelector('#sky').addEventListener('change',e=>setTexture(e.target));
+const elements=['anemo','dendro','geo','hydro','pyro'];const elemBox=document.querySelector('#elements');elements.forEach(name=>{const im=document.createElement('img');im.className='elem';im.alt='Élément '+name;im.title=name;im.src=url('textures/element-'+name+'-1.png');im.onerror=()=>{im.style.opacity='.35';};elemBox.appendChild(im);});
+// VFX textures are kept available as testable asset references.
+Promise.all(['textures/vfx-fog-puff-1.png','textures/vfx-slash-1.png','textures/vfx-waterfall-foam-1.png','textures/windows-atlas-1.jpg'].map(path=>new Promise(resolve=>texLoader.load(url(path),()=>resolve(true),undefined,()=>resolve(false))))).then(results=>{if(results.some(x=>!x))console.warn('Une ou plusieurs textures secondaires ne se chargent pas.');});
+let drag=false,px=0,py=0,theta=Math.PI/4,phi=.9,dist=15;renderer.domElement.addEventListener('pointerdown',e=>{drag=true;px=e.clientX;py=e.clientY;renderer.domElement.setPointerCapture(e.pointerId);});renderer.domElement.addEventListener('pointermove',e=>{if(!drag)return;theta-=(e.clientX-px)*.008;phi=Math.max(.2,Math.min(1.45,phi+(e.clientY-py)*.006));px=e.clientX;py=e.clientY;});renderer.domElement.addEventListener('pointerup',()=>drag=false);renderer.domElement.addEventListener('wheel',e=>{dist=Math.max(5,Math.min(35,dist+e.deltaY*.015));});
+function resize(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);}addEventListener('resize',resize);
+function animate(now){requestAnimationFrame(animate);const dt=Math.min((now-last)/1000,.05);last=now;if(mixer)mixer.update(dt);camera.position.set(Math.sin(theta)*dist,Math.max(2,Math.sin(phi)*dist*.55),Math.cos(theta)*dist);camera.lookAt(0,1.8,0);renderer.render(scene,camera);}requestAnimationFrame(animate);
+setTexture(document.querySelector('#ground'));setTexture(document.querySelector('#sky'));loadSelected();
+</script>
+</body>
+</html>
