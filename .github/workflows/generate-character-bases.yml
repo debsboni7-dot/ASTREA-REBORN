@@ -1,0 +1,41 @@
+name: Generate ASTREA character base models with Blender
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "tools/create_character_bases.py"
+      - ".github/workflows/generate-character-bases.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout ASTREA REBORN
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install Blender
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y blender
+      - name: Generate male and female base GLB characters
+        run: |
+          set -euo pipefail
+          blender --background --python tools/create_character_bases.py -- "$GITHUB_WORKSPACE/02-MODELS/characters"
+          test -s 02-MODELS/characters/base-male.glb
+          test -s 02-MODELS/characters/base-female.glb
+      - name: Commit generated character models
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add 02-MODELS/characters/base-male.glb 02-MODELS/characters/base-female.glb
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Add Blender-generated male and female character bases"
+          git pull --rebase origin main
+          git push origin HEAD:main
