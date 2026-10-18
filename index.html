@@ -47,7 +47,7 @@ const fallbackSword=box(.12,.95,.16,0xb8d7df,0,0,0);scene.remove(fallbackSword);
 let swordVisual=fallbackSword,visualRoot=fallback,loadedHero=false,loadedHouse=false;
 let yaw=0,pitch=.22,vy=0,onGround=true,attackTimer=0,attackCooldown=0,mixer=null,currentAction=null,heroClips={},animationCache={};
 // PNJ-guide provisoire : formes légères, sans fichier externe ni animation.
-const guide=new THREE.Group();guide.position.set(-2.1,0,-1.1);scene.add(guide);
+const guide=new THREE.Group();guide.position.set(-1.2,0,0.8);scene.add(guide);
 const guideRobe=new THREE.Mesh(new THREE.CapsuleGeometry(.34,.82,3,6),new THREE.MeshStandardMaterial({color:0x356d62,roughness:.9}));guideRobe.position.y=.92;guide.add(guideRobe);
 const guideHead=new THREE.Mesh(new THREE.SphereGeometry(.25,8,6),new THREE.MeshStandardMaterial({color:0xb98260,roughness:.9}));guideHead.position.y=1.68;guide.add(guideHead);
 const guideHair=new THREE.Mesh(new THREE.SphereGeometry(.26,8,5),new THREE.MeshStandardMaterial({color:0x30251f,roughness:1}));guideHair.scale.y=.55;guideHair.position.y=1.85;guide.add(guideHair);
