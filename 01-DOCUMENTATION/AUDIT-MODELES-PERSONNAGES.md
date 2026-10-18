@@ -27,3 +27,10 @@ Date : 18 octobre 2026
 
 - GitHub Actions a réussi le contrôle de syntaxe JavaScript sur le code du prototype après le nettoyage des personnages et l'ajout des animations/VFX.
 - Le rendu visuel final, l'attache exacte des armes et les FPS doivent encore être vérifiés dans Chrome Android sur le téléphone cible. Le contrôle de syntaxe ne prouve pas la compatibilité visuelle ni les performances.
+
+## Mise à jour — combos et population
+- Le filtre FBX de l'archive Meshy a été corrigé pour permettre le chargement du vrai personnage texturé en priorité.
+- Le prototype exploite maintenant les chronologies des démonstrations de combos et d'ultimes. Les HTML de démonstration sont des références 2D et ne sont pas chargés par le jeu.
+- Les PNJ actifs utilisent les modèles GLB masculins présents, avec teintes de matériaux ; les matériaux non texturés reçoivent une palette de couleurs. Les PNJ utilisent leurs clips disponibles ou des mouvements procéduraux et se déplacent pacifiquement.
+- La ville ajoute un marché, une forge, une mairie, un château et un camp. Les distances d'affichage sont limitées sur mobile.
+- Le nombre de PNJ est fixé à 100 instances prévues ; le nombre effectivement chargé doit être vérifié sur l'appareil, car les échecs de chargement d'un asset restent possibles.
