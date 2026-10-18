@@ -168,7 +168,7 @@ let enemyHP=100,enemyDefeated=false;const dialogue=document.getElementById('dial
 const MAX_PLAYER_HP=100;let playerHP=100,enemyAttackTimer=0;
 const healthText=document.getElementById('healthText'),healthFill=document.getElementById('healthFill');
 function renderHealth(){playerHP=Math.max(0,Math.min(MAX_PLAYER_HP,playerHP));healthText.textContent=playerHP+' / '+MAX_PLAYER_HP;healthFill.style.width=playerHP+'%';healthFill.style.background=playerHP<=25?'#e44b4b':playerHP<=55?'#e5b544':'#4fc879'}
-let yaw=0,pitch=.22,vy=0,onGround=true,attackTimer=0,attackCooldown=0,specialCooldown=0,attackCombo=0,attackStyle='sword',mixer=null,currentAction=null,heroClips={},animationCache={};
+let yaw=0,pitch=.22,vy=0,onGround=true,attackTimer=0,attackCooldown=0,specialCooldown=0,attackCombo=0,attackStyle='sword',mixer=null,currentAction=null,heroClips={},animationCache={},proceduralPose=null,proceduralPoseStart=0,proceduralRig={};
 function takeDamage(amount){playerHP=Math.max(0,playerHP-amount);renderHealth();if(playerHP<=0){playerHP=50;player.position.set(0,0,2);hint.textContent='K.-O. ! Tu reprends tes esprits avec 50 PV.';questStatus.textContent='Retour au point de départ : soigne-toi et esquive.';renderHealth()}saveProgress()}
 function usePotion(){if((inventory['Potion de soin']||0)<=0){hint.textContent='Tu n’as aucune potion de soin.';return}if(playerHP>=MAX_PLAYER_HP){hint.textContent='Tes PV sont déjà au maximum.';return}inventory['Potion de soin']--;playerHP=Math.min(MAX_PLAYER_HP,playerHP+35);renderInventory();renderHealth();hint.textContent='Potion utilisée : +35 PV.';saveProgress()}
 let savedGame={};try{savedGame=JSON.parse(localStorage.getItem('astrea-save-v1')||'{}')||{}}catch(e){}
@@ -303,7 +303,7 @@ async function loadPrimaryAssets(){
  jobs.push((async()=>{
    // Priorité au personnage masculin Meshy fourni par l'utilisateur ; hero.glb reste le repli si la source n'a pas encore été importée.
    const g=await loadPrimaryCharacter();
-   const model=g.scene;normalizeModel(model,1.9);player.add(model);player.visible=true;visualRoot=model;loadedHero=true;
+   const model=g.scene;normalizeModel(model,1.9);player.add(model);player.visible=true;visualRoot=model;loadedHero=true;cacheProceduralRig(model);
    if(savedCharacter && !String(g.source||'').startsWith('Meshy FBX')){
      player.scale.y=savedCharacter.height/190;
      const outfit=new THREE.Color(outfitColors[savedCharacter.outfit]||0x315c9b);
@@ -351,7 +351,7 @@ async function loadPrimaryAssets(){
    model.updateMatrixWorld(true);
    if(handBone){const handPos=new THREE.Vector3();handBone.getWorldPosition(handPos);player.worldToLocal(handPos);weaponMount.position.copy(handPos);weaponMount.position.y-=.015;weaponHandAttached=true}
    else{weaponMount.position.set(.58,1.23,.02);weaponHandAttached=false}
-   weaponMount.rotation.set(0,0,0);
+   weaponMount.rotation.set(0,0,0);playCharacterAnimation('idle');
    return handBone?'personnage stable sans animation; arme positionnée sur l’os de la main droite':'personnage stable sans animation; support d’arme de secours actif';
  })().catch(e=>{player.visible=false;visualRoot=null;console.error('Personnage 3D réel indisponible',e);hint.textContent='Personnage 3D non chargé : vérifie les fichiers Meshy.';return 'personnage 3D indisponible'}));
 jobs.push(Promise.resolve('arsenal 3D ASTREA chargé depuis le catalogue procédural'));
@@ -366,6 +366,57 @@ jobs.push(Promise.resolve('arsenal 3D ASTREA chargé depuis le catalogue procéd
  }));
  const result=await Promise.all(jobs);
  status.textContent='Ville médiévale chargée';hint.textContent='ASTREA REBORN : chargement des vrais modèles 3D et animations…';
+}
+function setProceduralPose(kind){proceduralPose=kind;proceduralPoseStart=clock.elapsedTime}
+function cacheProceduralRig(model){
+ const entries=[];model.traverse(o=>{if(o.isBone)entries.push({bone:o,name:String(o.name||'').toLowerCase().replace(/mixamorig|armature|skeleton|rig/g,'').replace(/[^a-z0-9]/g,''),base:o.rotation.clone()})});
+ const find=re=>entries.find(x=>re.test(x.name))||null;
+ proceduralRig={
+  entries,
+  leftArm:find(/leftarm|upperarml|lupperarm|armleft/),
+  rightArm:find(/rightarm|upperarmr|rupperarm|armright/),
+  leftForearm:find(/leftforearm|lowerarml|lforearm|forearmleft/),
+  rightForearm:find(/rightforearm|lowerarmr|rforearm|forearmright/),
+  leftLeg:find(/leftupleg|upperlegl|leftthigh|thighl|uplegleft/),
+  rightLeg:find(/rightupleg|upperlegr|rightthigh|thighr|uplegright/),
+  leftShin:find(/leftleg|lowerlegl|leftcalf|calfl/),
+  rightShin:find(/rightleg|lowerlegr|rightcalf|calfr/),
+  spine:find(/spine$|spine1|chest|upperbody/),
+  hips:find(/hips|pelvis/)
+ };
+}
+function updateProceduralRig(){
+ if(!proceduralRig.entries?.length)return;
+ if(currentAction&&currentAction.isRunning())return;
+ if(!proceduralPose)proceduralPose=moveAnim.moving?'walk':'idle';
+ let elapsed=clock.elapsedTime-proceduralPoseStart;
+ if(/^attack/.test(proceduralPose)&&elapsed>.46){proceduralPose=moveAnim.moving?'walk':'idle';proceduralPoseStart=clock.elapsedTime;elapsed=0}
+ if(proceduralPose==='jump'&&onGround){proceduralPose=moveAnim.moving?'walk':'idle';proceduralPoseStart=clock.elapsedTime;elapsed=0}
+ const wave=Math.sin(clock.elapsedTime*(proceduralPose==='walk'?9:2.2));
+ const attack=/^attack/.test(proceduralPose),special=proceduralPose==='attack3';
+ const power=attack?Math.sin(Math.min(1,elapsed/.46)*Math.PI):0;
+ for(const e of proceduralRig.entries){e.bone.rotation.copy(e.base)}
+ const rotate=(entry,x=0,y=0,z=0)=>{if(entry)entry.bone.rotation.set(entry.base.x+x,entry.base.y+y,entry.base.z+z)};
+ if(proceduralPose==='walk'||proceduralPose==='run'){
+  rotate(proceduralRig.leftLeg,wave*.52);rotate(proceduralRig.rightLeg,-wave*.52);
+  rotate(proceduralRig.leftShin,Math.max(0,-wave)*.42);rotate(proceduralRig.rightShin,Math.max(0,wave)*.42);
+  rotate(proceduralRig.leftArm,-wave*.28);rotate(proceduralRig.rightArm,wave*.28);
+  rotate(proceduralRig.leftForearm,Math.max(0,wave)*.12);rotate(proceduralRig.rightForearm,Math.max(0,-wave)*.12);
+  rotate(proceduralRig.spine,0,0,Math.sin(clock.elapsedTime*4)*.025);
+ }else if(attack){
+  const side=proceduralPose==='attack2'?-1:1;
+  rotate(proceduralRig.rightArm,-.45+power*(special?1.45:1.05),0,side*power*.95);
+  rotate(proceduralRig.rightForearm,-power*.8,0,-side*power*.25);
+  rotate(proceduralRig.leftArm,.18,0,-power*.22);
+  rotate(proceduralRig.spine,0,power*side*.28,side*power*.16);
+ }else if(proceduralPose==='jump'){
+  rotate(proceduralRig.leftArm,-.9);rotate(proceduralRig.rightArm,-.9);
+  rotate(proceduralRig.leftLeg,-.3);rotate(proceduralRig.rightLeg,-.3);
+ }else{
+  rotate(proceduralRig.spine,Math.sin(clock.elapsedTime*1.8)*.018);
+  rotate(proceduralRig.leftArm,0,0,Math.sin(clock.elapsedTime*1.2)*.018);
+  rotate(proceduralRig.rightArm,0,0,-Math.sin(clock.elapsedTime*1.2)*.018);
+ }
 }
 function playCharacterAnimation(kind){
  if(!mixer||!visualRoot)return false;
@@ -389,8 +440,9 @@ function playCharacterAnimation(kind){
  if(!name&&kind==='attack1')name=names.find(n=>/attack|slash|sword|combo/i.test(n));
  if(!name&&kind==='idle')name=names.find(n=>/animation/i.test(n));
  if(!name){
+   setProceduralPose(kind);
    const externalFiles={idle:'anim-idle.glb',walk:'anim-walk.glb',run:'anim-walk.glb',attack1:'anim-attack-1.glb',attack2:'anim-attack-2.glb',attack3:'anim-attack-3.glb'};
-   const file=externalFiles[kind];if(!file||animationCache[kind]===false)return false;
+   const file=externalFiles[kind];if(!file||animationCache[kind]===false)return true;
    if(!animationCache[kind]){
      animationCache[kind]=loadGLB('04-ANIMATIONS/'+file).then(g=>{
        const mergedTracks=new Map();for(const part of (g.animations||[])){for(const track of (part.tracks||[]))mergedTracks.set(track.name,track)}if(!mergedTracks.size)throw new Error('Aucune piste d’animation dans '+file);const sourceClip=new THREE.AnimationClip('ASTREA_SOURCE_'+kind,-1,Array.from(mergedTracks.values()));
@@ -412,8 +464,9 @@ function playCharacterAnimation(kind){
      }).catch(e=>{console.warn('Animation externe non compatible : '+file,e);animationCache[kind]=false;return false;});
    }
    const pending=animationCache[kind];if(pending&&typeof pending.then==='function')pending.then(ok=>{if(ok)playCharacterAnimation(kind)});
-   return false;
+   return true;
  }
+ proceduralPose=null;
  const clip=heroClips[name];
  if(currentAction&&currentAction.getClip()===clip&&currentAction.isRunning())return true;
  const next=mixer.clipAction(clip);
@@ -535,7 +588,7 @@ addEventListener('pagehide',saveProgress);addEventListener('blur',saveProgress);
 let dragging=false,lastX=0,lastY=0,cameraPointer=null;renderer.domElement.style.touchAction='none';renderer.domElement.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;dragging=true;cameraPointer=e.pointerId;lastX=e.clientX;lastY=e.clientY;try{renderer.domElement.setPointerCapture(e.pointerId)}catch(_){}});renderer.domElement.addEventListener('pointermove',e=>{if(!dragging||e.pointerId!==cameraPointer)return;const dx=e.clientX-lastX,dy=e.clientY-lastY;yaw+=dx*.008;pitch=Math.max(-.08,Math.min(.72,pitch-dy*.004));lastX=e.clientX;lastY=e.clientY});function stopCameraDrag(e){if(cameraPointer===null||e.pointerId===cameraPointer){dragging=false;cameraPointer=null}}renderer.domElement.addEventListener('pointerup',stopCameraDrag);renderer.domElement.addEventListener('pointercancel',stopCameraDrag);
 const moveAnim={moving:false};
 function frame(){
- requestAnimationFrame(frame);const dt=Math.min(clock.getDelta(),.04);if(mixer)mixer.update(dt);updateWeaponVFX(dt);weaponAura.rotation.z+=dt*.9;for(let i=0;i<fireFlames.length;i++){const fl=fireFlames[i];fl.scale.y=.82+Math.sin(clock.elapsedTime*8+i*1.7)*.24;fl.rotation.y=clock.elapsedTime*.8+i;}for(const l of fireLights)l.intensity=1.05+Math.sin(clock.elapsedTime*7)*.3;for(const p of ambienceParticles){p.mesh.position.y=p.base.y+Math.sin(clock.elapsedTime*.8+p.phase)*.28;p.mesh.position.x=p.base.x+Math.sin(clock.elapsedTime*.35+p.phase)*.22;}for(const npc of npcGroups){npc.gear.badge.position.y=npc.baseY+Math.sin(clock.elapsedTime*1.4+npc.phase)*.06;npc.gear.weapon.rotation.z=-.25+Math.sin(clock.elapsedTime*1.1+npc.phase)*.035;}attackCooldown=Math.max(0,attackCooldown-dt);specialCooldown=Math.max(0,specialCooldown-dt);enemyAttackTimer=Math.max(0,enemyAttackTimer-dt);if(!enemyDefeated&&enemy.visible&&Math.hypot(player.position.x-enemy.position.x,player.position.z-enemy.position.z)<2.15&&enemyAttackTimer<=0){enemyAttackTimer=2.1;takeDamage(8);hint.textContent='La cible te frappe : -8 PV !'}let f=0,s=0;
+ requestAnimationFrame(frame);const dt=Math.min(clock.getDelta(),.04);if(mixer)mixer.update(dt);updateProceduralRig();updateWeaponVFX(dt);weaponAura.rotation.z+=dt*.9;for(let i=0;i<fireFlames.length;i++){const fl=fireFlames[i];fl.scale.y=.82+Math.sin(clock.elapsedTime*8+i*1.7)*.24;fl.rotation.y=clock.elapsedTime*.8+i;}for(const l of fireLights)l.intensity=1.05+Math.sin(clock.elapsedTime*7)*.3;for(const p of ambienceParticles){p.mesh.position.y=p.base.y+Math.sin(clock.elapsedTime*.8+p.phase)*.28;p.mesh.position.x=p.base.x+Math.sin(clock.elapsedTime*.35+p.phase)*.22;}for(const npc of npcGroups){npc.gear.badge.position.y=npc.baseY+Math.sin(clock.elapsedTime*1.4+npc.phase)*.06;npc.gear.weapon.rotation.z=-.25+Math.sin(clock.elapsedTime*1.1+npc.phase)*.035;}attackCooldown=Math.max(0,attackCooldown-dt);specialCooldown=Math.max(0,specialCooldown-dt);enemyAttackTimer=Math.max(0,enemyAttackTimer-dt);if(!enemyDefeated&&enemy.visible&&Math.hypot(player.position.x-enemy.position.x,player.position.z-enemy.position.z)<2.15&&enemyAttackTimer<=0){enemyAttackTimer=2.1;takeDamage(8);hint.textContent='La cible te frappe : -8 PV !'}let f=0,s=0;
  if(keys.w||keys.z||keys.arrowup||touchMove.forward)f+=1;
  if(keys.s||keys.arrowdown||touchMove.back)f-=1;
  if(keys.d||keys.arrowright||touchMove.right)s+=1;
