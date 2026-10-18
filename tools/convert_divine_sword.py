@@ -52,7 +52,7 @@ def load_image(path):
     if path is None:
         return None
     try:
-        return bpy.data.images.load(str(path), check_existing=True)
+        return bpy.data.images.load(str(path), check_existing=False)
     except Exception as exc:
         log(f"Could not load image {path.name}: {exc}")
         return None
