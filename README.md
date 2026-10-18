@@ -19,3 +19,13 @@ Ouvrir [`index.html`](./index.html) dans un navigateur avec Internet actif : Thr
 - `09-AUDIO/` : audio.
 
 Les vrais assets ne seront déclarés intégrés qu'après vérification de leur présence et de leur chargement.
+
+## Documentation supplémentaire
+- [Architecture technique](./01-DOCUMENTATION/ARCHITECTURE.md)
+- [Procédure d'intégration des assets Meshy](./01-DOCUMENTATION/INTEGRATION-ASSETS.md)
+- [Guide de contribution](./01-DOCUMENTATION/CONTRIBUTION.md)
+- [Tests manuels](./tests/README.md)
+- [Données descriptives du village de démonstration](./data/world-village.json)
+
+## État honnête des assets
+Le personnage principal Meshy, son animation de course et l'épée divine ne sont pas marqués comme intégrés tant que les fichiers sources et leur chargement n'ont pas été vérifiés.
