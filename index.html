@@ -22,7 +22,7 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js';
 import { FBXLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/FBXLoader.js';
-import { clone as cloneSkeleton } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/utils/SkeletonUtils.js';
+import { clone as cloneSkeleton, retargetClip } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/utils/SkeletonUtils.js';
 import { ASTREA_WEAPONS, createWeaponModel } from './02-MODELS/weapons/weapon-catalog.js';
 import { initAstreaWorld } from './07-SYSTEMS/astrea-world-expansion.js';
 (()=>{
@@ -312,18 +312,15 @@ async function loadPrimaryAssets(){
    // Utiliser les clips réellement intégrés au personnage Meshy, lorsqu'ils existent.
    // On retire le root-motion des pistes de position des hanches pour éviter que le clip
    // déplace le modèle hors du contrôleur de déplacement du jeu.
-   mixer=null;currentAction=null;heroClips={};
+   mixer=new THREE.AnimationMixer(model);currentAction=null;heroClips={};
    (g.animations||[]).forEach((clip,i)=>{heroClips[clip.name||('animation_'+i)]=clip;});
-   if(g.animations&&g.animations.length){
-     mixer=new THREE.AnimationMixer(model);
-     for(const clip of g.animations){
-       for(const track of clip.tracks||[]){
-         if(/\.position$/.test(track.name)&&/hips|pelvis|root/i.test(track.name)){
-           const values=track.values;
-           if(values&&values.length>=3){
-             const x=values[0],y=values[1],z=values[2];
-             for(let j=0;j<values.length;j+=3){values[j]=x;values[j+1]=y;values[j+2]=z;}
-           }
+   for(const clip of g.animations||[]){
+     for(const track of clip.tracks||[]){
+       if(/\.position$/.test(track.name)&&/hips|pelvis|root/i.test(track.name)){
+         const values=track.values;
+         if(values&&values.length>=3){
+           const x=values[0],y=values[1],z=values[2];
+           for(let j=0;j<values.length;j+=3){values[j]=x;values[j+1]=y;values[j+2]=z;}
          }
        }
      }
@@ -352,7 +349,7 @@ jobs.push(Promise.resolve('arsenal 3D ASTREA chargé depuis le catalogue procéd
  status.textContent='Ville médiévale chargée';hint.textContent='20 maisons • remparts • personnage Meshy prioritaire si importé • animations en attente de stabilisation';
 }
 function playCharacterAnimation(kind){
- if(!mixer||!visualRoot||!Object.keys(heroClips).length)return false;
+ if(!mixer||!visualRoot)return false;
  const names=Object.keys(heroClips);
  const aliases={
    idle:/idle|stand|rest|breath|repos/i,
@@ -372,7 +369,21 @@ function playCharacterAnimation(kind){
  if(!name&&kind==='run')name=names.find(n=>/walk|marche/i.test(n));
  if(!name&&kind==='attack1')name=names.find(n=>/attack|slash|sword|combo/i.test(n));
  if(!name&&kind==='idle')name=names.find(n=>/animation/i.test(n));
- if(!name)return false;
+ if(!name){
+   const externalFiles={idle:'anim-idle.glb',walk:'anim-walk.glb',run:'anim-walk.glb',attack1:'anim-attack-1.glb',attack2:'anim-attack-2.glb',attack3:'anim-attack-3.glb'};
+   const file=externalFiles[kind];if(!file||animationCache[kind]===false)return false;
+   if(!animationCache[kind]){
+     animationCache[kind]=loadGLB('04-ANIMATIONS/'+file).then(g=>{
+       const sourceClip=(g.animations||[])[0];if(!sourceClip)throw new Error('Aucun clip dans '+file);
+       const retargeted=retargetClip(visualRoot,g.scene,sourceClip,{useFirstFramePosition:true});
+       if(!retargeted||!retargeted.tracks||!retargeted.tracks.length)throw new Error('Aucune piste compatible pour '+file);
+       retargeted.name='ASTREA_'+kind;heroClips[retargeted.name]=retargeted;animationCache[kind]=true;
+       return true;
+     }).catch(e=>{console.warn('Animation externe non compatible : '+file,e);animationCache[kind]=false;return false;});
+   }
+   const pending=animationCache[kind];if(pending&&typeof pending.then==='function')pending.then(ok=>{if(ok)playCharacterAnimation(kind)});
+   return false;
+ }
  const clip=heroClips[name];
  if(currentAction&&currentAction.getClip()===clip&&currentAction.isRunning())return true;
  const next=mixer.clipAction(clip);
@@ -382,8 +393,8 @@ function playCharacterAnimation(kind){
  if(currentAction&&currentAction!==next)currentAction.crossFadeTo(next,.12,true);
  next.play();currentAction=next;return true;
 }
-// Les animations externes restent à retargeter : les clips qui n'ont pas de pistes
-// os compatibles avec le rig du personnage ne sont volontairement pas joués dessus.
+// Les clips externes walk/idle/attack 1–3 sont chargés à la demande puis retargetés
+// sur le rig du personnage ; un clip incompatible est ignoré sans bloquer le prototype.
 
 let selectedWeapon=ASTREA_WEAPONS.find(w=>w.id===savedGame.selectedWeapon)||ASTREA_WEAPONS[0];
 function equipWeapon(id){
