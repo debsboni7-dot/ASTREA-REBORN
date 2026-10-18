@@ -244,6 +244,19 @@ function addNPCWeapon(group,color){
  badge.position.set(0,2.22,0);group.add(badge);
  return {weapon,badge};
 }
+const npcFabricTextureCache=new Map();
+function getNPCFabricTexture(color){
+ const key=color.getHexString();
+ if(npcFabricTextureCache.has(key))return npcFabricTextureCache.get(key);
+ const canvas=document.createElement('canvas');canvas.width=128;canvas.height=128;
+ const ctx=canvas.getContext('2d');ctx.fillStyle='#'+key;ctx.fillRect(0,0,128,128);
+ for(let y=0;y<128;y+=6){ctx.strokeStyle=y%12?'rgba(255,255,255,.13)':'rgba(0,0,0,.16)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,y+.5);ctx.lineTo(128,y+.5);ctx.stroke()}
+ for(let x=0;x<128;x+=6){ctx.strokeStyle=x%12?'rgba(0,0,0,.12)':'rgba(255,255,255,.12)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+.5,0);ctx.lineTo(x+.5,128);ctx.stroke()}
+ ctx.strokeStyle='rgba(245,224,177,.48)';ctx.lineWidth=2;
+ for(let y=8;y<128;y+=24)for(let x=8;x<128;x+=24){ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+5,y+3);ctx.lineTo(x+10,y);ctx.stroke()}
+ const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;texture.wrapS=texture.wrapT=THREE.RepeatWrapping;texture.repeat.set(2,2);
+ npcFabricTextureCache.set(key,texture);return texture;
+}
 function tintNPC(model,tint){
  const target=new THREE.Color(tint);
  model.traverse(o=>{
@@ -261,7 +274,10 @@ function tintNPC(model,tint){
        else if(/hair|beard/.test(partName))part.set(0x35251e);
        else if(/boot|belt|leather/.test(partName))part.lerp(new THREE.Color(0x51372a),.48);
        else if(/metal|armor|blade|steel/.test(partName))part.lerp(new THREE.Color(0xaab7c6),.38);
-       m.color.copy(part);
+       else if(o.geometry?.attributes?.uv){
+         m.map=getNPCFabricTexture(target);m.color.set(0xffffff);m.roughness=.94;
+       }
+       if(!m.map)m.color.copy(part);
      }
      if('roughness' in m && !Number.isFinite(m.roughness))m.roughness=.82;
      m.needsUpdate=true;
