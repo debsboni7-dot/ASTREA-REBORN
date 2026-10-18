@@ -1,0 +1,5 @@
+# Fichiers temporaires et exports locaux
+.DS_Store
+Thumbs.db
+*.tmp
+*.bak
