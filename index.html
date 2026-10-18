@@ -53,7 +53,8 @@ async function loadPrimaryAssets(){
  const jobs=[];
  jobs.push(loadGLB('02-MODELS/characters/hero.glb').then(g=>{
    const model=g.scene;normalizeModel(model,1.9);player.remove(fallback);player.add(model);visualRoot=model;loadedHero=true;
-   if(g.animations?.length){mixer=new THREE.AnimationMixer(model);const a=mixer.clipAction(g.animations[0]);a.play();currentAction=a}
+   mixer=new THREE.AnimationMixer(model);
+   if(g.animations?.length){const a=mixer.clipAction(g.animations[0]);a.play();currentAction=a}
    return 'personnage';
  }).catch(e=>{console.warn('Hero GLB indisponible',e);return 'personnage provisoire'}));
  jobs.push(loadGLB('02-MODELS/weapons/sword-meshy.glb').then(g=>{
