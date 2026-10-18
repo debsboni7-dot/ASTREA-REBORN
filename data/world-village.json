@@ -1,0 +1,7 @@
+{
+  "id": "village-demo",
+  "name": "Village de démonstration",
+  "status": "placeholder",
+  "bounds": { "minX": -18, "maxX": 18, "minZ": -70, "maxZ": 8 },
+  "notes": "Données descriptives uniquement. Le monde actuellement rendu est défini dans index.html et ce fichier n'est pas encore chargé par le prototype."
+}
