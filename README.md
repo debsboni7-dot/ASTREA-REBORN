@@ -65,3 +65,9 @@ Le bouton **MONDE 🌍** du jeu ouvre le prototype des systèmes d’expansion :
 - [Cahier des charges maître complet](./01-DOCUMENTATION/CAHIER-DES-CHARGES.md)
 
 **À tester sur téléphone :** ouvrir MONDE, voyager vers Elarion, puis revenir au Village d’Astrea. Vérifier aussi la persistance après rechargement. Le rendu et les performances n’ont pas été validés sur un appareil réel dans cette modification.
+
+
+## Systèmes de progression ajoutés
+Le panneau **MONDE 🌍** comprend maintenant une première boutique, un inventaire simplifié, des potions, une collecte de matériaux de test, deux recettes d’artisanat, trois quêtes à objectifs, des récompenses d’XP et une montée de niveau avec amélioration des PV. Ces mécaniques sont sauvegardées localement.
+
+Les limites et prochaines étapes sont documentées dans [07-SYSTEMS/README.md](./07-SYSTEMS/README.md). Les nouvelles armes achetées ne sont pas encore toutes reliées au modèle tenu en main et les créatures n'utilisent pas encore le combat animé standard.
