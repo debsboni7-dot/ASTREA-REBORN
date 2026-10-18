@@ -15,7 +15,7 @@ os.makedirs(os.path.dirname(blend_path), exist_ok=True)
 def clear_scene():
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.object.delete(use_global=False)
-    for datablocks in (bpy.data.meshes, bpy.data.curves, bpy.data.materials):
+    for datablocks in (bpy.data.meshes, bpy.data.curves):
         for item in list(datablocks):
             if item.users == 0:
                 datablocks.remove(item)
