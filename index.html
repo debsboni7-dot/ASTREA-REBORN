@@ -285,7 +285,7 @@ async function loadPrimaryAssets(){
    // Priorité au personnage masculin Meshy fourni par l'utilisateur ; hero.glb reste le repli si la source n'a pas encore été importée.
    const g=await loadPrimaryCharacter();
    const model=g.scene;normalizeModel(model,1.9);player.remove(fallback);player.add(model);visualRoot=model;loadedHero=true;
-   if(savedCharacter && g.source!=='Meshy FBX'){
+   if(savedCharacter && !String(g.source||'').startsWith('Meshy FBX')){
      player.scale.y=savedCharacter.height/190;
      const outfit=new THREE.Color(outfitColors[savedCharacter.outfit]||0x315c9b);
      const buildScale=[.88,1,1.13][Math.max(0,Math.min(2,Number(savedCharacter.buildIndex??({fine:0,normal:1,robust:2}[savedCharacter.build]??1))))];
