@@ -31,7 +31,7 @@ jobs:
           find "$TMP" -type f \( -name '*_Character_output.fbx' -o -name '*_texture_0.png' -o -name '*_texture_0_metallic.png' -o -name '*_texture_0_normal.png' -o -name '*_texture_0_roughness.png' \) -exec cp {} "$DEST/" \;
           test -f "$DEST/Meshy_AI_Un_personnage_homme_a_biped_Character_output.fbx"
           test -f "$DEST/Meshy_AI_Un_personnage_homme_a_biped_texture_0.png"
-          rm -f "$ZIP"
+          # Conserver le ZIP source dans le dépôt pour éviter de perdre le paquet original.
           rm -rf "$TMP"
       - name: Enregistrer les fichiers importés
         shell: bash
