@@ -22,7 +22,7 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js';
 import { FBXLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/FBXLoader.js';
-import { clone as cloneSkeleton, retargetClip } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/utils/SkeletonUtils.js';
+import { clone as cloneSkeleton } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/utils/SkeletonUtils.js';
 import { ASTREA_WEAPONS, createWeaponModel } from './02-MODELS/weapons/weapon-catalog.js';
 import { initAstreaWorld } from './07-SYSTEMS/astrea-world-expansion.js';
 (()=>{
@@ -440,33 +440,13 @@ function playCharacterAnimation(kind){
  if(!name&&kind==='attack1')name=names.find(n=>/attack|slash|sword|combo/i.test(n));
  if(!name&&kind==='idle')name=names.find(n=>/animation/i.test(n));
  if(!name){
-   setProceduralPose(kind);if(currentAction&&currentAction.isRunning())currentAction.stop();currentAction=null;
-   const externalFiles={idle:'anim-idle.glb',walk:'anim-walk.glb',run:'anim-walk.glb',attack1:'anim-attack-1.glb',attack2:'anim-attack-2.glb',attack3:'anim-attack-3.glb'};
-   const file=externalFiles[kind];if(!file||animationCache[kind]===false)return true;
-   if(!animationCache[kind]){
-     animationCache[kind]=loadGLB('04-ANIMATIONS/'+file).then(g=>{
-       const mergedTracks=new Map();for(const part of (g.animations||[])){for(const track of (part.tracks||[]))mergedTracks.set(track.name,track)}if(!mergedTracks.size)throw new Error('Aucune piste d’animation dans '+file);const sourceClip=new THREE.AnimationClip('ASTREA_SOURCE_'+kind,-1,Array.from(mergedTracks.values()));
-       let targetSkin=null,sourceSkin=null;
-       visualRoot.traverse(o=>{if(o.isSkinnedMesh&&o.skeleton)targetSkin=targetSkin||o});
-       g.scene.traverse(o=>{if(o.isSkinnedMesh&&o.skeleton)sourceSkin=sourceSkin||o});
-       if(!targetSkin||!sourceSkin)throw new Error('Squelette source/cible introuvable pour '+file);
-       const boneKey=n=>String(n||'').toLowerCase().replace(/mixamorig|armature|skeleton|rig/g,'').replace(/[^a-z0-9]/g,'');
-       const sourceBones=sourceSkin.skeleton.bones;const names={};
-       for(const targetBone of targetSkin.skeleton.bones){
-         const key=boneKey(targetBone.name);const match=sourceBones.find(b=>boneKey(b.name)===key);
-         if(match)names[targetBone.name]=match.name;
-       }
-       if(!Object.keys(names).length)throw new Error('Aucun nom d’os commun entre les deux rigs pour '+file);
-       const retargeted=retargetClip(targetSkin,sourceSkin,sourceClip,{useFirstFramePosition:true,names});
-       if(!retargeted||!retargeted.tracks||!retargeted.tracks.length)throw new Error('Aucune piste compatible pour '+file);
-       retargeted.name='ASTREA_'+kind;heroClips[retargeted.name]=retargeted;animationCache[kind]=true;
-       return true;
-     }).catch(e=>{console.warn('Animation externe non compatible : '+file,e);animationCache[kind]=false;return false;});
-   }
-   const pending=animationCache[kind];if(pending&&typeof pending.then==='function')pending.then(ok=>{if(ok)playCharacterAnimation(kind)});
+   // Les GLB externes d'animation ne contiennent pas de squelette source exploitable.
+   // On ne les télécharge pas en jeu : cela évite plusieurs gros téléchargements inutiles sur Android.
+   setProceduralPose(kind);
+   if(currentAction&&currentAction.isRunning())currentAction.stop();
+   currentAction=null;
    return true;
  }
- proceduralPose=null;
  const clip=heroClips[name];
  if(currentAction&&currentAction.getClip()===clip&&currentAction.isRunning())return true;
  const next=mixer.clipAction(clip);
