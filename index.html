@@ -62,9 +62,20 @@ async function loadPrimaryAssets(){
    if(g.animations?.length){const a=mixer.clipAction(g.animations[0]);a.play();currentAction=a}
    return 'personnage';
  }).catch(e=>{console.warn('Hero GLB indisponible',e);return 'personnage provisoire'}));
- jobs.push(loadGLB('02-MODELS/weapons/sword-meshy.glb').then(g=>{
-   const model=g.scene;normalizeModel(model,1.05);model.position.set(.42,1.0,0);player.remove(swordVisual);player.add(model);swordVisual=model;return 'épée';
- }).catch(e=>{console.warn('Sword GLB indisponible',e);return 'épée provisoire'}));
+ jobs.push((async()=>{
+   try{
+     const g=await loadGLB('02-MODELS/weapons/converted/divine-red-sword-4643.glb');
+     const model=g.scene;normalizeModel(model,.95);model.position.set(.42,1.05,-.08);model.rotation.x=-Math.PI/2;
+     player.remove(swordVisual);player.add(model);swordVisual=model;return 'épée divine Meshy';
+   }catch(divineError){
+     console.warn('Épée divine indisponible, essai de l’épée de secours',divineError);
+     try{
+       const g=await loadGLB('02-MODELS/weapons/sword-meshy.glb');
+       const model=g.scene;normalizeModel(model,1.05);model.position.set(.42,1.0,0);
+       player.remove(swordVisual);player.add(model);swordVisual=model;return 'épée de secours';
+     }catch(e){console.warn('Sword GLB indisponible',e);return 'épée provisoire'}
+   }
+ })());
  jobs.push(loadGLB('02-MODELS/buildings/small-house.glb').then(g=>{
    const model=g.scene;normalizeModel(model,3.2);
    housePlaceholders.forEach(o=>scene.remove(o));
