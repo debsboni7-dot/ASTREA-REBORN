@@ -16,4 +16,11 @@
 - Copie des prototypes du village mobile et des versions de test dans `10-PROTOTYPES/legacy/`, sans remplacer `index.html`.
 - Documentation mise à jour pour distinguer les sources FBX, les clips GLB et les démonstrations HTML 2D.
 - Vérification des dépôts : aucun fichier audio autonome trouvé ; aucune musique ou SFX fictif ajouté.
-- L'épée divine FBX reste à convertir en GLB avant son intégration réelle dans la scène jouable.
+
+## 2026-10-18 — Gameplay et optimisation mobile
+- Ajout d'une cible d'entraînement avec 3 PV et d'une quête de test récompensée par 100 XP après trois coups.
+- Le prototype essaie désormais l'épée divine rouge convertie avant l'épée de secours ; le point d'attache reste approximatif et doit être validé visuellement.
+- Conversion automatisée réussie des deux exports FBX en GLB via Blender dans GitHub Actions.
+- Textures embarquées redimensionnées à 1024 px maximum et exportées en JPEG qualité 82.
+- Tailles constatées : 1 671 992 octets pour `divine-red-sword-4643.glb` et 2 234 024 octets pour `divine-red-sword-4744.glb`.
+- Les tests réels sur Chrome Android restent nécessaires pour confirmer matériaux, orientation, animations, commandes, fluidité et chauffe.
