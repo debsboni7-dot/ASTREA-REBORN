@@ -32,3 +32,5 @@
 - Ajout de VFX procéduraux légers par arme : arcs de coupe, traits de projectiles, orbes magiques, anneaux d'impact, particules et techniques spéciales.
 - Fusion des pistes d'animation séparées par os avant tentative de retargeting ; ajout d'une animation procédurale de secours pilotée par les os du modèle riggé.
 - Le contrôle de syntaxe JavaScript est exécuté automatiquement par GitHub Actions ; la validation visuelle et les FPS sur Galaxy A06 restent à effectuer.
+
+- Suppression des dragons et mammouths procéduraux du système Monde : aucun combat de créature n'est proposé sans modèle GLB réel correspondant.
