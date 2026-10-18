@@ -1,0 +1,52 @@
+name: Convert divine sword FBX to GLB
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/convert-divine-sword.yml"
+      - "tools/convert_divine_sword.py"
+
+permissions:
+  contents: write
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout ASTREA REBORN
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install Blender
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y blender
+      - name: Convert both original Meshy sword exports
+        run: |
+          set -euo pipefail
+          mkdir -p 02-MODELS/weapons/converted
+          blender --background --python tools/convert_divine_sword.py -- \
+            "$GITHUB_WORKSPACE/02-MODELS/weapons/source-divine-sword/Meshy_AI_A_divine_red_sword_fo_1018004643_texture_fbx/Meshy_AI_A_divine_red_sword_fo_1018004643_texture.fbx" \
+            "$GITHUB_WORKSPACE/03-TEXTURES/weapons/divine-sword/Meshy_AI_A_divine_red_sword_fo_1018004643_texture_fbx" \
+            "$GITHUB_WORKSPACE/02-MODELS/weapons/converted/divine-red-sword-4643.glb"
+          blender --background --python tools/convert_divine_sword.py -- \
+            "$GITHUB_WORKSPACE/02-MODELS/weapons/source-divine-sword/Meshy_AI_A_divine_red_sword_fo_1018004744_texture_fbx/Meshy_AI_A_divine_red_sword_fo_1018004744_texture.fbx" \
+            "$GITHUB_WORKSPACE/03-TEXTURES/weapons/divine-sword/Meshy_AI_A_divine_red_sword_fo_1018004744_texture_fbx" \
+            "$GITHUB_WORKSPACE/02-MODELS/weapons/converted/divine-red-sword-4744.glb"
+          test -s 02-MODELS/weapons/converted/divine-red-sword-4643.glb
+          test -s 02-MODELS/weapons/converted/divine-red-sword-4744.glb
+      - name: Commit converted GLB files
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add 02-MODELS/weapons/converted/*.glb
+          if git diff --cached --quiet; then
+            echo "No converted files changed."
+            exit 0
+          fi
+          git commit -m "Convert divine sword FBX exports to GLB"
+          git pull --rebase origin main
+          git push origin HEAD:main
