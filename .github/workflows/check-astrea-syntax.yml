@@ -1,0 +1,28 @@
+name: ASTREA JavaScript syntax check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - '07-SYSTEMS/**'
+      - '02-MODELS/weapons/weapon-catalog.js'
+      - '.github/workflows/check-astrea-syntax.yml'
+  workflow_dispatch:
+
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check world system module
+        run: node --check 07-SYSTEMS/astrea-world-expansion.js
+      - name: Extract and check main Three.js module
+        run: |
+          node --input-type=commonjs -e "const fs=require('fs');const html=fs.readFileSync('index.html','utf8');const m=html.match(/<script type=\"module\">([\s\S]*?)<\/script>/);if(!m)throw new Error('Main module script not found');fs.writeFileSync('/tmp/astrea-main.mjs',m[1]);"
+          node --check /tmp/astrea-main.mjs
+      - name: Check weapon catalog module
+        run: node --check 02-MODELS/weapons/weapon-catalog.js
