@@ -23,6 +23,7 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.m
 import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js';
 import { clone as cloneSkeleton } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/utils/SkeletonUtils.js';
 import { ASTREA_WEAPONS, createWeaponModel } from './02-MODELS/weapons/weapon-catalog.js';
+import { initAstreaWorld } from './07-SYSTEMS/astrea-world-expansion.js';
 (()=>{
 const status=document.getElementById('status'),hint=document.getElementById('hint');
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x9dc5d0);scene.fog=new THREE.Fog(0x9dc5d0,42,142);
@@ -379,7 +380,7 @@ function frame(){
  const moving=!!(f||s);
  if(moving!==moveAnim.moving){moveAnim.moving=moving;if(loadedHero)playCharacterAnimation(moving?'walk':'idle')}
  const len=Math.hypot(f,s)||1;f/=len;s/=len;const speed=4.2*dt;
- const dx=(-Math.sin(yaw)*f+Math.cos(yaw)*s)*speed;const dz=(-Math.cos(yaw)*f-Math.sin(yaw)*s)*speed;if(!insideHouse){const radius=.46;const blocked=(x,z)=>collisionBoxes.some(b=>b.active!==false&&x+radius>b.x-b.hw&&x-radius<b.x+b.hw&&z+radius>b.z-b.hz&&z-radius<b.z+b.hz);const nx=Math.max(-21,Math.min(21,player.position.x+dx));if(!blocked(nx,player.position.z))player.position.x=nx;const nz=Math.max(-117,Math.min(1,player.position.z+dz));if(!blocked(player.position.x,nz))player.position.z=nz;for(const obj of [guide,enemy]){if(!obj.visible)continue;const ox=player.position.x-obj.position.x,oz=player.position.z-obj.position.z,d=Math.hypot(ox,oz);if(d<.85){player.position.x=obj.position.x+(ox/(d||1))*.85;player.position.z=obj.position.z+(oz/(d||1))*.85}}}else{player.position.x=Math.max(9.1,Math.min(14.9,player.position.x+dx));player.position.z=Math.max(-12.2,Math.min(-7.8,player.position.z+dz))}if(moving)player.rotation.y=Math.atan2(-dx,-dz);
+ const dx=(-Math.sin(yaw)*f+Math.cos(yaw)*s)*speed;const dz=(-Math.cos(yaw)*f-Math.sin(yaw)*s)*speed;if(!insideHouse){const radius=.46;const blocked=(x,z)=>collisionBoxes.some(b=>b.active!==false&&x+radius>b.x-b.hw&&x-radius<b.x+b.hw&&z+radius>b.z-b.hz&&z-radius<b.z+b.hz);const bounds=window.ASTREA_BOUNDS||{minX:-21,maxX:21,minZ:-117,maxZ:1};const nx=Math.max(bounds.minX,Math.min(bounds.maxX,player.position.x+dx));if(!blocked(nx,player.position.z))player.position.x=nx;const nz=Math.max(bounds.minZ,Math.min(bounds.maxZ,player.position.z+dz));if(!blocked(player.position.x,nz))player.position.z=nz;for(const obj of [guide,enemy]){if(!obj.visible)continue;const ox=player.position.x-obj.position.x,oz=player.position.z-obj.position.z,d=Math.hypot(ox,oz);if(d<.85){player.position.x=obj.position.x+(ox/(d||1))*.85;player.position.z=obj.position.z+(oz/(d||1))*.85}}}else{player.position.x=Math.max(9.1,Math.min(14.9,player.position.x+dx));player.position.z=Math.max(-12.2,Math.min(-7.8,player.position.z+dz))}if(moving)player.rotation.y=Math.atan2(-dx,-dz);
  vy-=14*dt;player.position.y+=vy*dt;if(player.position.y<=0){player.position.y=0;vy=0;onGround=true}
  if(attackTimer>0){attackTimer-=dt;if(attackTimer<=0){swordVisual.rotation.z=0;swordVisual.rotation.x=0;swordVisual.rotation.y=0}}
  
@@ -394,7 +395,7 @@ function frame(){
  renderer.render(scene,camera);
 }
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
-addVillageAtmosphere();status.textContent='Chargement des GLB…';frame();loadVillageNPCs().catch(e=>console.warn('Chargement des PNJ interrompu',e));loadPrimaryAssets().catch(e=>{console.error(e);status.textContent='Mode de secours actif';hint.textContent='Certains assets sont indisponibles, formes provisoires conservées.'});
+addVillageAtmosphere();window.ASTREA_WORLD=initAstreaWorld({THREE,scene,player,hint,collisionBoxes});status.textContent='Chargement des GLB…';frame();loadVillageNPCs().catch(e=>console.warn('Chargement des PNJ interrompu',e));loadPrimaryAssets().catch(e=>{console.error(e);status.textContent='Mode de secours actif';hint.textContent='Certains assets sont indisponibles, formes provisoires conservées.'});
 })();
 </script>
 </body>
