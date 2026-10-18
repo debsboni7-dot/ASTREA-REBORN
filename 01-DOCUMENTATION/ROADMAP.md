@@ -18,7 +18,8 @@
 - [ ] Déplacement, course et saut avec animation confirmée.
 - [ ] Combos d'attaque synchronisés avec l'épée.
 - [ ] Interactions avec objets et PNJ.
-- [ ] Première quête test.
+- [ ] Première quête testée sur téléphone.
+- [x] Ajouter une cible d'entraînement, des points de vie et une quête simple dans le prototype (validation Android encore nécessaire).
 
 ## Phase 4 — Village
 - [ ] Placer progressivement les bâtiments et points d'intérêt importés.
