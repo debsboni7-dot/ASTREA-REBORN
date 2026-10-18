@@ -352,7 +352,7 @@ async function loadPrimaryAssets(){
    if(handBone){const handPos=new THREE.Vector3();handBone.getWorldPosition(handPos);player.worldToLocal(handPos);weaponMount.position.copy(handPos);weaponMount.position.y-=.015;weaponHandAttached=true}
    else{weaponMount.position.set(.58,1.23,.02);weaponHandAttached=false}
    weaponMount.rotation.set(0,0,0);playCharacterAnimation('idle');
-   return handBone?'personnage stable sans animation; arme positionnée sur l’os de la main droite':'personnage stable sans animation; support d’arme de secours actif';
+   return handBone?'personnage 3D chargé; arme attachée à la main droite':'personnage 3D chargé; support d’arme de secours actif';
  })().catch(e=>{player.visible=false;visualRoot=null;console.error('Personnage 3D réel indisponible',e);hint.textContent='Personnage 3D non chargé : vérifie les fichiers Meshy.';return 'personnage 3D indisponible'}));
 jobs.push(Promise.resolve('arsenal 3D ASTREA chargé depuis le catalogue procédural'));
  jobs.push(loadGLB('02-MODELS/buildings/small-house.glb').then(g=>{
