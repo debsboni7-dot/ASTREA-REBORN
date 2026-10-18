@@ -30,7 +30,7 @@
 ## Phase 3 — Gameplay
 - [ ] Déplacement, course et saut avec animation confirmée.
 - [ ] Combos d'attaque synchronisés avec l'épée.
-- [ ] Interactions avec objets et PNJ.
+- [x] Ajouter un PNJ-guide provisoire avec dialogue tactile et vérification de proximité (validation Chrome Android restante).\n- [ ] Étendre les interactions aux portes, coffres et autres PNJ.
 - [ ] Première quête testée sur téléphone.
 - [x] Ajouter une cible d'entraînement, des points de vie et une quête simple dans le prototype (validation Android encore nécessaire).
 
