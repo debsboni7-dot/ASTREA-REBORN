@@ -3,7 +3,8 @@ name: Importer le personnage Meshy d'Astrea
 on:
   push:
     paths:
-      - "02-MODELS/characters/astrea-meshy-upload.zip"
+      - "02-MODELS/characters/astrea-meshy-character-upload.zip"
+      - ".github/workflows/import-meshy-main-character.yml"
   workflow_dispatch:
 
 permissions:
@@ -22,7 +23,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          ZIP="02-MODELS/characters/astrea-meshy-upload.zip"
+          ZIP="02-MODELS/characters/astrea-meshy-character-upload.zip"
           DEST="02-MODELS/characters/astrea-meshy"
           test -f "$ZIP"
           mkdir -p "$DEST"
