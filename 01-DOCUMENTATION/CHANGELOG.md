@@ -36,3 +36,12 @@
 - Suppression des dragons et mammouths procéduraux du système Monde : aucun combat de créature n'est proposé sans modèle GLB réel correspondant.
 
 - Les animations externes sans squelette source exploitable ne sont plus téléchargées pendant la partie ; le héros utilise ses clips intégrés ou l'animation procédurale de secours, ce qui évite des téléchargements inutiles sur mobile.
+
+## 2026-10-18 — Combos, ultimes et ville vivante
+- Correction du filtre d'extension FBX dans l'archive Meshy : le chargeur peut maintenant trouver le FBX texturé du personnage principal au lieu de tomber systématiquement sur le repli.
+- Correction du tinting des PNJ : suppression de l'appel à `makeMat()` hors de sa portée, qui empêchait le chargement des PNJ ; les matériaux sont clonés et les maillages sans texture reçoivent des couleurs cohérentes.
+- Connexion des timings des prototypes de combos de poings et d'épée aux os du héros, avec impacts et VFX sur chaque frappe.
+- Ajout de quatre variantes d'attaque ultime, sélectionnées à chaque utilisation, et de l'ultime ultime de 20 secondes avec plusieurs phases et impacts.
+- Population du village portée à 100 instances de PNJ utilisant les GLB masculins présents, avec teintes de tenues, itinéraires locaux, animations intégrées lorsqu'elles existent, mouvement procédural de secours et dialogues amicaux.
+- Ajout du marché, de la forge, de la mairie, du château et du camp d'aventuriers en 3D ; aucun PNJ civil n'attaque le joueur.
+- Distance d'affichage et animation des PNJ limitées autour du joueur pour préserver les performances Android. Contrôle syntaxique automatique réussi ; test visuel et FPS réels encore nécessaires.
