@@ -1,5 +1,6 @@
 // ASTREA REBORN — arsenal 3D procédural, sans fichiers externes.
 export const ASTREA_WEAPONS = [
+ {id:'unarmed',name:'Mains nues',type:'unarmed',level:1,rank:'Départ',damage:6,speed:1.25,reach:1.35,color:0xd8d8d8,skill:'Combo de poings'},
  {id:'basic-sword',name:'Épée classique',type:'sword',level:1,rank:'Débutant',damage:12,speed:1.15,reach:2.1,color:0xbfcbd5,skill:'Frappe simple'},
  {id:'throwing-knives',name:'Couteaux de lancer',type:'throwing',level:2,rank:'Débutant',damage:9,speed:1.65,reach:3.8,color:0xcbd6df,skill:'Jet rapide'},
  {id:'wood-staff',name:'Bâton de combat',type:'staff',level:3,rank:'Débutant',damage:10,speed:1.3,reach:2.5,color:0x8d643d,skill:'Balayage'},
@@ -52,6 +53,7 @@ export function createWeaponModel(THREE, weapon){
  const ring=(r,t,mat,x,y,z,rx=0,ry=0,rz=0)=>part(new THREE.TorusGeometry(r,t,6,16),mat,x,y,z,rx,ry,rz);
  // Every named item has its own model instance, level, damage, reach, speed and skill.
  switch(weapon.type){
+ case 'unarmed': break;
  case 'sword':case 'katana':case 'greatsword':case 'sun':case 'abyss':case 'divine':case 'cosmic':case 'chaos':case 'hakai':case 'shin':
   handle();blade(weapon.type==='greatsword'?.42:.23,weapon.type==='greatsword'?1.45:1.02,metal,0,.63,0);
   box(.48,.09,.12,glow,0,.12,0);
