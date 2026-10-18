@@ -16,6 +16,14 @@ Le chargement des animations de marche, d'inactivité et d'attaque est tenté à
 - [Prototype de test des assets](./10-PROTOTYPES/legacy/ASTREA_ASSETS_TEST_CORRIGE.html)
 - Les cinq démonstrations HTML de nature, rig, combos et attaques ultimes restent dans `04-ANIMATIONS/`. Ce sont des simulations 2D interactives, distinctes des fichiers GLB d'animation.
 
+## Création de personnage
+- [Ouvrir le créateur 3D ASTREA](./08-UI/character-creator.html) — choix masculin/féminin, taille de 1,60 à 2,10 m, corpulence, teintes de peau, coiffures, couleurs des cheveux et des yeux, tenues, rotation de l'aperçu et export JSON.
+- [Documentation du créateur](./08-UI/CHARACTER-CREATOR.md). Le créateur est encore un prototype distinct du jeu principal : la configuration n'est pas encore appliquée au héros GLB de index.html.
+- [Générateur Blender des bases de personnage](./tools/create_character_bases.py) et [exécutions GitHub Actions](https://github.com/debsboni7-dot/ASTREA-REBORN/actions).
+
+## Modèles d'environnement créés avec Blender
+Les modèles d'arbre fantastique, de groupe de rochers, de cristal d'éther et de buisson fleuri sont dans `02-MODELS/environment/`. Le fichier de scène Blender modifiable est dans `02-MODELS/blender-source/`.
+
 ## Organisation
 - `01-DOCUMENTATION/` : cahier des charges, architecture, inventaires et procédures.
 - `02-MODELS/` : modèles 3D classés par domaine ; FBX sources conservés séparément.
