@@ -158,8 +158,30 @@ export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes, eq
   function buildZone(id){
     const r=regions.find(x=>x.id===id),g=new THREE.Group();g.userData.astreaZone=id;scene.add(g);
     const mat=(color,roughness=.95)=>new THREE.MeshStandardMaterial({color,roughness});
+    function biomeTexture(kind){
+      const canvas=document.createElement('canvas');canvas.width=256;canvas.height=256;
+      const ctx=canvas.getContext('2d');let base='#65894a';
+      if(kind==='solkar')base='#c5a05d';else if(kind==='frostholm')base='#c5dbe2';else if(kind==='drakorys')base='#554a47';
+      ctx.fillStyle=base;ctx.fillRect(0,0,256,256);
+      let seed=kind.length*193+7;const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
+      for(let i=0;i<1800;i++){
+        const x=rand()*256,y=rand()*256,rad=.4+rand()*2.5;
+        if(kind==='elarion')ctx.fillStyle=['#416d3a','#799953','#9aa85b','#3d6033'][Math.floor(rand()*4)];
+        else if(kind==='solkar')ctx.fillStyle=['#e0c17a','#a9874b','#d0ad68','#b89555'][Math.floor(rand()*4)];
+        else if(kind==='frostholm')ctx.fillStyle=['#edf6f6','#9bbbc9','#c7e0e6','#8ba8b8'][Math.floor(rand()*4)];
+        else if(kind==='drakorys')ctx.fillStyle=['#332f31','#75615a','#51413e','#9b4c35'][Math.floor(rand()*4)];
+        else ctx.fillStyle=['#477542','#789451','#8e9b56','#554d36'][Math.floor(rand()*4)];
+        ctx.globalAlpha=.18+rand()*.36;ctx.beginPath();ctx.ellipse(x,y,rad,rad*(.45+rand()),rand()*3.14,0,Math.PI*2);ctx.fill();
+      }
+      if(kind==='elarion'){
+        for(let i=0;i<70;i++){ctx.globalAlpha=.35;ctx.strokeStyle=i%2?'#c0b66a':'#a3b66b';ctx.lineWidth=1;ctx.beginPath();const x=rand()*256,y=rand()*256;ctx.moveTo(x,y);ctx.lineTo(x+rand()*2-1,y-2-rand()*4);ctx.stroke();}
+      }
+      ctx.globalAlpha=1;const tex=new THREE.CanvasTexture(canvas);tex.wrapS=tex.wrapT=THREE.RepeatWrapping;tex.repeat.set(8,8);tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=Math.min(4,renderer?.capabilities?.getMaxAnisotropy?.()||1);return tex;
+    }
     const ocean=new THREE.Mesh(new THREE.PlaneGeometry(320,320),new THREE.MeshStandardMaterial({color:0x1d6388,roughness:.32,metalness:.12}));ocean.rotation.x=-Math.PI/2;ocean.position.y=-.22;g.add(ocean);
-    const floor=new THREE.Mesh(new THREE.PlaneGeometry(90,90),mat(r.color));floor.rotation.x=-Math.PI/2;floor.position.y=-.06;g.add(floor);
+    const beachMat=new THREE.MeshStandardMaterial({map:biomeTexture('solkar'),roughness:1});
+    const beach=new THREE.Mesh(new THREE.PlaneGeometry(96,96),beachMat);beach.rotation.x=-Math.PI/2;beach.position.y=-.105;g.add(beach);
+    const floor=new THREE.Mesh(new THREE.PlaneGeometry(84,84),new THREE.MeshStandardMaterial({map:biomeTexture(id),color:0xffffff,roughness:1}));floor.rotation.x=-Math.PI/2;floor.position.y=-.045;g.add(floor);
     const rng=(n)=>{let x=Math.sin(n*127.1+(id.length*17))*43758.5453;return x-Math.floor(x)};
     for(let i=0;i<44;i++){
       const x=(rng(i+2)-.5)*82,z=(rng(i+100)-.5)*82;if(Math.abs(x)<5&&Math.abs(z)<7)continue;
@@ -206,17 +228,33 @@ export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes, eq
     }
     data.root=root;
   }
-  function fightCreature(id){
-    const c=creatureState[id];if(!c||c.hp<=0){hint.textContent='Cette créature a déjà été vaincue. Elle reviendra plus tard.';return}
-    const damage=Math.max(1,55+(save.level-1)*5);c.hp=Math.max(0,c.hp-damage);save.coins+=8;save.xp+=12;
+  function applyCreatureDamage(id,damage){
+    const c=creatureState[id];if(!c||c.hp<=0)return false;
+    c.hp=Math.max(0,c.hp-Math.max(1,Math.round(damage)));save.coins+=3;save.xp+=5;
     if(id==='dragon')save.resources.ecaille+=1;else save.resources.ivoire+=1;
     while(save.xp>=save.level*100){save.xp-=save.level*100;save.level++;save.maxHp+=10;save.hp=save.maxHp}
-    if(c.hp===0){save.coins+=c.reward;if(!save.defeated.includes(id))save.defeated.push(id);hint.textContent=c.name+' vaincu ! Récompense : '+c.reward+' couronnes.'}
-    else hint.textContent='Coup réussi contre '+c.name+' : '+damage+' dégâts. '+c.hp+'/'+c.maxHp+' PV.';
+    if(c.hp===0){save.coins+=c.reward;if(!save.defeated.includes(id))save.defeated.push(id);hint.textContent=c.name+' vaincu ! Butin et '+c.reward+' couronnes obtenus.'}
+    else hint.textContent=c.name+' touché : '+Math.round(damage)+' dégâts — '+c.hp+'/'+c.maxHp+' PV.';
     if(c.root){c.root.rotation.y+=.24;if(c.hp===0)c.root.visible=false}
-    persist();
+    persist();return true;
+  }
+  function fightCreature(id){
+    const c=creatureState[id];if(!c||c.hp<=0){hint.textContent='Cette créature a déjà été vaincue. Elle reviendra plus tard.';return}
+    applyCreatureDamage(id,Math.max(1,55+(save.level-1)*5));
+  }
+  function hitFromPlayer(damage,reach){
+    if(currentRegion.id==='village')return false;
+    let nearest=null,nearestDistance=Infinity;
+    for(const id of ['dragon','mammoth']){
+      const c=creatureState[id];if(!c||c.region!==currentRegion.id||c.hp<=0||!c.root||!c.root.visible)continue;
+      const distance=Math.hypot(player.position.x-c.root.getWorldPosition(new THREE.Vector3()).x,player.position.z-c.root.getWorldPosition(new THREE.Vector3()).z);
+      if(distance<nearestDistance){nearest=c;nearestDistance=distance}
+    }
+    if(!nearest)return false;
+    if(nearestDistance>Math.max(2,reach+1.0)){hint.textContent='Approche-toi de la créature pour la toucher.';return true}
+    applyCreatureDamage(damage,damage);renderPanel();return true;
   }
   window.ASTREA_BOUNDS=currentRegion.bounds;
   if(currentRegion.id!=='village'){setZone(currentRegion.id);player.position.set(0,0,5);window.ASTREA_BOUNDS=currentRegion.bounds;scene.background=new THREE.Color(currentRegion.sky);scene.fog=new THREE.Fog(currentRegion.sky,65,185);if(collisionBoxes)collisionBoxes.forEach(c=>c.active=false)}
-  return {open:()=>{renderPanel();panel.hidden=false},getState:()=>({...save,region:currentRegion.id}),travel};
+  return {open:()=>{renderPanel();panel.hidden=false},getState:()=>({...save,region:currentRegion.id}),travel,hitFromPlayer};
 }
