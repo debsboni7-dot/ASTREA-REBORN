@@ -34,3 +34,5 @@ Date : 18 octobre 2026
 - Les PNJ actifs utilisent les modèles GLB masculins présents, avec teintes de matériaux ; les matériaux non texturés reçoivent une palette de couleurs. Les PNJ utilisent leurs clips disponibles ou des mouvements procéduraux et se déplacent pacifiquement.
 - La ville ajoute un marché, une forge, une mairie, un château et un camp. Les distances d'affichage sont limitées sur mobile.
 - Le nombre de PNJ est fixé à 100 instances prévues ; le nombre effectivement chargé doit être vérifié sur l'appareil, car les échecs de chargement d'un asset restent possibles.
+
+- Les maillages de PNJ sans texture et avec UV reçoivent maintenant une texture textile procédurale mise en cache par couleur ; les parties peau, cheveux, cuir et métal reçoivent une palette de matériaux adaptée.
