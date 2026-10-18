@@ -105,11 +105,8 @@ function normalizeModel(object,targetHeight){
 async function loadPrimaryAssets(){
  const jobs=[];
  jobs.push((async()=>{
-   let g,source='02-MODELS/characters/main-character-meshy.glb';
-   if(savedCharacter){
-     source=savedCharacter.gender==='female'?'02-MODELS/characters/base-female.glb':'02-MODELS/characters/base-male.glb';
-     try{g=await loadGLB(source)}catch(baseError){console.warn('Base personnalisée indisponible, retour au héros Meshy',baseError);source='02-MODELS/characters/main-character-meshy.glb';g=await loadGLB(source)}
-   }else{g=await loadGLB(source)}
+   // Même modèle dans le créateur et le jeu : hero.glb est le seul personnage inspecté avec squelette et clips intégrés.
+   const g=await loadGLB('02-MODELS/characters/hero.glb');
    const model=g.scene;normalizeModel(model,1.9);player.remove(fallback);player.add(model);visualRoot=model;loadedHero=true;
    if(savedCharacter){
      player.scale.y=savedCharacter.height/190;
@@ -135,8 +132,11 @@ async function loadPrimaryAssets(){
      });
    }
    mixer=new THREE.AnimationMixer(model);
-   if(g.animations?.length){const a=mixer.clipAction(g.animations[0]);a.play();currentAction=a}
-   return savedCharacter?'personnage personnalisé ('+(savedCharacter.gender==='female'?'féminin':'masculin')+')':'personnage Meshy';
+   heroClips={};
+   for(const clip of (g.animations||[])){const n=(clip.name||'').toLowerCase();if(/idle/.test(n))heroClips.idle=clip;if(/walk/.test(n))heroClips.walk=clip;if(/run/.test(n))heroClips.run=clip;if(/jump/.test(n))heroClips.jump=clip;if(/wave/.test(n))heroClips.wave=clip}
+   if(!heroClips.idle&&g.animations?.length)heroClips.idle=g.animations[0];
+   playCharacterAnimation('idle');
+   return 'personnage 3D riggé et clips intégrés chargés';
  })().catch(e=>{console.warn('Personnage GLB indisponible',e);return 'personnage provisoire'}));
 jobs.push(Promise.resolve('arsenal 3D ASTREA chargé depuis le catalogue procédural'));
  jobs.push(loadGLB('02-MODELS/buildings/small-house.glb').then(g=>{
@@ -156,8 +156,7 @@ jobs.push(Promise.resolve('arsenal 3D ASTREA chargé depuis le catalogue procéd
 }
 function playCharacterAnimation(kind){
  if(!mixer||!loadedHero)return false;
- const names=kind==='walk'?['walk_Armature','walk-casual_Armature','run_Armature']:['idle_Armature'];
- const clip=names.map(n=>heroClips[n]).find(Boolean);
+ const clip=kind==='walk'?(heroClips.walk||heroClips.run||heroClips.idle):(heroClips[kind]||heroClips.idle);
  if(!clip)return false;
  try{
   const next=mixer.clipAction(clip);
