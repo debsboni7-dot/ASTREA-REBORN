@@ -45,7 +45,7 @@ if(savedCharacter?.height)player.scale.y=savedCharacter.height/175;
 player.add(fallback);
 const fallbackSword=box(.12,.95,.16,0xb8d7df,0,0,0);scene.remove(fallbackSword);fallbackSword.position.set(.48,1.1,0);player.add(fallbackSword);
 let swordVisual=fallbackSword,visualRoot=fallback,loadedHero=false,loadedHouse=false;
-let yaw=0,pitch=.22,vy=0,onGround=true,attackTimer=0,attackCooldown=0,mixer=null,currentAction=null,animationCache={};
+let yaw=0,pitch=.22,vy=0,onGround=true,attackTimer=0,attackCooldown=0,mixer=null,currentAction=null,heroClips={},animationCache={};
 const enemy=new THREE.Group();enemy.position.set(1.8,0,-4.5);scene.add(enemy);
 const enemyBody=new THREE.Mesh(new THREE.CapsuleGeometry(.38,.82,3,6),new THREE.MeshStandardMaterial({color:0x9c493d,roughness:.85}));enemyBody.position.y=1.0;enemy.add(enemyBody);
 const enemyHead=new THREE.Mesh(new THREE.SphereGeometry(.27,8,6),new THREE.MeshStandardMaterial({color:0xb77c61,roughness:.9}));enemyHead.position.y=1.78;enemy.add(enemyHead);
@@ -124,22 +124,27 @@ jobs.push((async()=>{
  const result=await Promise.all(jobs);
  status.textContent='Assets chargés';hint.textContent='Actifs : '+result.join(' • ');
 }
-async function playExternalAnimation(file){
- if(!loadedHero||!visualRoot)return false;
- if(!animationCache[file]){
-  try{animationCache[file]=await loadGLB(file)}catch(e){console.warn('Animation indisponible',file,e);return false}
- }
- const gltf=animationCache[file],clip=gltf.animations?.[0];
- if(!clip||!mixer)return false;
- try{const next=mixer.clipAction(clip);if(currentAction&&currentAction!==next)currentAction.fadeOut(.12);next.reset().fadeIn(.12).play();currentAction=next;return true}catch(e){return false}
+function playCharacterAnimation(kind){
+ if(!mixer||!loadedHero)return false;
+ const names=kind==='walk'?['walk_Armature','walk-casual_Armature','run_Armature']:['idle_Armature'];
+ const clip=names.map(n=>heroClips[n]).find(Boolean);
+ if(!clip)return false;
+ try{
+  const next=mixer.clipAction(clip);
+  if(currentAction&&currentAction!==next)currentAction.fadeOut(.12);
+  next.reset().fadeIn(.12).play();currentAction=next;return true;
+ }catch(e){console.warn('Animation intégrée incompatible',kind,e);return false}
 }
+// Les GLB d'attaque externes ciblent des objets séparés, pas les os du héros.
+// Ils ne sont pas appliqués au mauvais squelette en attendant leur retargeting.
+
 function jump(){if(onGround){vy=6.2;onGround=false}}
 function bindMove(btn,dir){const down=e=>{e.preventDefault();touchMove[dir]=true},up=e=>{e.preventDefault();touchMove[dir]=false};btn.addEventListener('pointerdown',down);['pointerup','pointercancel','pointerleave'].forEach(ev=>btn.addEventListener(ev,up))}
 document.querySelectorAll('[data-move]').forEach(b=>bindMove(b,b.dataset.move));
 addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.code==='Space'){e.preventDefault();jump()}});
 addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
 document.getElementById('jump').addEventListener('pointerdown',e=>{e.preventDefault();jump()});
-document.getElementById('attack').addEventListener('pointerdown',async e=>{e.preventDefault();if(attackCooldown>0)return;attackCooldown=.48;attackTimer=.32;swordVisual.rotation.z=-1.2;const n=(Math.floor(Math.random()*3)+1);await playExternalAnimation('04-ANIMATIONS/anim-attack-'+n+'.glb');if(!enemyDefeated&&Math.hypot(player.position.x-enemy.position.x,player.position.z-enemy.position.z)<2.35){enemyHP=Math.max(0,enemyHP-1);enemyStatus.textContent='Cible : '+enemyHP+' PV';enemyBody.material.color.set(enemyHP===0?0x555555:0x9c493d);if(enemyHP===0){enemyDefeated=true;enemy.visible=false;enemyStatus.textContent='Cible vaincue';questStatus.textContent='Quête terminée ! Récompense : 100 XP';hint.textContent='Bravo ! Première quête terminée.'}else{questStatus.textContent='Touché ! Continue le combo.'}}else if(!enemyDefeated){questStatus.textContent='Trop loin : approche de la cible.'}});
+document.getElementById('attack').addEventListener('pointerdown',async e=>{e.preventDefault();if(attackCooldown>0)return;attackCooldown=.48;attackTimer=.32;swordVisual.rotation.z=-1.2;const n=(Math.floor(Math.random()*3)+1);/* Retargeting des attaques externes à terminer avant leur activation. */if(!enemyDefeated&&Math.hypot(player.position.x-enemy.position.x,player.position.z-enemy.position.z)<2.35){enemyHP=Math.max(0,enemyHP-1);enemyStatus.textContent='Cible : '+enemyHP+' PV';enemyBody.material.color.set(enemyHP===0?0x555555:0x9c493d);if(enemyHP===0){enemyDefeated=true;enemy.visible=false;enemyStatus.textContent='Cible vaincue';questStatus.textContent='Quête terminée ! Récompense : 100 XP';hint.textContent='Bravo ! Première quête terminée.'}else{questStatus.textContent='Touché ! Continue le combo.'}}else if(!enemyDefeated){questStatus.textContent='Trop loin : approche de la cible.'}});
 let dragging=false,lastX=0,lastY=0;
 renderer.domElement.addEventListener('pointerdown',e=>{dragging=true;lastX=e.clientX;lastY=e.clientY});
 addEventListener('pointerup',()=>dragging=false);
@@ -152,7 +157,7 @@ function frame(){
  if(keys.d||keys.arrowright||touchMove.right)s+=1;
  if(keys.a||keys.q||keys.arrowleft||touchMove.left)s-=1;
  const moving=!!(f||s);
- if(moving!==moveAnim.moving){moveAnim.moving=moving;if(loadedHero)playExternalAnimation(moving?'04-ANIMATIONS/anim-walk.glb':'04-ANIMATIONS/anim-idle.glb')}
+ if(moving!==moveAnim.moving){moveAnim.moving=moving;if(loadedHero)playCharacterAnimation(moving?'walk':'idle')}
  const len=Math.hypot(f,s)||1;f/=len;s/=len;const speed=4.2*dt;
  player.position.x+=(Math.sin(yaw)*f+Math.cos(yaw)*s)*speed;
  player.position.z+=(-Math.cos(yaw)*f+Math.sin(yaw)*s)*speed;
