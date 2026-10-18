@@ -22,7 +22,7 @@ jobs:
       - name: Install Blender
         run: |
           sudo apt-get update
-          sudo apt-get install -y blender
+          sudo apt-get install -y blender python3-numpy
       - name: Generate four low-poly environment assets and editable source
         run: |
           set -euo pipefail
