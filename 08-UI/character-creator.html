@@ -23,7 +23,7 @@ const loader=new GLTFLoader();let originalModel=null,modelLoading=true,modelErro
    if(!originalModel){document.querySelector('#feedback').textContent=modelError?'Modèle Meshy introuvable : vérifie le fichier main-character-meshy.glb.':'Chargement du vrai modèle 3D Meshy…';return}
    while(rig.children.length){const o=rig.children[0];rig.remove(o)}
    const model=originalModel.clone(true);model.traverse(o=>{if(!o.isMesh)return;o.castShadow=true;o.receiveShadow=true;const n=(o.name||'').toLowerCase();const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats){if(!m||!m.color)continue;if(/hair|cheveu/.test(n))m.color.set(state.hair);else if(/skin|head|neck|face|hand|arm/.test(n))m.color.set(state.skin);else if(/cloth|shirt|torso|shoulder|outfit|armor|armour/.test(n))m.color.set(outfits[state.outfit]||outfits.blue)}});
-   const bounds=new THREE.Box3().setFromObject(model),size=bounds.getSize(new THREE.Vector3()),height=Math.max(size.y,.001);model.scale.setScalar(1.78/height);const normalized=new THREE.Box3().setFromObject(model);model.position.y-=normalized.min.y;model.scale.y*=state.height/175;
+   const bounds=new THREE.Box3().setFromObject(model),size=bounds.getSize(new THREE.Vector3()),height=Math.max(size.y,.001);model.scale.setScalar((1.78/height)*(state.height/175));const normalized=new THREE.Box3().setFromObject(model);model.position.y-=normalized.min.y;
    model.traverse(o=>{if(!o.isMesh)return;const n=(o.name||'').toLowerCase();if(/torso|chest|body/.test(n))o.scale.x*=[.92,1,1.1][state.build]});
    rig.add(model);rig.rotation.y=rot;
  }
