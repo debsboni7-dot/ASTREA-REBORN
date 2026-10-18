@@ -206,26 +206,26 @@ const npcPalette=[
  {name:'Toma, voyageur',role:'voyageur',x:-4.3,z:-34.5,model:'02-MODELS/characters/young-adventurer.glb',tint:0xd58a32,homeX:-4.3,homeZ:-34.5,named:true},
  {name:'Rin, éclaireur',role:'éclaireur',x:4.5,z:-46.5,model:'02-MODELS/characters/young-adventurer.glb',tint:0x4d9b45,homeX:4.5,homeZ:-46.5,named:true},
  {name:'Darek, chevalier',role:'garde',x:-4.5,z:-58.5,model:'02-MODELS/characters/character-extra.glb',tint:0x3f72cf,weapon:0x75a8ff,homeX:-4.5,homeZ:-58.5,named:true},
- {name:'Sana, forgeronne',role:'forgeronne',x:12.2,z:-39.2,model:'02-MODELS/characters/young-adventurer.glb',tint:0xc66b36,homeX:12.2,homeZ:-39.2,named:true},
- {name:'Elric, greffier',role:'greffier',x:-12.4,z:-57.5,model:'02-MODELS/characters/character-extra.glb',tint:0x8b7bd1,homeX:-12.4,homeZ:-57.5,named:true},
+ {name:'Sana, forgeronne',role:'forgeronne',x:13,z:-35.4,model:'02-MODELS/characters/young-adventurer.glb',tint:0xc66b36,homeX:13,homeZ:-35.4,named:true},
+ {name:'Elric, greffier',role:'greffier',x:-13,z:-53.4,model:'02-MODELS/characters/character-extra.glb',tint:0x8b7bd1,homeX:-13,homeZ:-53.4,named:true},
  {name:'Pavo, fermier',role:'fermier',x:2.7,z:-67.5,model:'02-MODELS/characters/young-adventurer.glb',tint:0x719b43,homeX:2.7,homeZ:-67.5,named:true},
  {name:'Neri, herboriste',role:'herboriste',x:-3.1,z:-29.8,model:'02-MODELS/characters/young-adventurer.glb',tint:0x48a56d,homeX:-3.1,homeZ:-29.8,named:true},
- {name:'Bastian, capitaine',role:'garde',x:12.8,z:-84.5,model:'02-MODELS/characters/character-extra.glb',tint:0xb64d43,weapon:0xe6b56b,homeX:12.8,homeZ:-84.5,named:true},
+ {name:'Bastian, capitaine',role:'garde',x:13,z:-80.5,model:'02-MODELS/characters/character-extra.glb',tint:0xb64d43,weapon:0xe6b56b,homeX:13,homeZ:-80.5,named:true},
  {name:'Alin, aubergiste',role:'aubergiste',x:-1.5,z:-15.8,model:'02-MODELS/characters/young-adventurer.glb',tint:0xb87b43,homeX:-1.5,homeZ:-15.8,named:true},
- {name:'Oren, éclaireur du camp',role:'aventurier',x:-12.8,z:-101.5,model:'02-MODELS/characters/character-extra.glb',tint:0x6b8eaa,homeX:-12.8,homeZ:-101.5,named:true}
+ {name:'Oren, éclaireur du camp',role:'aventurier',x:-13,z:-97.5,model:'02-MODELS/characters/character-extra.glb',tint:0x6b8eaa,homeX:-13,homeZ:-97.5,named:true}
 ];
 const npcZones=[
  {role:'marché',x:0,z:-10,r:4.8},
  {role:'citoyen',x:0,z:-27,r:4.2},
- {role:'forgeron',x:12,z:-39,r:3.3},
- {role:'mairie',x:-12,z:-57,r:3.4},
+ {role:'forgeron',x:13,z:-35.4,r:2.6},
+ {role:'mairie',x:-13,z:-53.4,r:2.6},
  {role:'fermier',x:0,z:-68,r:4.2},
- {role:'château',x:12,z:-84,r:3.4},
- {role:'camp',x:-12,z:-101,r:3.5}
+ {role:'château',x:13,z:-80.5,r:2.6},
+ {role:'camp',x:-13,z:-97.5,r:2.6}
 ];
 const npcCrowdSpecs=[];
 for(let i=0;i<88;i++){
- const zone=npcZones[i%npcZones.length],angle=i*2.399963229728653,radius=1.6+(i%6)*.55;
+ const zone=npcZones[i%npcZones.length],angle=i*2.399963229728653,radius=1.2+(i%5)*.35;
  const tintPalette=[0x4d8dbe,0xc17b45,0x5d9d67,0x9272b8,0xb65a57,0x9b9a55,0x438f91,0x8e6c50,0x6d85b2,0xb77b9b];
  const x=Math.max(-18,Math.min(18,zone.x+Math.cos(angle)*radius));
  const z=Math.max(-115,Math.min(-4,zone.z+Math.sin(angle)*radius*1.35));
