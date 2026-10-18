@@ -1,31 +1,42 @@
 # ASTREA REBORN
 
-Prototype de RPG 3D d'action et d'exploration, développé progressivement avec une priorité à la stabilité et aux performances mobiles.
+Prototype de RPG 3D d'action et d'exploration, avec priorité à la stabilité et aux performances mobiles.
 
 ## Tester le prototype
-Ouvrir [`index.html`](./index.html) dans un navigateur avec Internet actif : Three.js est chargé depuis un CDN. Le prototype propose déplacement tactile/clavier, saut, attaque test, caméra et un petit village de démonstration.
+Ouvrir `index.html` avec Internet actif : Three.js et GLTFLoader sont chargés depuis jsDelivr. Le prototype inclut commandes tactiles/clavier, saut, caméra, attaque, chargement des modèles GLB du personnage et de l'épée, maisons Meshy et textures d'herbe/pavage.
 
-**Important :** le personnage, les maisons et la végétation visibles dans cette première version sont des formes provisoires. Les modèles Meshy réels, l'animation de course et l'épée divine ne sont pas encore confirmés comme intégrés.
+Le chargement des animations d'attaque, de marche et d'inactivité est tenté à la demande. La compatibilité des clips avec le squelette du personnage doit encore être vérifiée visuellement sur le navigateur cible.
+
+## Assets importés
+Les fichiers réels du dépôt historique `ASTREA-ASSETS` ont été copiés dans leurs domaines :
+- `02-MODELS/` : personnages, armes, bâtiments, créatures, objets et exports FBX source.
+- `03-TEXTURES/` : terrain, végétation, bâtiments, environnement et effets.
+- `04-ANIMATIONS/` : idle, walk et trois attaques.
+- `09-AUDIO/` : aucun son source trouvé pour l'instant ; aucun faux fichier audio n'a été ajouté.
+
+L'inventaire complet des fichiers copiés se trouve dans [ASSETS-IMPORTES.md](./01-DOCUMENTATION/ASSETS-IMPORTES.md), et le statut audio dans [AUDIO-STATUS.md](./01-DOCUMENTATION/AUDIO-STATUS.md).
 
 ## Structure
-- `01-DOCUMENTATION/` : cahier des charges, feuille de route, journal des changements et inventaire des assets.
-- `02-MODELS/` : modèles 3D GLB.
+- `01-DOCUMENTATION/` : cahier des charges, architecture, inventaire et procédures.
+- `02-MODELS/` : modèles 3D.
 - `03-TEXTURES/` : textures et atlas.
-- `04-ANIMATIONS/` : animations et notes d'intégration.
+- `04-ANIMATIONS/` : animations.
 - `05-GAME/` : logique de jeu.
 - `06-WORLD/` : zones et environnement.
 - `07-SYSTEMS/` : systèmes de jeu.
 - `08-UI/` : interface et commandes.
-- `09-AUDIO/` : audio.
+- `09-AUDIO/` : sons, quand les fichiers sources seront disponibles.
+- `tests/` : vérifications manuelles.
 
-Les vrais assets ne seront déclarés intégrés qu'après vérification de leur présence et de leur chargement.
-
-## Documentation supplémentaire
+## Documentation
+- [Cahier des charges](./01-DOCUMENTATION/CAHIER-DES-CHARGES.md)
 - [Architecture technique](./01-DOCUMENTATION/ARCHITECTURE.md)
-- [Procédure d'intégration des assets Meshy](./01-DOCUMENTATION/INTEGRATION-ASSETS.md)
-- [Guide de contribution](./01-DOCUMENTATION/CONTRIBUTION.md)
+- [Procédure d'intégration Meshy](./01-DOCUMENTATION/INTEGRATION-ASSETS.md)
+- [Inventaire importé](./01-DOCUMENTATION/ASSETS-IMPORTES.md)
+- [Statut audio](./01-DOCUMENTATION/AUDIO-STATUS.md)
 - [Tests manuels](./tests/README.md)
-- [Données descriptives du village de démonstration](./data/world-village.json)
 
-## État honnête des assets
-Le personnage principal Meshy, son animation de course et l'épée divine ne sont pas marqués comme intégrés tant que les fichiers sources et leur chargement n'ont pas été vérifiés.
+## Limites connues
+- Le prototype utilise une petite sélection d'assets dans la scène afin d'éviter de charger tous les modèles lourds en même temps sur Android.
+- Les exports FBX sont conservés comme sources ; le chargeur actuel du prototype lit les GLB.
+- L'import ne prouve pas que tous les rigs et clips d'animation sont compatibles. Il faut vérifier le rendu et les mouvements dans le navigateur mobile.
