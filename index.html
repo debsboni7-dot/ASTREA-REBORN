@@ -155,18 +155,14 @@ function tintNPC(model,tint){
  model.traverse(o=>{
    if(!o.isMesh)return;
    o.castShadow=false;o.receiveShadow=false;
-   const mats=Array.isArray(o.material)?o.material:[o.material];
-   o.material=mats.map(mat=>{
+   const tintMaterial=mat=>{
      if(!mat)return mat;
      const m=mat.clone();
-     if(m.color){
-       const hsl={h:0,s:0,l:0};m.color.getHSL(hsl);
-       // Une variation légère conserve le relief et les textures d'origine.
-       const tc=target.clone();tc.getHSL(hsl);
-       m.color.lerp(target,.14);
-     }
+     // La teinte multiplie les textures originales au lieu de les remplacer.
+     if(m.color)m.color.lerp(target,.14);
      return m;
-   });
+   };
+   o.material=Array.isArray(o.material)?o.material.map(tintMaterial):tintMaterial(o.material);
  });
 }
 async function loadVillageNPCs(){
