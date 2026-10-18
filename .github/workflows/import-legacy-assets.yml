@@ -49,7 +49,7 @@ jobs:
             ('Meshy_AI_Un_chariot_en_bois_co_1011093312_generate.glb','02-MODELS/props/wooden-cart.glb'),
             ('Meshy_AI_Une_diligence_en_bois_1011093347_generate.glb','02-MODELS/props/wooden-coach.glb'),
             ('Meshy_AI_Une_grande_roue_méta_1011095112_generate.glb','02-MODELS/props/large-metal-wheel.glb'),
-            ('Meshy_AI_Une_lourde_grille_ver_1011095156_generate.glb','02-MODELS/props/heavy-gate.fbx'),
+            ('Meshy_AI_Une_lourde_grille_ver_1011095156_generate.glb','02-MODELS/props/heavy-gate.glb'),
             ('Meshy_AI_Une_petite_boussole_c_1011095209_generate.glb','02-MODELS/props/compass.glb'),
             ('Meshy_AI_Une_plateforme_circul_1011095126_generate.glb','02-MODELS/props/circular-platform.glb'),
             ('Meshy_AI_Une_porte_massive_com_1011095101_generate.glb','02-MODELS/props/massive-gate.glb'),
