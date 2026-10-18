@@ -71,3 +71,9 @@ Le bouton **MONDE 🌍** du jeu ouvre le prototype des systèmes d’expansion :
 Le panneau **MONDE 🌍** comprend maintenant une première boutique, un inventaire simplifié, des potions, une collecte de matériaux de test, deux recettes d’artisanat, trois quêtes à objectifs, des récompenses d’XP et une montée de niveau avec amélioration des PV. Ces mécaniques sont sauvegardées localement.
 
 Les limites et prochaines étapes sont documentées dans [07-SYSTEMS/README.md](./07-SYSTEMS/README.md). Les nouvelles armes achetées ne sont pas encore toutes reliées au modèle tenu en main et les créatures n'utilisent pas encore le combat animé standard.
+
+## Améliorations ajoutées — 18 octobre 2026
+- Les continents générés utilisent désormais des textures de terrain procédurales (variations de sol) et une bordure de plage sableuse autour de la zone terrestre.
+- Les boutons ATTAQUE et TECHNIQUE SPÉCIALE peuvent infliger des dégâts au dragon ou au mammouth quand le joueur est dans la bonne région et à portée.
+- Les créatures restent des modèles procéduraux provisoires; leur IA, leurs déplacements, leurs attaques ennemies et leurs animations restent à développer.
+- Les contrôles et le rendu doivent encore être vérifiés sur un vrai téléphone Android; le contrôle de syntaxe automatique est en cours pour la dernière modification.
