@@ -2,49 +2,45 @@
 
 Prototype de RPG 3D d'action et d'exploration, avec priorité à la stabilité et aux performances mobiles.
 
-## Tester le prototype
-Ouvrir `index.html` avec Internet actif : Three.js et GLTFLoader sont chargés depuis jsDelivr. Le prototype inclut commandes tactiles/clavier, saut, caméra, attaque, chargement des modèles GLB du personnage et de l'épée, maisons Meshy et textures d'herbe/pavage.
+## Tester le prototype principal
+Ouvrir [`index.html`](./index.html) avec Internet actif : Three.js et GLTFLoader sont chargés depuis jsDelivr. Le prototype inclut commandes tactiles/clavier, saut, caméra, attaque, chargement des modèles GLB du personnage et de l'épée provisoire, maisons Meshy et textures d'herbe/pavage.
 
-Le chargement des animations d'attaque, de marche et d'inactivité est tenté à la demande. La compatibilité des clips avec le squelette du personnage doit encore être vérifiée visuellement sur le navigateur cible.
+Le chargement des animations de marche, d'inactivité et d'attaque est tenté à la demande. La compatibilité des clips avec le squelette du personnage doit encore être vérifiée visuellement sur le navigateur cible.
 
-## Assets importés
-Les fichiers réels du dépôt historique `ASTREA-ASSETS` ont été copiés dans leurs domaines :
-- `02-MODELS/` : personnages, armes, bâtiments, créatures, objets et exports FBX source.
-- `03-TEXTURES/` : terrain, végétation, bâtiments, environnement et effets.
-- `04-ANIMATIONS/` : idle, walk et trois attaques.
-- `09-AUDIO/` : aucun son source trouvé pour l'instant ; aucun faux fichier audio n'a été ajouté.
+## Fichiers ajoutés par l'utilisateur — conservés et classés
+- [Inventaire des ajouts et extractions](./01-DOCUMENTATION/ASSETS-UTILISATEUR.md)
+- [Épée divine : sources FBX et textures PBR](./02-MODELS/weapons/README.md)
+- [Packs de textures classés par domaine](./03-TEXTURES/README.md)
+- [Prototypes historiques conservés](./10-PROTOTYPES/README.md)
+- [Prototype du village mobile V2](./10-PROTOTYPES/legacy/ASTREA-MOBILE-VILLAGE-OPTIMISE-V2.html)
+- [Prototype de test des assets](./10-PROTOTYPES/legacy/ASTREA_ASSETS_TEST_CORRIGE.html)
+- Les cinq démonstrations HTML de nature, rig, combos et attaques ultimes restent dans `04-ANIMATIONS/`. Ce sont des simulations 2D interactives, distinctes des fichiers GLB d'animation.
 
-L'inventaire complet des fichiers copiés se trouve dans [ASSETS-IMPORTES.md](./01-DOCUMENTATION/ASSETS-IMPORTES.md), et le statut audio dans [AUDIO-STATUS.md](./01-DOCUMENTATION/AUDIO-STATUS.md).
-
-## Structure
-- `01-DOCUMENTATION/` : cahier des charges, architecture, inventaire et procédures.
-- `02-MODELS/` : modèles 3D.
-- `03-TEXTURES/` : textures et atlas.
-- `04-ANIMATIONS/` : animations.
+## Organisation
+- `01-DOCUMENTATION/` : cahier des charges, architecture, inventaires et procédures.
+- `02-MODELS/` : modèles 3D classés par domaine ; FBX sources conservés séparément.
+- `03-TEXTURES/` : textures, atlas et packs extraits classés par domaine.
+- `04-ANIMATIONS/` : clips GLB et démonstrations interactives HTML.
 - `05-GAME/` : logique de jeu.
 - `06-WORLD/` : zones et environnement.
 - `07-SYSTEMS/` : systèmes de jeu.
 - `08-UI/` : interface et commandes.
-- `09-AUDIO/` : sons, quand les fichiers sources seront disponibles.
+- `09-AUDIO/` : sons quand les sources seront disponibles.
+- `10-PROTOTYPES/` : prototypes HTML de référence, séparés du jeu principal.
 - `tests/` : vérifications manuelles.
 
 ## Documentation
 - [Cahier des charges](./01-DOCUMENTATION/CAHIER-DES-CHARGES.md)
 - [Architecture technique](./01-DOCUMENTATION/ARCHITECTURE.md)
-- [Procédure d'intégration Meshy](./01-DOCUMENTATION/INTEGRATION-ASSETS.md)
-- [Inventaire importé](./01-DOCUMENTATION/ASSETS-IMPORTES.md)
-- [Statut audio](./01-DOCUMENTATION/AUDIO-STATUS.md)
+- [Inventaire des modèles, textures et animations](./01-DOCUMENTATION/LISTE-ASSETS.md)
+- [Inventaire détaillé des assets importés](./01-DOCUMENTATION/ASSETS-IMPORTES.md)
+- [État des fichiers ajoutés par l'utilisateur](./01-DOCUMENTATION/ASSETS-UTILISATEUR.md)
+- [État audio](./01-DOCUMENTATION/AUDIO-STATUS.md)
 - [Tests manuels](./tests/README.md)
 
 ## Limites connues
-- Le prototype utilise une petite sélection d'assets dans la scène afin d'éviter de charger tous les modèles lourds en même temps sur Android.
-- Les exports FBX sont conservés comme sources ; le chargeur actuel du prototype lit les GLB.
-- L'import ne prouve pas que tous les rigs et clips d'animation sont compatibles. Il faut vérifier le rendu et les mouvements dans le navigateur mobile.
-
-
-## Fichiers ajoutés manuellement et prototypes de référence
-- [Inventaire des fichiers ajoutés par l'utilisateur](./01-DOCUMENTATION/ASSETS-UTILISATEUR.md)
-- [Prototypes historiques conservés](./10-PROTOTYPES/README.md)
-- Les deux archives de l'épée divine restent conservées dans `02-MODELS/weapons/`; le workflow extrait leurs fichiers sources et textures dans des sous-dossiers séparés sans écraser les originaux.
-- Les packs ZIP de textures restent dans `03-TEXTURES/environment/` et ne sont pas supprimés.
-- Les prototypes HTML d'animation présents dans `04-ANIMATIONS/` sont des démonstrations 2D indépendantes ; ils sont conservés et ne sont pas présentés comme des animations 3D directement jouables.
+- Tous les modèles ne sont pas chargés simultanément, pour limiter le risque de ralentissement sur Android.
+- Les archives ZIP et les FBX d'origine sont conservés. L'épée divine rouge n'est pas encore branchée au prototype : il faut convertir son FBX en GLB puis valider ses textures et son attache.
+- Les démonstrations HTML d'animations ne sont pas des animations 3D glTF.
+- Aucun fichier sonore autonome n'a été trouvé dans les dépôts inspectés.
+- L'import ne prouve pas que tous les rigs et clips sont compatibles. Le rendu et les mouvements doivent être testés sur Chrome Android.
