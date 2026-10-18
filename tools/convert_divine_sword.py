@@ -83,6 +83,10 @@ for obj in mesh_objects:
         mat.use_nodes = True
         nodes = mat.node_tree.nodes
         links = mat.node_tree.links
+        # Discard broken texture nodes imported from FBX .fbm folders; use the repository PBR maps below.
+        for old_node in list(nodes):
+            if old_node.type == "TEX_IMAGE":
+                nodes.remove(old_node)
         bsdf = next((n for n in nodes if n.type == "BSDF_PRINCIPLED"), None)
         if bsdf is None:
             bsdf = nodes.new("ShaderNodeBsdfPrincipled")
