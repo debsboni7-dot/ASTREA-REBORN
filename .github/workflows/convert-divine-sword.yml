@@ -4,7 +4,6 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - ".github/workflows/convert-divine-sword.yml"
       - "tools/convert_divine_sword.py"
 
 permissions:
@@ -22,7 +21,7 @@ jobs:
       - name: Install Blender
         run: |
           sudo apt-get update
-          sudo apt-get install -y blender
+          sudo apt-get install -y blender python3-numpy
       - name: Convert both original Meshy sword exports
         run: |
           set -euo pipefail
