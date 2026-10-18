@@ -145,7 +145,8 @@ bpy.ops.export_scene.gltf(
     export_format="GLB",
     use_selection=True,
     export_apply=True,
-    export_image_format="AUTO",
+    export_image_format="JPEG",
+    export_image_quality=82,
 )
 if not output.is_file() or output.stat().st_size < 1000:
     raise SystemExit(f"Export failed or too small: {output}")
