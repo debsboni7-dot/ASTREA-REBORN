@@ -56,3 +56,12 @@ Les modèles d'arbre fantastique, de groupe de rochers, de cristal d'éther et d
 - Les démonstrations HTML d'animations ne sont pas des animations 3D glTF.
 - Aucun fichier sonore autonome n'a été trouvé dans les dépôts inspectés.
 - L'import ne prouve pas que tous les rigs et clips sont compatibles. Le rendu et les mouvements doivent être testés sur Chrome Android.
+
+
+## Systèmes du monde (première couche intégrée)
+Le bouton **MONDE 🌍** du jeu ouvre le prototype des systèmes d’expansion : monnaie en Couronnes, cinq zones/continents, voyages entre régions, sauvegarde locale, fondation et développement d’un pays, navire stylisé, dragon et mammouth procéduraux, récompenses de quête de test. Les régions sont générées à la demande pour limiter la charge initiale. Les créatures sont des modèles provisoires, et le combat contre elles est actuellement piloté par le panneau de système, pas encore par les collisions et animations de combat normales.
+
+- [Module d’expansion du monde](./07-SYSTEMS/astrea-world-expansion.js)
+- [Cahier des charges maître complet](./01-DOCUMENTATION/CAHIER-DES-CHARGES.md)
+
+**À tester sur téléphone :** ouvrir MONDE, voyager vers Elarion, puis revenir au Village d’Astrea. Vérifier aussi la persistance après rechargement. Le rendu et les performances n’ont pas été validés sur un appareil réel dans cette modification.
