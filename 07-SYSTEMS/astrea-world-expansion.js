@@ -55,11 +55,22 @@ export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes, eq
       const name=nameInput.value.trim();
       if(name.length<2){hint.textContent='Entre un nom de pays d’au moins 2 caractères.';return}
       if(save.coins<5000){hint.textContent='Il te faut 5 000 couronnes pour fonder un pays. Gagne des récompenses en combattant.';return}
-      save.coins-=5000;save.kingdoms.push({name,region:regionSelect.value,level:1,population:10,createdAt:Date.now()});persist();hint.textContent='Le pays '+name+' a été fondé !';renderPanel();
+      save.coins-=5000;save.kingdoms.push({name,region:regionSelect.value,level:1,population:10,buildings:[],treasury:0,lastTaxAt:0,createdAt:Date.now()});persist();hint.textContent='Le pays '+name+' a été fondé !';renderPanel();
     },save.coins<5000));
-    if(save.kingdoms.length){panel.append(el('h3',{},'📜 TES PAYS'));save.kingdoms.forEach(k=>panel.append(makeCard(k.name+' — Niveau '+k.level,k.population+' habitants · Région : '+(regions.find(r=>r.id===k.region)?.name||k.region),[
-      button('Développer (1 000 💰)',()=>{if(save.coins<1000){hint.textContent='Il te manque des couronnes.';return}save.coins-=1000;k.level++;k.population+=25;persist();renderPanel()},save.coins<1000)
-    ])))}
+    if(save.kingdoms.length){panel.append(el('h3',{},'📜 TES PAYS'));save.kingdoms.forEach(k=>{
+      if(!Array.isArray(k.buildings))k.buildings=[];
+      if(!Number.isFinite(k.treasury))k.treasury=0;
+      if(!Number.isFinite(k.lastTaxAt))k.lastTaxAt=0;
+      const taxReady=Date.now()-k.lastTaxAt>=300000;
+      const taxAmount=Math.max(10,Math.floor(k.population*2+k.level*15+k.buildings.length*20));
+      const cards=[
+        button('Développer (1 000 💰)',()=>{if(save.coins<1000){hint.textContent='Il te manque des couronnes.';return}save.coins-=1000;k.level++;k.population+=25;persist();renderPanel()},save.coins<1000),
+        button('Collecter les impôts (+'+taxAmount+' 💰)',()=>{if(Date.now()-k.lastTaxAt<300000){hint.textContent='Les impôts ont déjà été collectés. Reviens dans quelques minutes.';return}k.lastTaxAt=Date.now();k.treasury+=taxAmount;save.coins+=taxAmount;persist();hint.textContent='Impôts collectés pour '+k.name+' : +'+taxAmount+' Couronnes.';renderPanel()},!taxReady),
+        button('Construire une ferme (600 💰)',()=>{if(save.coins<600){hint.textContent='Il te faut 600 Couronnes.';return}if(k.buildings.includes('Ferme')){hint.textContent='Ce pays possède déjà une ferme.';return}save.coins-=600;k.buildings.push('Ferme');k.population+=5;persist();hint.textContent='Ferme construite : la population augmente.';renderPanel()},save.coins<600||k.buildings.includes('Ferme')),
+        button('Construire une caserne (900 💰)',()=>{if(save.coins<900){hint.textContent='Il te faut 900 Couronnes.';return}if(k.buildings.includes('Caserne')){hint.textContent='Ce pays possède déjà une caserne.';return}save.coins-=900;k.buildings.push('Caserne');persist();hint.textContent='Caserne construite : la défense du pays est renforcée (gestion stratégique en cours de développement).';renderPanel()},save.coins<900||k.buildings.includes('Caserne'))
+      ];
+      panel.append(makeCard(k.name+' — Niveau '+k.level,k.population+' habitants · Région : '+(regions.find(r=>r.id===k.region)?.name||k.region)+' · Bâtiments : '+(k.buildings.length?k.buildings.join(', '):'aucun')+' · Trésorerie cumulée : '+(k.treasury||0)+' Couronnes',cards));
+    })}
     panel.append(el('h3',{},'🐉 CRÉATURES MYTHIQUES'));
     for(const id of ['dragon','mammoth']){
       const c=creatureState[id],region=regions.find(r=>r.id===c.region);
