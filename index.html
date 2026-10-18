@@ -6,12 +6,13 @@
 <title>ASTREA REBORN — Prototype avec assets Meshy</title>
 <style>
 :root{color-scheme:dark}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#101821;font-family:system-ui,Arial;color:#fff}canvas{display:block}#hud{position:fixed;inset:0;pointer-events:none}.brand{position:absolute;top:12px;left:12px;padding:9px 12px;background:#07111dcc;border:1px solid #91b5a766;border-radius:10px;font-weight:800;letter-spacing:1px}.hint{position:absolute;top:58px;left:12px;font-size:12px;color:#d8e5df;background:#07111dbb;padding:6px 9px;border-radius:8px;max-width:70vw}.status{position:absolute;top:12px;right:12px;background:#07111dcc;padding:8px 10px;border-radius:9px;font-size:12px;color:#bfe8c9;max-width:45vw;text-align:right}.joystick{position:absolute;left:18px;bottom:28px;width:142px;height:164px;pointer-events:auto;touch-action:none;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:5px;color:#d8e5df;font-size:9px;font-weight:800;letter-spacing:1px}.joystick-ring{width:132px;height:132px;border-radius:50%;background:#142b3588;border:2px solid #d8e8e477;display:flex;align-items:center;justify-content:center;touch-action:none;box-shadow:inset 0 0 20px #0005}.joystick-knob{width:52px;height:52px;border-radius:50%;background:#b6c7cecc;border:2px solid #fff9;box-shadow:0 3px 12px #0008;transform:translate(0,0);touch-action:none}.actions button{border:1px solid #d8e8e488;background:#142b35dd;color:white;border-radius:14px;font-size:19px;font-weight:700;touch-action:none}.actions{position:absolute;right:18px;bottom:25px;display:flex;gap:9px;pointer-events:auto}.actions button{width:64px;height:64px;border-radius:50%;font-size:12px;background:#493528dd}.actions button:first-child{background:#244b3bdd}.actions button#interact{background:#6a5127dd}.inventory-button{position:absolute;top:154px;right:12px;pointer-events:auto;padding:8px 10px;border:1px solid #d8e8e488;border-radius:9px;background:#142b35ee;color:#fff;font-size:12px;font-weight:800}.inventory-panel{position:absolute;top:195px;right:12px;width:min(78vw,260px);max-height:45vh;overflow:auto;padding:13px;background:#091321f2;border:1px solid #91b5a7;border-radius:12px;pointer-events:auto;z-index:4}.inventory-panel h3{margin:0 0 8px;color:#f3d18a;font-size:15px}.inventory-panel p{margin:5px 0;font-size:13px}.inventory-panel button{margin-top:8px;width:100%;padding:8px;border-radius:8px;border:1px solid #d8e8e4;background:#203a42;color:#fff}.armory-button{position:absolute;top:195px;right:12px;pointer-events:auto;padding:8px 10px;border:1px solid #e6c17c88;border-radius:9px;background:#493c27ee;color:#ffe0a0;font-size:12px;font-weight:800}.armory-panel{position:absolute;top:236px;right:12px;width:min(84vw,290px);max-height:56vh;overflow:auto;padding:13px;background:#091321f5;border:1px solid #d7b66c;border-radius:12px;pointer-events:auto;z-index:6}.armory-panel h3{margin:0 0 9px;color:#f3d18a;font-size:16px}.armory-panel label{display:block;font-size:12px;margin-bottom:5px}.armory-panel select{width:100%;padding:9px;background:#152a36;color:white;border:1px solid #78949c;border-radius:8px}.armory-panel button{width:100%;padding:9px;margin-top:8px;border-radius:8px;border:1px solid #e6c17c;background:#493c27;color:#fff;font-weight:800}.armory-panel #weaponInfo{font-size:12px;line-height:1.5;margin-top:10px;color:#dce7f2}.armory-note{font-size:11px;color:#a9bdc9;line-height:1.4}@media(max-width:430px){.inventory-button{top:153px;font-size:11px;padding:7px 8px}.inventory-panel{top:192px}.armory-button{top:195px}.armory-panel{top:236px}}.dialogue{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(88vw,360px);padding:16px;background:#091321f2;border:1px solid #d7b66c;border-radius:14px;box-shadow:0 12px 40px #0009;pointer-events:auto;z-index:5}.dialogue h2{font-size:16px;margin:0 0 8px;color:#f3d18a}.dialogue p{font-size:14px;line-height:1.5;margin:0 0 12px;color:#e3eaf2}.dialogue button{width:100%;padding:10px;border-radius:9px;border:1px solid #e6c17c;background:#493c27;color:#fff;font-weight:700}.customize{position:absolute;top:62px;right:12px;pointer-events:auto;display:inline-block;padding:8px 10px;border:1px solid #e6c17c88;border-radius:9px;background:#142b35ee;color:#ffe0a0;text-decoration:none;font-size:12px;font-weight:800}.quest{position:absolute;top:104px;left:12px;background:#07111dcc;border:1px solid #d8e8e444;border-radius:9px;padding:8px 10px;font-size:12px;line-height:1.5;max-width:220px}.quest strong{color:#f3d18a}.notice{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);font-size:11px;color:#d8e5df;background:#07111dbb;padding:6px 8px;border-radius:7px;white-space:nowrap;max-width:94vw;overflow:hidden;text-overflow:ellipsis} .health{position:absolute;top:154px;left:12px;width: min(45vw,190px);padding:7px 9px;background:#07111dcc;border:1px solid #d8e8e444;border-radius:9px}.health-label{display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px}.health-track{height:9px;border-radius:8px;background:#492727;overflow:hidden}.health-track div{height:100%;width:100%;background:#4fc879;transition:width .15s,background .15s}@media(max-width:430px){.health{top:153px;width:42vw}.joystick{left:8px;bottom:40px;width:120px;height:140px}.joystick-ring{width:112px;height:112px}.joystick-knob{width:46px;height:46px}.actions{right:10px;bottom:48px;gap:6px}.actions button{width:57px;height:57px;font-size:10px}.notice{bottom:5px}}
+@media(max-width:520px){.actions{right:8px;bottom:18px;gap:5px;flex-wrap:wrap;max-width:58vw;justify-content:flex-end}.actions button{width:48px;height:48px;font-size:9px}.actions button#interact{width:52px;height:52px}.joystick{left:8px;bottom:18px;transform:scale(.9);transform-origin:bottom left}}
 </style>
 </head>
 <body>
 <div id="hud"><div class="brand">ASTREA <span style="color:#b4dfc2">REBORN</span></div><div class="hint" id="hint">Chargement des assets ASTREA…</div><div class="health" id="health"><div class="health-label">❤️ VIE <strong id="healthText">100 / 100</strong></div><div class="health-track"><div id="healthFill"></div></div></div><div class="quest" id="quest">Objectif : <strong>vaincre l’entraînement</strong><br><span id="enemyStatus">Cible : 100 PV</span><br><span id="questStatus">Approche la cible et attaque.</span></div><div class="status" id="status">Initialisation…</div><a class="customize" href="08-UI/character-creator.html">PERSONNAGE ⚙</a><button class="inventory-button" id="inventoryToggle">SAC 🎒</button><button class="armory-button" id="armoryToggle">ARMES ⚔</button><div class="armory-panel" id="armoryPanel" hidden><h3>Arsenal d’Astrea</h3><label for="weaponSelect">Arme équipée</label><select id="weaponSelect"></select><div id="weaponInfo"></div><button id="equipWeapon">ÉQUIPER</button><p class="armory-note">Chaque arme possède son propre modèle 3D, son niveau unique, ses dégâts, sa portée, sa vitesse et sa technique.</p><button id="armoryClose">FERMER</button></div><div class="inventory-panel" id="inventoryPanel" hidden><h3>Inventaire d’Astrea</h3><div id="inventoryItems"><p>Ton sac est vide.</p></div><button id="inventoryClose">FERMER</button></div>
 <div class="joystick" id="joystick" aria-label="Joystick de déplacement"><div class="joystick-ring"><div class="joystick-knob" id="joystickKnob"></div></div><span>JOYSTICK</span></div>
-<div class="actions"><button id="interact">PARLER</button><button id="jump">SAUT</button><button id="attack">ATTAQUE</button><button id="specialAttack">TECHNIQUE</button></div><div class="dialogue" id="dialogue" hidden><h2 id="dialogueTitle">Guide du village</h2><p id="dialogueText"></p><button id="dialogueClose">CONTINUER</button></div><div class="notice">ZQSD / WASD • Espace : saut • glisser : tourner la caméra</div></div>
+<div class="actions"><button id="interact">PARLER</button><button id="jump">SAUT</button><button id="attack">COMBO</button><button id="specialAttack">ULTIME</button><button id="ultimateUltimate">ULTIME+</button></div><div class="dialogue" id="dialogue" hidden><h2 id="dialogueTitle">Guide du village</h2><p id="dialogueText"></p><button id="dialogueClose">CONTINUER</button></div><div class="notice">ZQSD / WASD • Espace : saut • glisser : tourner la caméra</div></div>
 <script>
 (function(){var timer=setTimeout(function(){var s=document.getElementById('status'),h=document.getElementById('hint');if(s&&/Initialisation|Chargement/.test(s.textContent)){s.textContent='DÉMARRAGE 3D BLOQUÉ';if(h)h.textContent='Le moteur 3D ne démarre pas. Vérifie Internet puis recharge la page. Si cela persiste, un module externe est bloqué.'}},12000);window.addEventListener('error',function(e){var s=document.getElementById('status'),h=document.getElementById('hint');if(s){s.textContent='ERREUR JAVASCRIPT';if(h)h.textContent=(e.message||'Erreur de chargement').slice(0,110)}});window.addEventListener('unhandledrejection',function(e){var s=document.getElementById('status'),h=document.getElementById('hint');if(s){s.textContent='ERREUR DE CHARGEMENT';if(h)h.textContent=String(e.reason||'Erreur inconnue').slice(0,110)}})})();
 </script>
@@ -72,7 +73,7 @@ async function loadPrimaryCharacter(){
   const JSZipModule=await import('https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm');
   const JSZip=JSZipModule.default||JSZipModule;
   const zip=await JSZip.loadAsync(await zipResponse.arrayBuffer());
-  const fbxEntries=Object.values(zip.files).filter(f=>!f.dir&&/\\.fbx$/i.test(f.name));
+  const fbxEntries=Object.values(zip.files).filter(f=>!f.dir&&/\.fbx$/i.test(f.name));
   if(!fbxEntries.length)throw new Error('Aucun fichier FBX trouvé dans l’archive Meshy');
   fbxEntries.sort((a,b)=>Number(/character_output/i.test(b.name))-Number(/character_output/i.test(a.name)));
   const fbxEntry=fbxEntries[0];
@@ -200,12 +201,36 @@ function setHouseMode(enter){insideHouse=enter;room.visible=enter;if(enter){play
 
 /* Ambiance du village : PNJ 3D réels, variantes de tenues et accessoires colorés. */
 const npcPalette=[
- {name:'Mira, marchande',x:-4.4,z:-10.2,model:'02-MODELS/characters/young-adventurer.glb',tint:0x36a7a0,weapon:0x45d9ce},
- {name:'Kael, garde',x:4.2,z:-21.8,model:'02-MODELS/characters/character-extra.glb',tint:0x9a4ee0,weapon:0x9d5bff},
- {name:'Toma, voyageur',x:-4.3,z:-34.5,model:'02-MODELS/characters/base-male.glb',tint:0xd58a32,weapon:0xffc15c},
- {name:'Rin, éclaireur',x:4.5,z:-46.5,model:'02-MODELS/characters/young-adventurer.glb',tint:0x4d9b45,weapon:0x82e75f},
- {name:'Darek, chevalier',x:-4.5,z:-58.5,model:'02-MODELS/characters/character-extra.glb',tint:0x3f72cf,weapon:0x75a8ff}
+ {name:'Mira, marchande',role:'marchande',x:-3.8,z:-9.5,model:'02-MODELS/characters/young-adventurer.glb',tint:0x36a7a0,homeX:-3.8,homeZ:-9.5,named:true},
+ {name:'Kael, garde',role:'garde',x:4.2,z:-21.8,model:'02-MODELS/characters/character-extra.glb',tint:0x9a4ee0,weapon:0x9d5bff,homeX:4.2,homeZ:-21.8,named:true},
+ {name:'Toma, voyageur',role:'voyageur',x:-4.3,z:-34.5,model:'02-MODELS/characters/young-adventurer.glb',tint:0xd58a32,homeX:-4.3,homeZ:-34.5,named:true},
+ {name:'Rin, éclaireur',role:'éclaireur',x:4.5,z:-46.5,model:'02-MODELS/characters/young-adventurer.glb',tint:0x4d9b45,homeX:4.5,homeZ:-46.5,named:true},
+ {name:'Darek, chevalier',role:'garde',x:-4.5,z:-58.5,model:'02-MODELS/characters/character-extra.glb',tint:0x3f72cf,weapon:0x75a8ff,homeX:-4.5,homeZ:-58.5,named:true},
+ {name:'Sana, forgeronne',role:'forgeronne',x:12.2,z:-39.2,model:'02-MODELS/characters/young-adventurer.glb',tint:0xc66b36,homeX:12.2,homeZ:-39.2,named:true},
+ {name:'Elric, greffier',role:'greffier',x:-12.4,z:-57.5,model:'02-MODELS/characters/character-extra.glb',tint:0x8b7bd1,homeX:-12.4,homeZ:-57.5,named:true},
+ {name:'Pavo, fermier',role:'fermier',x:2.7,z:-67.5,model:'02-MODELS/characters/young-adventurer.glb',tint:0x719b43,homeX:2.7,homeZ:-67.5,named:true},
+ {name:'Neri, herboriste',role:'herboriste',x:-3.1,z:-29.8,model:'02-MODELS/characters/young-adventurer.glb',tint:0x48a56d,homeX:-3.1,homeZ:-29.8,named:true},
+ {name:'Bastian, capitaine',role:'garde',x:12.8,z:-84.5,model:'02-MODELS/characters/character-extra.glb',tint:0xb64d43,weapon:0xe6b56b,homeX:12.8,homeZ:-84.5,named:true},
+ {name:'Alin, aubergiste',role:'aubergiste',x:-1.5,z:-15.8,model:'02-MODELS/characters/young-adventurer.glb',tint:0xb87b43,homeX:-1.5,homeZ:-15.8,named:true},
+ {name:'Oren, éclaireur du camp',role:'aventurier',x:-12.8,z:-101.5,model:'02-MODELS/characters/character-extra.glb',tint:0x6b8eaa,homeX:-12.8,homeZ:-101.5,named:true}
 ];
+const npcZones=[
+ {role:'marché',x:0,z:-10,r:4.8},
+ {role:'citoyen',x:0,z:-27,r:4.2},
+ {role:'forgeron',x:12,z:-39,r:3.3},
+ {role:'mairie',x:-12,z:-57,r:3.4},
+ {role:'fermier',x:0,z:-68,r:4.2},
+ {role:'château',x:12,z:-84,r:3.4},
+ {role:'camp',x:-12,z:-101,r:3.5}
+];
+const npcCrowdSpecs=[];
+for(let i=0;i<88;i++){
+ const zone=npcZones[i%npcZones.length],angle=i*2.399963229728653,radius=1.6+(i%6)*.55;
+ const tintPalette=[0x4d8dbe,0xc17b45,0x5d9d67,0x9272b8,0xb65a57,0x9b9a55,0x438f91,0x8e6c50,0x6d85b2,0xb77b9b];
+ const x=Math.max(-18,Math.min(18,zone.x+Math.cos(angle)*radius));
+ const z=Math.max(-115,Math.min(-4,zone.z+Math.sin(angle)*radius*1.35));
+ npcCrowdSpecs.push({name:'Habitant '+String(i+13).padStart(2,'0'),role:zone.role,x,z,homeX:x,homeZ:z,wanderRadius:1.8+(i%4)*.55,model:i%2?'02-MODELS/characters/young-adventurer.glb':'02-MODELS/characters/character-extra.glb',tint:tintPalette[i%tintPalette.length],named:false});
+}
 const npcGroups=[];
 function addNPCWeapon(group,color){
  const weapon=new THREE.Group();
@@ -224,11 +249,22 @@ function tintNPC(model,tint){
  model.traverse(o=>{
    if(!o.isMesh)return;
    o.castShadow=false;o.receiveShadow=false;
+   const partName=String(o.name||'').toLowerCase();
    const tintMaterial=mat=>{
-     if(!mat)return mat;
-     const m=makeMat();
-     // La teinte multiplie les textures originales au lieu de les remplacer.
-     if(m.color)m.color.lerp(target,.14);
+     const m=mat&&mat.clone?mat.clone():new THREE.MeshStandardMaterial({color:target,roughness:.82});
+     if(!m.color)m.color=new THREE.Color(0xffffff);
+     if(m.map){
+       m.color.multiply(new THREE.Color(0xffffff).lerp(target,.10));
+     }else{
+       const part=target.clone();
+       if(/skin|head|face|hand|neck|arm_skin/.test(partName))part.set(0xc58d6b);
+       else if(/hair|beard/.test(partName))part.set(0x35251e);
+       else if(/boot|belt|leather/.test(partName))part.lerp(new THREE.Color(0x51372a),.48);
+       else if(/metal|armor|blade|steel/.test(partName))part.lerp(new THREE.Color(0xaab7c6),.38);
+       m.color.copy(part);
+     }
+     if('roughness' in m && !Number.isFinite(m.roughness))m.roughness=.82;
+     m.needsUpdate=true;
      return m;
    };
    o.material=Array.isArray(o.material)?o.material.map(tintMaterial):tintMaterial(o.material);
@@ -243,20 +279,41 @@ async function loadVillageNPCs(){
  }
  try{await replacePlaceholder(guide,'02-MODELS/characters/young-adventurer.glb',0x3b9d8d,guideMarker)}catch(err){guide.visible=false;console.error('Guide 3D indisponible',err)}
  try{await replacePlaceholder(enemy,'02-MODELS/characters/character-extra.glb',0xb64d43,enemyRing)}catch(err){enemy.visible=false;console.error('Cible 3D indisponible',err);enemyStatus.textContent='Cible 3D indisponible'}
- for(const spec of npcPalette){
+ const specs=npcPalette.concat(npcCrowdSpecs);
+ for(const spec of specs){
    try{
      if(!cache[spec.model])cache[spec.model]=await loadGLB(spec.model);
      const model=cloneSkeleton(cache[spec.model].scene);
      normalizeModel(model,1.78);tintNPC(model,spec.tint);
      const group=new THREE.Group();group.position.set(spec.x,0,spec.z);group.add(model);scene.add(group);
-     const gear=addNPCWeapon(group,spec.weapon);
-     npcGroups.push({group,gear,baseY:2.22,phase:Math.random()*6.28,name:spec.name});
-     // Petit socle lumineux coloré pour distinguer immédiatement chaque habitant.
-     const ring=new THREE.Mesh(new THREE.TorusGeometry(.39,.025,5,18),new THREE.MeshStandardMaterial({color:spec.tint,emissive:spec.tint,emissiveIntensity:.22}));
-     ring.rotation.x=Math.PI/2;ring.position.y=.045;group.add(ring);
+     const gear=spec.role==='garde'?addNPCWeapon(group,spec.weapon||0x91bde0):null;
+     const sourceAnimations=cache[spec.model].animations||[];
+     const mixerNPC=sourceAnimations.length?new THREE.AnimationMixer(model):null;
+     const idleClip=sourceAnimations.find(a=>/idle|stand|rest|breath/i.test(a.name));
+     const walkClip=sourceAnimations.find(a=>/walk|run|move/i.test(a.name));
+     let idleAction=null,walkAction=null,activeNPCAction=null;
+     if(mixerNPC){
+       if(idleClip)idleAction=mixerNPC.clipAction(idleClip);
+       if(walkClip)walkAction=mixerNPC.clipAction(walkClip);
+       activeNPCAction=idleAction||walkAction;
+       if(activeNPCAction){activeNPCAction.setLoop(THREE.LoopRepeat,Infinity);activeNPCAction.play()}
+     }
+     const bones=[];
+     model.traverse(o=>{if(o.isBone)bones.push({bone:o,name:String(o.name||'').toLowerCase().replace(/mixamorig|armature|skeleton|rig/g,'').replace(/[^a-z0-9]/g,''),base:o.rotation.clone()})});
+     const ring=spec.named?new THREE.Mesh(new THREE.TorusGeometry(.32,.018,4,12),new THREE.MeshStandardMaterial({color:spec.tint,emissive:spec.tint,emissiveIntensity:.12})):null;
+     if(ring){ring.rotation.x=Math.PI/2;ring.position.y=.035;group.add(ring)}
+     npcGroups.push({
+       group,model,gear,ring,mixerNPC,idleAction,walkAction,activeNPCAction,bones,
+       name:spec.name,role:spec.role,phase:Math.random()*6.28,
+       baseY:0,speed:.34+(npcGroups.length%5)*.055,
+       homeX:spec.homeX??spec.x,homeZ:spec.homeZ??spec.z,
+       wanderRadius:spec.wanderRadius||(spec.role==='garde'?3.2:2.4),
+       targetX:spec.x,targetZ:spec.z,targetTimer:1+Math.random()*3,
+       isMoving:false,named:!!spec.named
+     });
    }catch(err){console.warn('PNJ 3D indisponible : '+spec.model,err)}
  }
- hint.textContent='Le village prend vie : '+npcGroups.length+' habitants 3D chargés.';
+ hint.textContent='Ville médiévale vivante : '+npcGroups.length+' habitants 3D chargés. Ils se déplacent et restent pacifiques.';
 }
 function addVillageAtmosphere(){
  // Bannières colorées à l'entrée et sur la place.
