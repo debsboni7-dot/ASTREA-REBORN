@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>ASTREA — Laboratoire d’animations</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1020;--panel:#151d31;--line:#2c3a57;--gold:#e6bd69;--text:#f3f5fa;--muted:#aab5ca}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px system-ui, sans-serif}
+header{padding:16px 14px 10px;background:#10182a;border-bottom:1px solid var(--line)}h1{font-size:20px;margin:0 0 5px}p{margin:5px 0;color:var(--muted);line-height:1.45}
+#stage{height:48vh;min-height:280px;max-height:480px;background:radial-gradient(ellipse at 50% 35%,#253758,#0b1020 70%);position:relative}
+#stage canvas{display:block;width:100%;height:100%;touch-action:pan-y}
+#status{position:absolute;left:10px;right:10px;top:10px;padding:8px 10px;border-radius:10px;background:#080d19d9;font-size:12px}
+main{padding:12px;max-width:760px;margin:auto}.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;margin:10px 0}
+h2{font-size:15px;margin:0 0 10px;color:var(--gold)}.buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+button{border:1px solid #435475;border-radius:10px;background:#202d47;color:white;min-height:42px;padding:9px;font-size:14px;font-weight:600}
+button:active{background:#405575}button.active{border-color:var(--gold);background:#493c27}
+.small{font-size:12px;color:var(--muted)}#log{font-size:12px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+@media(min-width:650px){#stage{height:420px}.buttons{grid-template-columns:repeat(3,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<header><h1>ASTREA — Laboratoire d’animations</h1><p>Outil de contrôle : teste les mouvements du personnage et les fichiers d’animation séparément avant leur intégration au jeu.</p></header>
+<div id="stage"><div id="status">Initialisation de la scène 3D…</div></div>
+<main>
+<section class="panel"><h2>Animations intégrées à hero.glb</h2><p>Ces animations appartiennent déjà au squelette du héros : ce sont les premières à tester.</p><div class="buttons" id="heroButtons"></div></section>
+<section class="panel"><h2>Fichiers d’animation externes</h2><p>Cette section charge chaque GLB avec son propre contenu. Elle ne prétend pas encore transférer le mouvement au héros.</p><div class="buttons" id="externalButtons"></div></section>
+<section class="panel"><h2>Diagnostic</h2><div id="log">En attente du chargement…</div></section>
+<p class="small">Astuce : fais pivoter la vue en glissant le doigt. Cette page utilise Three.js via Internet.</p>
+</main>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+import {GLTFLoader} from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js';
+const stage=document.getElementById('stage'),status=document.getElementById('status'),log=document.getElementById('log');
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x10182a);
+const camera=new THREE.PerspectiveCamera(42,1,.1,100);camera.position.set(0,1.7,4.8);
+const renderer=new THREE.WebGLRenderer({antialias:false,alpha:false,powerPreference:'low-power'});
+renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));renderer.outputColorSpace=THREE.SRGBColorSpace;stage.appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xc7dcff,0x443626,2));
+const light=new THREE.DirectionalLight(0xffe2b2,2.3);light.position.set(3,5,4);scene.add(light);
+const floor=new THREE.Mesh(new THREE.CircleGeometry(2.2,32),new THREE.MeshStandardMaterial({color:0x28354b,roughness:1}));floor.rotation.x=-Math.PI/2;floor.position.y=-.03;scene.add(floor);
+const grid=new THREE.GridHelper(8,16,0x46536c,0x28354b);grid.position.y=-.02;scene.add(grid);
+const loader=new GLTFLoader();let activeRoot=null,mixer=null,activeAction=null,hero=null,heroMixer=null,heroActions=[],externalCache={},viewYaw=0;
+function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}addEventListener('resize',resize);resize();
+function showRoot(root){if(activeRoot)scene.remove(activeRoot);activeRoot=root;scene.add(root);root.position.set(0,0,0);root.scale.setScalar(1);root.rotation.y=viewYaw}
+function addButton(container,label,fn){const b=document.createElement('button');b.textContent=label;b.onclick=()=>{document.querySelectorAll('button').forEach(x=>x.classList.remove('active'));b.classList.add('active');fn()};container.appendChild(b);return b}
+function report(t){log.textContent=t}
+function playHeroClip(clip){if(!hero||!heroMixer||!clip){report('Animation indisponible pour ce personnage.');return}showRoot(hero);mixer=heroMixer;const a=mixer.clipAction(clip);if(activeAction&&activeAction!==a)activeAction.fadeOut(.12);a.reset().fadeIn(.12).play();activeAction=a;status.textContent='Héros : '+clip.name;report('Personnage : hero.glb\nAnimation : '+clip.name+'\nDurée : '+clip.duration.toFixed(2)+' s\nPistes : '+clip.tracks.length+'\nObservation visuelle requise : vérifie les bras, les jambes et le déplacement du corps.')}
+const heroNames=['Repos / Idle','Marche','Course','Saut','Salut','Marche décontractée'];
+const nameMatch=[/idle/i,/walk_Armature/i,/run/i,/jump/i,/wave/i,/walk-casual/i];
+heroNames.forEach((name,i)=>addButton(document.getElementById('heroButtons'),name,()=>{const clip=heroActions.find(c=>nameMatch[i].test(c.name));if(clip)playHeroClip(clip);else report('Clip non trouvé : '+name+'\nClips disponibles : '+heroActions.map(c=>c.name).join(', '))}));
+const external=[['Repos','anim-idle.glb'],['Marche','anim-walk.glb'],['Attaque 1','anim-attack-1.glb'],['Attaque 2','anim-attack-2.glb'],['Attaque 3','anim-attack-3.glb']];
+external.forEach(([label,file])=>addButton(document.getElementById('externalButtons'),label,async()=>{status.textContent='Chargement de '+file+'…';try{if(!externalCache[file])externalCache[file]=await loader.loadAsync('04-ANIMATIONS/'+file);const g=externalCache[file];const root=g.scene.clone(true);showRoot(root);mixer=new THREE.AnimationMixer(root);activeAction=null;const clip=g.animations?.[0];if(clip){activeAction=mixer.clipAction(clip);activeAction.play()}status.textContent='Aperçu isolé : '+file;report('Fichier : '+file+'\nClips GLTF : '+g.animations.length+'\nPremier clip : '+(clip?.name||'aucun')+'\nObjets de scène : '+root.children.length+'\nCe test joue le fichier seul, pas sur le héros. Compare visuellement avec les mouvements attendus.')}catch(e){status.textContent='Échec du chargement';report('Erreur pour '+file+'\n'+String(e))}}));
+try{const g=await loader.loadAsync('02-MODELS/characters/hero.glb');hero=g.scene;hero.scale.setScalar(1);heroMixer=new THREE.AnimationMixer(hero);heroActions=g.animations||[];showRoot(hero);status.textContent='Héros chargé — '+heroActions.length+' animations intégrées';report('hero.glb chargé.\nAnimations intégrées :\n'+heroActions.map(c=>'• '+c.name+' ('+c.duration.toFixed(2)+' s)').join('\n')+'\n\nChoisis un bouton pour les tester.');const idle=heroActions.find(c=>/idle/i.test(c.name))||heroActions[0];if(idle)playHeroClip(idle)}catch(e){status.textContent='Impossible de charger hero.glb';report(String(e))}
+let dragging=false,lastX=0;renderer.domElement.addEventListener('pointerdown',e=>{dragging=true;lastX=e.clientX});addEventListener('pointerup',()=>dragging=false);addEventListener('pointermove',e=>{if(!dragging)return;viewYaw+=(e.clientX-lastX)*.01;lastX=e.clientX;if(activeRoot)activeRoot.rotation.y=viewYaw});
+const clock=new THREE.Clock();function frame(){requestAnimationFrame(frame);const dt=Math.min(clock.getDelta(),.05);if(mixer)mixer.update(dt);renderer.render(scene,camera)}frame();
+</script>
+</body></html>
