@@ -3,41 +3,121 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>ASTREA REBORN — Prototype</title>
+<title>ASTREA REBORN — Prototype avec assets Meshy</title>
 <style>
-:root{color-scheme:dark}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#101821;font-family:system-ui,Arial;color:#fff}canvas{display:block}#hud{position:fixed;inset:0;pointer-events:none}.brand{position:absolute;top:12px;left:12px;padding:9px 12px;background:#07111dcc;border:1px solid #91b5a766;border-radius:10px;font-weight:800;letter-spacing:1px}.hint{position:absolute;top:58px;left:12px;font-size:12px;color:#d8e5df;background:#07111dbb;padding:6px 9px;border-radius:8px}.status{position:absolute;top:12px;right:12px;background:#07111dcc;padding:8px 10px;border-radius:9px;font-size:12px;color:#bfe8c9}.controls{position:absolute;bottom:18px;left:18px;display:grid;grid-template-columns:48px 48px 48px;grid-template-rows:48px 48px;gap:5px;pointer-events:auto}.controls button,.actions button{border:1px solid #d8e8e488;background:#142b35dd;color:white;border-radius:14px;font-size:19px;font-weight:700;touch-action:none}.controls button:nth-child(1){grid-column:2;grid-row:1}.controls button:nth-child(2){grid-column:1;grid-row:2}.controls button:nth-child(3){grid-column:2;grid-row:2}.controls button:nth-child(4){grid-column:3;grid-row:2}.actions{position:absolute;right:18px;bottom:25px;display:flex;gap:9px;pointer-events:auto}.actions button{width:64px;height:64px;border-radius:50%;font-size:12px;background:#493528dd}.actions button:first-child{background:#244b3bdd}.notice{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);font-size:11px;color:#d8e5df;background:#07111dbb;padding:6px 8px;border-radius:7px;white-space:nowrap}@media(min-width:700px){.controls button,.actions button{cursor:pointer}}
+:root{color-scheme:dark}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#101821;font-family:system-ui,Arial;color:#fff}canvas{display:block}#hud{position:fixed;inset:0;pointer-events:none}.brand{position:absolute;top:12px;left:12px;padding:9px 12px;background:#07111dcc;border:1px solid #91b5a766;border-radius:10px;font-weight:800;letter-spacing:1px}.hint{position:absolute;top:58px;left:12px;font-size:12px;color:#d8e5df;background:#07111dbb;padding:6px 9px;border-radius:8px;max-width:70vw}.status{position:absolute;top:12px;right:12px;background:#07111dcc;padding:8px 10px;border-radius:9px;font-size:12px;color:#bfe8c9;max-width:45vw;text-align:right}.controls{position:absolute;bottom:18px;left:18px;display:grid;grid-template-columns:48px 48px 48px;grid-template-rows:48px 48px;gap:5px;pointer-events:auto}.controls button,.actions button{border:1px solid #d8e8e488;background:#142b35dd;color:white;border-radius:14px;font-size:19px;font-weight:700;touch-action:none}.controls button:nth-child(1){grid-column:2;grid-row:1}.controls button:nth-child(2){grid-column:1;grid-row:2}.controls button:nth-child(3){grid-column:2;grid-row:2}.controls button:nth-child(4){grid-column:3;grid-row:2}.actions{position:absolute;right:18px;bottom:25px;display:flex;gap:9px;pointer-events:auto}.actions button{width:64px;height:64px;border-radius:50%;font-size:12px;background:#493528dd}.actions button:first-child{background:#244b3bdd}.notice{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);font-size:11px;color:#d8e5df;background:#07111dbb;padding:6px 8px;border-radius:7px;white-space:nowrap;max-width:94vw;overflow:hidden;text-overflow:ellipsis}@media(max-width:430px){.controls{left:10px;bottom:40px;grid-template-columns:43px 43px 43px;grid-template-rows:43px 43px}.controls button{font-size:16px}.actions{right:10px;bottom:48px;gap:6px}.actions button{width:57px;height:57px;font-size:10px}.notice{bottom:5px}}
 </style>
 </head>
 <body>
-<div id="hud"><div class="brand">ASTREA <span style="color:#b4dfc2">REBORN</span></div><div class="hint">Prototype technique • formes provisoires</div><div class="status" id="status">Chargement…</div>
+<div id="hud"><div class="brand">ASTREA <span style="color:#b4dfc2">REBORN</span></div><div class="hint" id="hint">Chargement des assets ASTREA…</div><div class="status" id="status">Initialisation…</div>
 <div class="controls"><button data-move="forward" aria-label="Avancer">▲</button><button data-move="left" aria-label="Gauche">◀</button><button data-move="back" aria-label="Reculer">▼</button><button data-move="right" aria-label="Droite">▶</button></div>
-<div class="actions"><button id="jump">SAUT</button><button id="attack">ATTAQUE</button></div><div class="notice">Clavier : ZQSD / WASD • Espace : saut • clic/glisser : caméra</div></div>
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-<script>
-(()=>{const status=document.getElementById('status');if(!window.THREE){status.textContent='Internet requis : Three.js non chargé';return}
-const scene=new THREE.Scene();scene.background=new THREE.Color(0x9dc5d0);scene.fog=new THREE.Fog(0x9dc5d0,24,75);
-const camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,120);
-const renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'low-power'});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.25));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=false;document.body.appendChild(renderer.domElement);
+<div class="actions"><button id="jump">SAUT</button><button id="attack">ATTAQUE</button></div><div class="notice">ZQSD / WASD • Espace : saut • glisser : tourner la caméra</div></div>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js';
+(()=>{
+const status=document.getElementById('status'),hint=document.getElementById('hint');
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x9dc5d0);scene.fog=new THREE.Fog(0x9dc5d0,28,82);
+const camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,150);
+const renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'low-power'});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.15));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=false;renderer.outputColorSpace=THREE.SRGBColorSpace;document.body.appendChild(renderer.domElement);
 scene.add(new THREE.HemisphereLight(0xdaf3ff,0x53634a,2));
-const sun=new THREE.DirectionalLight(0xffe2b3,2.1);sun.position.set(-8,15,7);scene.add(sun);
-const ground=new THREE.Mesh(new THREE.PlaneGeometry(150,150),new THREE.MeshStandardMaterial({color:0x668b52,roughness:1}));ground.rotation.x=-Math.PI/2;ground.position.y=-.06;scene.add(ground);
-const path=new THREE.Mesh(new THREE.PlaneGeometry(5,65),new THREE.MeshStandardMaterial({color:0xb6a27c,roughness:1}));path.rotation.x=-Math.PI/2;path.position.set(0,-.025,-18);scene.add(path);
+const sun=new THREE.DirectionalLight(0xffe2b3,2);sun.position.set(-8,15,7);scene.add(sun);
+const loader=new GLTFLoader(),clock=new THREE.Clock();
+const asset=(p)=>new URL(p,document.baseURI).href;
+const loadGLB=(p)=>new Promise((resolve,reject)=>loader.load(asset(p),g=>resolve(g),undefined,reject));
 function box(w,h,d,c,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial({color:c,roughness:.92}));m.position.set(x,y,z);scene.add(m);return m}
-for(let i=0;i<12;i++){const z=-5-i*4;box(3.3,2.6,2.8,0xc8b18b,(i%2?5.5:-5.5),1.3,z);box(3.7,.35,3.2,0x6d4435,(i%2?5.5:-5.5),2.8,z);box(.65,1.25,.12,0x553b2b,(i%2?5.5:-5.5),.65,z-1.46)}
-for(let i=0;i<48;i++){let x=(Math.random()-.5)*55,z=-Math.random()*75;if(Math.abs(x)<4)continue;const trunk=box(.22,1.2,.22,0x60472d,x,.6,z);const crown=new THREE.Mesh(new THREE.ConeGeometry(.85,2.2,5),new THREE.MeshStandardMaterial({color:[0x386b43,0x477b45,0x527e4a][i%3],roughness:1}));crown.position.set(x,2.1,z);scene.add(crown)}
-// Personnage provisoire : à remplacer par le vrai GLB Meshy une fois disponible.
-const player=new THREE.Group();const body=new THREE.Mesh(new THREE.CapsuleGeometry(.38,.85,3,6),new THREE.MeshStandardMaterial({color:0x355a88,roughness:.8}));body.position.y=1.05;player.add(body);const head=new THREE.Mesh(new THREE.SphereGeometry(.28,8,6),new THREE.MeshStandardMaterial({color:0xc9946c}));head.position.y=1.85;player.add(head);const sword=box(.12,.95,.16,0xb8d7df,.48,1.1,0);sword.position.x=.48;player.add(sword);player.position.set(0,0,2);scene.add(player);
-const keys={};let touchMove={};let yaw=0,pitch=.22,vy=0,onGround=true,attackTimer=0;
-addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.code==='Space'){e.preventDefault();jump()}});
-addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+const groundMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1});
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(150,150),groundMat);ground.rotation.x=-Math.PI/2;ground.position.y=-.06;scene.add(ground);
+const pathMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1});
+const path=new THREE.Mesh(new THREE.PlaneGeometry(5,65),pathMat);path.rotation.x=-Math.PI/2;path.position.set(0,-.025,-18);scene.add(path);
+const housePlaceholders=[];
+for(let i=0;i<8;i++){const z=-5-i*5;const x=i%2?5.5:-5.5;housePlaceholders.push(box(3.3,2.6,2.8,0xc8b18b,x,1.3,z),box(3.7,.35,3.2,0x6d4435,x,2.8,z),box(.65,1.25,.12,0x553b2b,x,.65,z-1.46))}
+for(let i=0;i<34;i++){const x=(Math.random()-.5)*55,z=-Math.random()*75;if(Math.abs(x)<4)continue;box(.22,1.2,.22,0x60472d,x,.6,z);const crown=new THREE.Mesh(new THREE.ConeGeometry(.85,2.2,5),new THREE.MeshStandardMaterial({color:[0x386b43,0x477b45,0x527e4a][i%3],roughness:1}));crown.position.set(x,2.1,z);scene.add(crown)}
+const player=new THREE.Group();player.position.set(0,0,2);scene.add(player);
+const fallback=new THREE.Group();
+const body=new THREE.Mesh(new THREE.CapsuleGeometry(.38,.85,3,6),new THREE.MeshStandardMaterial({color:0x355a88,roughness:.8}));body.position.y=1.05;fallback.add(body);
+const head=new THREE.Mesh(new THREE.SphereGeometry(.28,8,6),new THREE.MeshStandardMaterial({color:0xc9946c}));head.position.y=1.85;fallback.add(head);
+player.add(fallback);
+const fallbackSword=box(.12,.95,.16,0xb8d7df,0,0,0);scene.remove(fallbackSword);fallbackSword.position.set(.48,1.1,0);player.add(fallbackSword);
+let swordVisual=fallbackSword,visualRoot=fallback,loadedHero=false,loadedHouse=false;
+let yaw=0,pitch=.22,vy=0,onGround=true,attackTimer=0,mixer=null,currentAction=null,animationCache={};
+const keys={},touchMove={};
+function normalizeModel(object,targetHeight){
+ const b=new THREE.Box3().setFromObject(object),size=b.getSize(new THREE.Vector3()),center=b.getCenter(new THREE.Vector3());
+ const h=Math.max(size.y,.001),s=targetHeight/h;object.scale.multiplyScalar(s);
+ const b2=new THREE.Box3().setFromObject(object),c2=b2.getCenter(new THREE.Vector3());
+ object.position.x-=c2.x;object.position.z-=c2.z;object.position.y-=b2.min.y;
+ return new THREE.Box3().setFromObject(object);
+}
+async function loadPrimaryAssets(){
+ const jobs=[];
+ jobs.push(loadGLB('02-MODELS/characters/hero.glb').then(g=>{
+   const model=g.scene;normalizeModel(model,1.9);player.remove(fallback);player.add(model);visualRoot=model;loadedHero=true;
+   if(g.animations?.length){mixer=new THREE.AnimationMixer(model);const a=mixer.clipAction(g.animations[0]);a.play();currentAction=a}
+   return 'personnage';
+ }).catch(e=>{console.warn('Hero GLB indisponible',e);return 'personnage provisoire'}));
+ jobs.push(loadGLB('02-MODELS/weapons/sword-meshy.glb').then(g=>{
+   const model=g.scene;normalizeModel(model,1.05);model.position.set(.42,1.0,0);player.remove(swordVisual);player.add(model);swordVisual=model;return 'épée';
+ }).catch(e=>{console.warn('Sword GLB indisponible',e);return 'épée provisoire'}));
+ jobs.push(loadGLB('02-MODELS/buildings/small-house.glb').then(g=>{
+   const model=g.scene;normalizeModel(model,3.2);
+   housePlaceholders.forEach(o=>scene.remove(o));
+   for(let i=0;i<6;i++){const clone=model.clone(true);const z=-5-i*6;clone.position.x=(i%2?5.5:-5.5);clone.position.z=z;scene.add(clone)}
+   loadedHouse=true;return 'maisons';
+ }).catch(e=>{console.warn('House GLB indisponible',e);return 'maisons provisoires'}));
+ jobs.push(new Promise(resolve=>{
+   new THREE.TextureLoader().load(asset('03-TEXTURES/terrain/grass-1.jpg'),t=>{t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(32,32);groundMat.map=t;groundMat.needsUpdate=true;resolve('texture herbe')},undefined,e=>{console.warn('Grass texture indisponible',e);resolve('herbe provisoire')});
+ }));
+ jobs.push(new Promise(resolve=>{
+   new THREE.TextureLoader().load(asset('03-TEXTURES/terrain/paving-village-1.jpg'),t=>{t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(2,24);pathMat.map=t;pathMat.needsUpdate=true;resolve('pavage')},undefined,e=>{console.warn('Paving texture indisponible',e);resolve('pavage provisoire')});
+ }));
+ const result=await Promise.all(jobs);
+ status.textContent='Assets chargés';hint.textContent='Actifs : '+result.join(' • ');
+}
+async function playExternalAnimation(file){
+ if(!loadedHero||!visualRoot)return false;
+ if(!animationCache[file]){
+  try{animationCache[file]=await loadGLB(file)}catch(e){console.warn('Animation indisponible',file,e);return false}
+ }
+ const gltf=animationCache[file],clip=gltf.animations?.[0];
+ if(!clip||!mixer)return false;
+ try{const next=mixer.clipAction(clip);if(currentAction&&currentAction!==next)currentAction.fadeOut(.12);next.reset().fadeIn(.12).play();currentAction=next;return true}catch(e){return false}
+}
+function jump(){if(onGround){vy=6.2;onGround=false}}
 function bindMove(btn,dir){const down=e=>{e.preventDefault();touchMove[dir]=true},up=e=>{e.preventDefault();touchMove[dir]=false};btn.addEventListener('pointerdown',down);['pointerup','pointercancel','pointerleave'].forEach(ev=>btn.addEventListener(ev,up))}
 document.querySelectorAll('[data-move]').forEach(b=>bindMove(b,b.dataset.move));
-function jump(){if(onGround){vy=6.2;onGround=false}}
+addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.code==='Space'){e.preventDefault();jump()}});
+addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
 document.getElementById('jump').addEventListener('pointerdown',e=>{e.preventDefault();jump()});
-document.getElementById('attack').addEventListener('pointerdown',e=>{e.preventDefault();attackTimer=.28;sword.rotation.z=-1.4});
-let dragging=false,lastX=0,lastY=0;renderer.domElement.addEventListener('pointerdown',e=>{dragging=true;lastX=e.clientX;lastY=e.clientY});addEventListener('pointerup',()=>dragging=false);addEventListener('pointermove',e=>{if(!dragging)return;yaw-=(e.clientX-lastX)*.006;pitch=Math.max(-.05,Math.min(.65,pitch+(e.clientY-lastY)*.003));lastX=e.clientX;lastY=e.clientY});
-const clock=new THREE.Clock();function frame(){requestAnimationFrame(frame);const dt=Math.min(clock.getDelta(),.04);let f=0,s=0;if(keys.w||keys.z||keys.arrowup||touchMove.forward)f+=1;if(keys.s||keys.arrowdown||touchMove.back)f-=1;if(keys.d||keys.arrowright||touchMove.right)s+=1;if(keys.a||keys.q||keys.arrowleft||touchMove.left)s-=1;const len=Math.hypot(f,s)||1;f/=len;s/=len;const speed=4.2*dt;player.position.x+= (Math.sin(yaw)*f+Math.cos(yaw)*s)*speed;player.position.z+=(-Math.cos(yaw)*f+Math.sin(yaw)*s)*speed;player.position.x=Math.max(-18,Math.min(18,player.position.x));player.position.z=Math.max(-70,Math.min(8,player.position.z));if(f||s)player.rotation.y=Math.atan2(s,f)+yaw;vy-=14*dt;player.position.y+=vy*dt;if(player.position.y<=0){player.position.y=0;vy=0;onGround=true}if(attackTimer>0){attackTimer-=dt;if(attackTimer<=0)sword.rotation.z=0}
-const target=new THREE.Vector3(player.position.x,player.position.y+1.1,player.position.z);const dist=7.5;camera.position.set(target.x+Math.sin(yaw)*dist,target.y+2.4+pitch*5,target.z+Math.cos(yaw)*dist);camera.lookAt(target);renderer.render(scene,camera);status.textContent='Prototype actif • mobile';}
-addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});frame();
+document.getElementById('attack').addEventListener('pointerdown',async e=>{e.preventDefault();attackTimer=.32;swordVisual.rotation.z=-1.2;const n=(Math.floor(Math.random()*3)+1);await playExternalAnimation('04-ANIMATIONS/anim-attack-'+n+'.glb')});
+let dragging=false,lastX=0,lastY=0;
+renderer.domElement.addEventListener('pointerdown',e=>{dragging=true;lastX=e.clientX;lastY=e.clientY});
+addEventListener('pointerup',()=>dragging=false);
+addEventListener('pointermove',e=>{if(!dragging)return;yaw-=(e.clientX-lastX)*.006;pitch=Math.max(-.05,Math.min(.65,pitch+(e.clientY-lastY)*.003));lastX=e.clientX;lastY=e.clientY});
+const moveAnim={moving:false};
+function frame(){
+ requestAnimationFrame(frame);const dt=Math.min(clock.getDelta(),.04);let f=0,s=0;
+ if(keys.w||keys.z||keys.arrowup||touchMove.forward)f+=1;
+ if(keys.s||keys.arrowdown||touchMove.back)f-=1;
+ if(keys.d||keys.arrowright||touchMove.right)s+=1;
+ if(keys.a||keys.q||keys.arrowleft||touchMove.left)s-=1;
+ const moving=!!(f||s);
+ if(moving!==moveAnim.moving){moveAnim.moving=moving;if(loadedHero)playExternalAnimation(moving?'04-ANIMATIONS/anim-walk.glb':'04-ANIMATIONS/anim-idle.glb')}
+ const len=Math.hypot(f,s)||1;f/=len;s/=len;const speed=4.2*dt;
+ player.position.x+=(Math.sin(yaw)*f+Math.cos(yaw)*s)*speed;
+ player.position.z+=(-Math.cos(yaw)*f+Math.sin(yaw)*s)*speed;
+ player.position.x=Math.max(-18,Math.min(18,player.position.x));player.position.z=Math.max(-70,Math.min(8,player.position.z));
+ if(moving)player.rotation.y=Math.atan2(s,f)+yaw;
+ vy-=14*dt;player.position.y+=vy*dt;if(player.position.y<=0){player.position.y=0;vy=0;onGround=true}
+ if(attackTimer>0){attackTimer-=dt;if(attackTimer<=0)swordVisual.rotation.z=0}
+ if(mixer)mixer.update(dt);
+ const target=new THREE.Vector3(player.position.x,player.position.y+1.1,player.position.z),dist=7.5;
+ camera.position.set(target.x+Math.sin(yaw)*dist,target.y+2.4+pitch*5,target.z+Math.cos(yaw)*dist);camera.lookAt(target);
+ renderer.render(scene,camera);
+}
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+status.textContent='Chargement des GLB…';frame();loadPrimaryAssets().catch(e=>{console.error(e);status.textContent='Mode de secours actif';hint.textContent='Certains assets sont indisponibles, formes provisoires conservées.'});
 })();
-</script></body></html>
+</script>
+</body>
+</html>
