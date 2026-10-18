@@ -21,9 +21,10 @@
 - [x] Ajouter une taille réglable de 1,60 m à 2,10 m par pas de 1 cm.
 - [x] Ajouter la corpulence, les teintes de peau, les coiffures, les couleurs de cheveux et d'yeux, et les palettes de tenue.
 - [x] Ajouter l'export JSON et une sauvegarde locale dans le navigateur.
-- [ ] Générer les deux modèles de base GLB avec Blender et vérifier leur export (workflow GitHub Actions en cours après correction de la dépendance NumPy).
-- [x] Ajouter un accès à l'atelier depuis le jeu et lire la configuration sauvegardée pour appliquer la taille et, selon les noms des matériaux, les couleurs au modèle chargé (intégration partielle).\n- [ ] Relier toutes les options (coiffure modulaire, yeux, morphologie) au modèle réellement utilisé dans index.html.
-- [ ] Passer des primitives à des pièces de personnage modulaires avec squelette compatible.
+- [x] Générer les deux modèles de base GLB avec Blender et vérifier que les fichiers sont exportés (validation du workflow GitHub Actions ; validation visuelle mobile restante).
+- [x] Ajouter un accès à l'atelier depuis le jeu et lire la configuration sauvegardée pour appliquer la taille et, selon les noms des matériaux, les couleurs au modèle chargé (intégration partielle).
+- [ ] Étendre les coiffures à toutes les variantes (la base féminine/masculine ne contient pas encore toutes les coiffures proposées dans l’atelier).
+- [ ] Passer des bases provisoires non riggées à des pièces de personnage modulaires avec squelette compatible ; les bases actuelles ne sont pas encore animables par un rig.
 - [ ] Tester le créateur sur Chrome Android.
 
 ## Phase 3 — Gameplay
