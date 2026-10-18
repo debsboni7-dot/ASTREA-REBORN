@@ -195,13 +195,13 @@ export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes, eq
     const rng=(n)=>{let x=Math.sin(n*127.1+(id.length*17))*43758.5453;return x-Math.floor(x)};
     for(let i=0;i<44;i++){
       const x=(rng(i+2)-.5)*82,z=(rng(i+100)-.5)*82;if(Math.abs(x)<5&&Math.abs(z)<7)continue;
-      if(id==='elarion'){
+      if(id==='van'){
         const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.18,.28,2.2,5),mat(0x61472f));trunk.position.set(x,1.1,z);g.add(trunk);
         const crown=new THREE.Mesh(new THREE.ConeGeometry(1.25,3.4,6),mat(i%3?0x2d693b:0x43854a));crown.position.set(x,3.3,z);g.add(crown);
-      } else if(id==='solkar'){
+      } else if(id==='beurg'){
         const dune=new THREE.Mesh(new THREE.SphereGeometry(1+rng(i+400)*2,7,5),mat(i%2?0xd9b66e:0xb98a49));dune.scale.set(2,.38,1.2);dune.position.set(x,.15,z);g.add(dune);
         if(i%6===0){const rock=new THREE.Mesh(new THREE.DodecahedronGeometry(1.1,0),mat(0x8b765a));rock.position.set(x,1,z);g.add(rock)}
-      } else if(id==='frostholm'){
+      } else if(id==='night'){
         const rock=new THREE.Mesh(new THREE.DodecahedronGeometry(1.4+rng(i+300),0),mat(i%2?0xd4e6eb:0x718c9a));rock.scale.y=1.5;rock.position.set(x,.9,z);g.add(rock);
         if(i%4===0){const ice=new THREE.Mesh(new THREE.ConeGeometry(.65,2.6,5),mat(0x8fd8ef));ice.position.set(x,2,z);g.add(ice)}
       } else {
@@ -218,6 +218,6 @@ export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes, eq
   // Pas de combat de créature dans une région tant qu'un modèle GLB réel n'est pas intégré.
   function hitFromPlayer(){return false}
   window.ASTREA_BOUNDS=currentRegion.bounds;
-  if(currentRegion.id!=='village'){setZone(currentRegion.id);player.position.set(0,0,5);window.ASTREA_BOUNDS=currentRegion.bounds;scene.background=new THREE.Color(currentRegion.sky);scene.fog=new THREE.Fog(currentRegion.sky,65,185);if(collisionBoxes)collisionBoxes.forEach(c=>c.active=false)}
+  if(currentRegion.id!=='astrea'){setZone(currentRegion.id);player.position.set(0,0,5);window.ASTREA_BOUNDS=currentRegion.bounds;scene.background=new THREE.Color(currentRegion.sky);scene.fog=new THREE.Fog(currentRegion.sky,65,185);if(collisionBoxes)collisionBoxes.forEach(c=>c.active=false)}
   return {open:()=>{renderPanel();panel.hidden=false},getState:()=>({...save,region:currentRegion.id}),travel,hitFromPlayer};
 }
