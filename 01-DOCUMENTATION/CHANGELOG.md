@@ -24,3 +24,11 @@
 - Textures embarquées redimensionnées à 1024 px maximum et exportées en JPEG qualité 82.
 - Tailles constatées : 1 671 992 octets pour `divine-red-sword-4643.glb` et 2 234 024 octets pour `divine-red-sword-4744.glb`.
 - Les tests réels sur Chrome Android restent nécessaires pour confirmer matériaux, orientation, animations, commandes, fluidité et chauffe.
+
+## 2026-10-18 — Modèles réels, animations et VFX
+- Suppression des silhouettes primitives de secours pour le héros, le guide et la cible d'entraînement : seuls les vrais modèles GLB/FBX sont affichés.
+- Suppression des maisons-boîtes provisoires ; les maisons ne sont ajoutées que si le GLB réel se charge.
+- Correction de l'arsenal : le modèle Meshy classique est réservé à l'épée de base et le modèle divin à l'Épée Divine ; les autres armes gardent leur propre géométrie et leur couleur.
+- Ajout de VFX procéduraux légers par arme : arcs de coupe, traits de projectiles, orbes magiques, anneaux d'impact, particules et techniques spéciales.
+- Fusion des pistes d'animation séparées par os avant tentative de retargeting ; ajout d'une animation procédurale de secours pilotée par les os du modèle riggé.
+- Le contrôle de syntaxe JavaScript est exécuté automatiquement par GitHub Actions ; la validation visuelle et les FPS sur Galaxy A06 restent à effectuer.
