@@ -24,7 +24,7 @@ Valider le premier prototype jouable sur Chrome Android avant d'ajouter plus de 
 - [ ] Le chemin et le terrain affichent leurs textures.
 - [ ] Les boutons tactiles COMBO, ULTIME et ULTIME+ répondent ; les séquences se terminent sans bloquer les commandes.
 - [ ] Le personnage principal chargé depuis l'archive Meshy est visible, texturé et contrôlable.
-- [ ] Les combos déclenchent plusieurs impacts, et l'ultime ultime dure environ 20 secondes.
+- [ ] Les combos déclenchent plusieurs impacts, l’attaque peut être mise en file en appuyant pendant un combo, et les variantes poings/épée + magie apparaissent une fois sur trois. L’ultime ultime dure environ 20 secondes.
 - [ ] Les PNJ se déplacent, jouent une animation ou un mouvement de secours, et ouvrent un dialogue sans attaquer le joueur.
 - [ ] Le village affiche les lieux Marché, Forge, Mairie, Château et Camp.
 - [ ] La cible 3D réelle se charge et ses PV diminuent à chaque coup valide.
