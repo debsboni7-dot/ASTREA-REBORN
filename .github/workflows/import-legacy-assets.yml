@@ -1,0 +1,124 @@
+name: Import ASTREA assets from legacy repository
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "IMPORT_ASSETS_TRIGGER.md"
+
+permissions:
+  contents: write
+
+jobs:
+  import-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout ASTREA REBORN
+        uses: actions/checkout@v4
+      - name: Download legacy asset repository
+        run: git clone --depth 1 https://github.com/debsboni7-dot/ASTREA-ASSETS.git /tmp/astrea-assets
+      - name: Sort and copy models, textures, animations and audio
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC=/tmp/astrea-assets
+          mkdir -p 02-MODELS/characters 02-MODELS/weapons 02-MODELS/buildings 02-MODELS/creatures 02-MODELS/props 02-MODELS/source-fbx
+          mkdir -p 03-TEXTURES/terrain 03-TEXTURES/vegetation 03-TEXTURES/buildings 03-TEXTURES/characters 03-TEXTURES/environment 03-TEXTURES/effects
+          mkdir -p 04-ANIMATIONS 09-AUDIO
+          python3 - <<'PY'
+          from pathlib import Path
+          import shutil
+          src=Path('/tmp/astrea-assets')
+          root=Path('.')
+          models=src/'modelsmodels'
+          categories=[
+            ('hero.glb','02-MODELS/characters/hero.glb'),
+            ('Meshy_AI_Personnage_principal__1011110936_generate.glb','02-MODELS/characters/main-character-meshy.glb'),
+            ('Meshy_AI_Créer_un_personnage__1011035439_generate.glb','02-MODELS/characters/character-extra.glb'),
+            ('Meshy_AI_Un_jeune_aventurier_d_1011031733_generate.glb','02-MODELS/characters/young-adventurer.glb'),
+            ('Meshy_AI_Créer_un_monstre_hum_1011034908_generate.glb','02-MODELS/creatures/humanoid-monster.glb'),
+            ('Meshy_AI_Créer_un_loup_sauvag_1011040318_generate.fbx','02-MODELS/source-fbx/wild-wolf.fbx'),
+            ('Meshy_AI_Un_cheval_brun_de_tai_1011093257_generate.glb','02-MODELS/creatures/brown-horse.glb'),
+            ('Meshy_AI_Créer_une_petite_mai_1011033315_generate.glb','02-MODELS/buildings/small-house.glb'),
+            ('Meshy_AI_Créer_un_pont_piéto_1011034748_generate.glb','02-MODELS/buildings/footbridge.glb'),
+            ('Meshy_AI_Créer_un_puits_médi_1011033954_generate.glb','02-MODELS/props/medieval-well.glb'),
+            ('Meshy_AI_Créer_un_établi_de__1011034127_generate.glb','02-MODELS/props/workbench.glb'),
+            ('Meshy_AI_Créer_un_coffre_au_t_1011040438_generate.fbx','02-MODELS/source-fbx/treasure-chest.fbx'),
+            ('Meshy_AI_Créer_un_petit_feu_d_1011034618_generate.glb','02-MODELS/props/campfire.glb'),
+            ('Meshy_AI_Créer_une_épée_cou_1011035332_generate.glb','02-MODELS/weapons/sword-meshy.glb'),
+            ('Meshy_AI_Un_chariot_en_bois_co_1011093312_generate.glb','02-MODELS/props/wooden-cart.glb'),
+            ('Meshy_AI_Une_diligence_en_bois_1011093347_generate.glb','02-MODELS/props/wooden-coach.glb'),
+            ('Meshy_AI_Une_grande_roue_méta_1011095112_generate.glb','02-MODELS/props/large-metal-wheel.glb'),
+            ('Meshy_AI_Une_lourde_grille_ver_1011095156_generate.glb','02-MODELS/props/heavy-gate.fbx'),
+            ('Meshy_AI_Une_petite_boussole_c_1011095209_generate.glb','02-MODELS/props/compass.glb'),
+            ('Meshy_AI_Une_plateforme_circul_1011095126_generate.glb','02-MODELS/props/circular-platform.glb'),
+            ('Meshy_AI_Une_porte_massive_com_1011095101_generate.glb','02-MODELS/props/massive-gate.glb'),
+            ('Meshy_AI_La_pièce_doit_être__1011035207_generate.glb','02-MODELS/buildings/interior-room.glb'),
+            ('Meshy_AI_Un_petit_boîtier_mé_1011095143_generate.glb','02-MODELS/props/small-case.glb'),
+          ]
+          copied=[]
+          for name,dest in categories:
+            p=models/name
+            if p.exists():
+              out=root/dest; out.parent.mkdir(parents=True,exist_ok=True); shutil.copy2(p,out); copied.append((str(p),dest,p.stat().st_size))
+          # Preserve all other FBX source exports in a separate non-runtime folder.
+          for p in models.glob('*.fbx'):
+            dest=root/'02-MODELS/source-fbx'/p.name
+            if not dest.exists():
+              shutil.copy2(p,dest); copied.append((str(p),str(dest),p.stat().st_size))
+          # Preserve remaining GLB source exports in an archive subfolder without activating them.
+          archive=root/'02-MODELS/source-glb'
+          archive.mkdir(parents=True,exist_ok=True)
+          for p in models.glob('*.glb'):
+            if not any(Path(d).name==p.name for _,d,_ in copied):
+              dest=archive/p.name; shutil.copy2(p,dest); copied.append((str(p),str(dest),p.stat().st_size))
+          animsrc=src/'animations'
+          if animsrc.exists():
+            for p in animsrc.glob('*.glb'):
+              dest=root/'04-ANIMATIONS'/p.name; shutil.copy2(p,dest); copied.append((str(p),str(dest),p.stat().st_size))
+          texsrc=src/'textures'
+          texmap={
+            'dirt-1.jpg':'03-TEXTURES/terrain/dirt-1.jpg',
+            'grass-1.jpg':'03-TEXTURES/terrain/grass-1.jpg',
+            'rock-1.jpg':'03-TEXTURES/terrain/rock-1.jpg',
+            'paving-village-1.jpg':'03-TEXTURES/terrain/paving-village-1.jpg',
+            'flowers-atlas-1.png':'03-TEXTURES/vegetation/flowers-atlas-1.png',
+            'windows-atlas-1.jpg':'03-TEXTURES/buildings/windows-atlas-1.jpg',
+            'sky-1.jpg':'03-TEXTURES/environment/sky-1.jpg',
+            'vfx-fog-puff-1.png':'03-TEXTURES/effects/vfx-fog-puff-1.png',
+            'vfx-slash-1.png':'03-TEXTURES/effects/vfx-slash-1.png',
+            'vfx-waterfall-foam-1.png':'03-TEXTURES/effects/vfx-waterfall-foam-1.png',
+            'element-anemo-1.png':'03-TEXTURES/effects/element-anemo-1.png',
+            'element-dendro-1.png':'03-TEXTURES/effects/element-dendro-1.png',
+            'element-geo-1.png':'03-TEXTURES/effects/element-geo-1.png',
+            'element-hydro-1.png':'03-TEXTURES/effects/element-hydro-1.png',
+            'element-pyro-1.png':'03-TEXTURES/effects/element-pyro-1.png',
+          }
+          if texsrc.exists():
+            for name,dest in texmap.items():
+              p=texsrc/name
+              if p.exists():
+                out=root/dest; out.parent.mkdir(parents=True,exist_ok=True); shutil.copy2(p,out); copied.append((str(p),dest,p.stat().st_size))
+          audios=[]
+          for p in src.rglob('*'):
+            if p.is_file() and p.suffix.lower() in {'.mp3','.wav','.ogg','.m4a','.flac','.aac'}:
+              dest=root/'09-AUDIO'/p.name; shutil.copy2(p,dest); audios.append((str(p),str(dest),p.stat().st_size))
+          # Machine-readable import manifest.
+          lines=['# Inventaire des assets importés','', 'Source : dépôt public ASTREA-ASSETS, branche main.','', '| Fichier source | Fichier destination | Taille (octets) |','|---|---|---:|']
+          for s,d,n in copied: lines.append(f'| `{s}` | `{d}` | {n} |')
+          (root/'01-DOCUMENTATION/ASSETS-IMPORTES.md').write_text('\n'.join(lines)+'\n',encoding='utf-8')
+          (root/'01-DOCUMENTATION/AUDIO-STATUS.md').write_text(
+            '# État des sons\n\n'
+            + ('Des fichiers audio ont été importés :\n' + ''.join(f'- `{d}` ({n} octets)\n' for s,d,n in audios)
+               if audios else 'Aucun fichier audio source (.mp3, .wav, .ogg, .m4a, .flac, .aac) trouvé dans le dépôt ASTREA-ASSETS. Aucun son fictif n’a été créé.\n'),
+            encoding='utf-8')
+          print(f'Assets copiés: {len(copied)}; fichiers audio: {len(audios)}')
+          PY
+      - name: Commit imported assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add 02-MODELS 03-TEXTURES 04-ANIMATIONS 09-AUDIO 01-DOCUMENTATION/ASSETS-IMPORTES.md 01-DOCUMENTATION/AUDIO-STATUS.md
+          if git diff --cached --quiet; then echo "No assets to import"; exit 0; fi
+          git commit -m "Import legacy ASTREA models, textures and animations"
+          git push
