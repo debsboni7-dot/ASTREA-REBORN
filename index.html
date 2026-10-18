@@ -348,6 +348,74 @@ function addVillageAtmosphere(){
 }
 const fireFlames=[],fireLights=[],ambienceParticles=[];
 
+function addTownLandmarks(){
+ const stone=new THREE.MeshStandardMaterial({color:0x8b897d,roughness:.94});
+ const paleStone=new THREE.MeshStandardMaterial({color:0xc5b99e,roughness:.9});
+ const timber=new THREE.MeshStandardMaterial({color:0x65442c,roughness:.9});
+ const roofMat=new THREE.MeshStandardMaterial({color:0x71453a,roughness:.9});
+ const roofBlue=new THREE.MeshStandardMaterial({color:0x3d526a,roughness:.88});
+ const iron=new THREE.MeshStandardMaterial({color:0x393e43,metalness:.5,roughness:.48});
+ function part(g,geo,mat,x,y,z){const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);g.add(m);return m}
+ function sign(label,color){
+   const canvas=document.createElement('canvas');canvas.width=256;canvas.height=96;
+   const ctx=canvas.getContext('2d');ctx.fillStyle='#3a281c';ctx.fillRect(0,0,256,96);ctx.strokeStyle='#d9bd80';ctx.lineWidth=7;ctx.strokeRect(5,5,246,86);
+   ctx.fillStyle=color;ctx.font='bold 30px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(label,128,49);
+   const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;
+   return new THREE.Mesh(new THREE.PlaneGeometry(2.6,.82),new THREE.MeshBasicMaterial({map:texture,transparent:true,side:THREE.DoubleSide}));
+ }
+ function hall({x,z,w=4.6,d=3.8,h=2.8,label,roof=roofMat,baseMat=paleStone,kind='hall'}){
+   const g=new THREE.Group();g.position.set(x,0,z);scene.add(g);
+   part(g,new THREE.BoxGeometry(w,h,d),baseMat,0,h/2,0);
+   part(g,new THREE.BoxGeometry(w+.5,.22,d+.5),timber,0,h+.04,0);
+   const r=part(g,new THREE.ConeGeometry(w*.77,1.35,4),roof,0,h+.78,0);r.rotation.y=Math.PI/4;
+   part(g,new THREE.BoxGeometry(.92,1.8,.12),timber,0,.9,d/2+.07);
+   for(const wx of [-w*.31,w*.31]){
+     part(g,new THREE.BoxGeometry(.42,.72,.08),iron,wx,1.72,d/2+.08);
+     part(g,new THREE.BoxGeometry(.5,.08,.1),timber,wx,1.72,d/2+.14);
+     part(g,new THREE.BoxGeometry(.08,.78,.1),timber,wx,1.72,d/2+.14);
+   }
+   const plaque=sign(label,kind==='forge'?'#ffce75':kind==='castle'?'#d6e5ff':'#f1db9c');plaque.position.set(0,h+.15,d/2+.11);g.add(plaque);
+   return g;
+ }
+ // Marché : panneaux au-dessus des étals déjà présents.
+ const market=new THREE.Group();market.position.set(0,0,-7.1);scene.add(market);
+ const marketSign=sign('MARCHE','#ffe3a0');marketSign.position.set(0,2.25,0);market.add(marketSign);
+ part(market,new THREE.BoxGeometry(2.9,.12,.12),timber,0,2.72,0);
+ // Forge de Sana : pierre, toit, enclume et four rougeoyant.
+ const forge=hall({x:13,z:-39,w:4.4,d:3.4,h:2.55,label:'FORGE',roof:roofMat,baseMat:stone,kind:'forge'});
+ part(forge,new THREE.BoxGeometry(.7,.7,.7),iron,-1.1,.42,.5);
+ part(forge,new THREE.BoxGeometry(.9,.5,.55),new THREE.MeshStandardMaterial({color:0x9c4d2e,emissive:0xff5719,emissiveIntensity:.65}),1.1,.48,.4);
+ const forgeLight=new THREE.PointLight(0xff782d,1.15,7,2);forgeLight.position.set(13.9,1.2,-38.6);scene.add(forgeLight);fireLights.push(forgeLight);
+ addCollider(13,-39,2.6,2.1,'forge');
+ // Mairie d’Elric : façade claire, marches et panneau.
+ const townHall=hall({x:-13,z:-57,w:4.8,d:4,h:3,label:'MAIRIE',roof:roofBlue,baseMat:paleStone});
+ part(townHall,new THREE.BoxGeometry(2.4,.22,.9),stone,0,.11,2.35);
+ addCollider(-13,-57,2.8,2.3,'mairie');
+ // Château : corps central, quatre tours et toits pointus.
+ const castle=new THREE.Group();castle.position.set(13,0,-84.5);scene.add(castle);
+ part(castle,new THREE.BoxGeometry(6.2,3.8,4.8),stone,0,1.9,0);
+ part(castle,new THREE.BoxGeometry(6.7,.25,5.3),timber,0,3.75,0);
+ for(const [tx,tz] of [[-2.8,-2.1],[2.8,-2.1],[-2.8,2.1],[2.8,2.1]]){
+   part(castle,new THREE.CylinderGeometry(.72,.86,4.6,8),paleStone,tx,2.3,tz);
+   const cap=part(castle,new THREE.ConeGeometry(.95,1.45,5),roofBlue,tx,5.25,tz);cap.rotation.y=Math.PI/5;
+ }
+ part(castle,new THREE.BoxGeometry(1.15,2.15,.14),timber,0,1.07,2.48);
+ const castleSign=sign('CHATEAU','#e3edff');castleSign.position.set(0,3.1,2.55);castle.add(castleSign);
+ addCollider(13,-84.5,3.9,3.1,'château');
+ // Camp d’aventuriers : tentes, caisses, feu et zone de repos.
+ const camp=new THREE.Group();camp.position.set(-13,0,-101);scene.add(camp);
+ const canvasMat=new THREE.MeshStandardMaterial({color:0x9a774d,roughness:1,side:THREE.DoubleSide});
+ for(const [tx,tz,tc] of [[-1.5,0,0x9a774d],[1.5,-.6,0x647d8b]]){
+   const tent=part(camp,new THREE.ConeGeometry(1.65,2.55,4),new THREE.MeshStandardMaterial({color:tc,roughness:1,side:THREE.DoubleSide}),tx,1.28,tz);tent.rotation.y=Math.PI/4;
+ }
+ part(camp,new THREE.BoxGeometry(.72,.5,.6),timber,-2.3,.25,1.1);
+ part(camp,new THREE.BoxGeometry(.72,.5,.6),timber,2.25,.25,1.2);
+ const campFire=part(camp,new THREE.CylinderGeometry(.55,.65,.18,8),stone,0,.09,2.5);
+ for(let i=0;i<3;i++){const flame=part(camp,new THREE.ConeGeometry(.15,.48+i*.08,5),new THREE.MeshStandardMaterial({color:i%2?0xff7b29:0xffd05b,emissive:0xff5a12,emissiveIntensity:.8,transparent:true,opacity:.88}),Math.sin(i*2)*.18,.38,2.5+Math.cos(i*2)*.18);fireFlames.push(flame)}
+ const campLight=new THREE.PointLight(0xff9138,1.2,7,2);campLight.position.set(-13,.8,-98.5);scene.add(campLight);fireLights.push(campLight);
+ const campSign=sign('CAMP','#d9edff');campSign.position.set(0,2.65,2.6);camp.add(campSign);
+ addCollider(-13,-101,3.1,2.8,'camp');
+}
 function normalizeModel(object,targetHeight){
  const b=new THREE.Box3().setFromObject(object),size=b.getSize(new THREE.Vector3()),center=b.getCenter(new THREE.Vector3());
  const h=Math.max(size.y,.001),s=targetHeight/h;object.scale.multiplyScalar(s);
@@ -570,6 +638,36 @@ function saveProgress(){
 }
 equipWeapon(selectedWeapon.id);
 function nearestChest(){let best=null,dist=2.35;for(const chest of chests){if(chest.opened)continue;const d=Math.hypot(player.position.x-chest.group.position.x,player.position.z-chest.group.position.z);if(d<dist){best=chest;dist=d}}return best}
+function nearestVillageNPC(maxDistance=2.8){
+ let best=null,bestDistance=maxDistance;
+ for(const npc of npcGroups){
+   if(!npc.group.visible)continue;
+   const d=Math.hypot(player.position.x-npc.group.position.x,player.position.z-npc.group.position.z);
+   if(d<bestDistance){best=npc;bestDistance=d}
+ }
+ return best;
+}
+function villageNPCDialogue(npc){
+ const lines={
+   marchande:'Bienvenue au marché d’Astrea ! Les étals sont ouverts. Reviens quand tu voudras faire du commerce.',
+   garde:'Tout est calme dans le village. Nous protégeons les habitants et les voyageurs.',
+   voyageur:'Les routes sont longues, mais les auberges et les marchés rendent le voyage plus agréable.',
+   éclaireur:'Je surveille les chemins et je repère les endroits intéressants autour de la ville.',
+   forgeronne:'La forge est chaude ! Je répare les armes et prépare de nouvelles lames pour les aventuriers.',
+   greffier:'La mairie conserve les registres, les demandes des habitants et les annonces du village.',
+   fermier:'Les champs nourrissent la ville. Je passe souvent par le marché pour vendre mes récoltes.',
+   herboriste:'Je cueille des plantes médicinales près des routes. Elles sont utiles pour préparer des remèdes.',
+   aubergiste:'Entre donc à l’auberge après une longue aventure. Ici, tout le monde peut se reposer.',
+   aventurier:'Le camp rassemble les voyageurs qui préparent leur prochaine expédition.',
+   marché:'Le marché est vivant aujourd’hui ! Tu trouveras des marchands et des produits de la région.',
+   citoyen:'Bienvenue à Astrea. Les rues sont paisibles et les habitants sont là pour s’entraider.',
+   forgeron:'La forge sert les gardes et les aventuriers. Aucun combat ne doit troubler le village.',
+   mairie:'La mairie organise la vie du village et aide les habitants.',
+   château:'Le château veille sur Astrea. Les gardes y patrouillent, mais restent pacifiques envers les citoyens.',
+   camp:'Les aventuriers préparent leurs sacs au camp avant de reprendre la route.'
+ };
+ return lines[npc.role]||'Bonjour ! Bienvenue à Astrea. Bonne route et prends soin de toi.';
+}
 function talkToGuide(){
  if(insideHouse){setHouseMode(false);return}
  const chest=nearestChest();
@@ -577,9 +675,17 @@ function talkToGuide(){
  const homeDistance=Math.hypot(player.position.x+5.5,player.position.z+3.35);
  if(homeDistance<2.5){doorOpen=!doorOpen;doorPivot.rotation.y=doorOpen?-Math.PI/2:0;doorCollider.active=!doorOpen;if(doorOpen){setHouseMode(true);questStatus.textContent='Découverte : intérieur de la maison'}else{hint.textContent='La porte est fermée.'}saveProgress();return}
 
+ const nearbyNPC=nearestVillageNPC(2.8);
+ if(nearbyNPC){
+   document.getElementById('dialogueTitle').textContent=nearbyNPC.name;
+   dialogueText.textContent=villageNPCDialogue(nearbyNPC);
+   dialogue.hidden=false;hint.textContent='Tu parles à '+nearbyNPC.name+'. Cet habitant est pacifique.';
+   return;
+ }
  if(!guide.visible){hint.textContent='Le modèle 3D du guide n’est pas disponible.';return}
  const d=Math.hypot(player.position.x-guide.position.x,player.position.z-guide.position.z);
  if(d>3.1){questStatus.textContent='Approche-toi du guide pour lui parler.';hint.textContent='Guide trop éloigné : rapproche-toi.';return}
+ document.getElementById('dialogueTitle').textContent='Guide du village';
  dialogueText.textContent=enemyDefeated
   ?'Excellent travail ! Tu as vaincu la cible d’entraînement. Explore le village : de nouvelles quêtes seront ajoutées ensuite.'
   :'Bienvenue dans le village d’Astrea ! Déplace-toi avec les flèches, tourne la caméra en glissant le doigt et utilise ATTAQUE près de la cible rouge. Reviens me voir après ton entraînement.';
@@ -709,8 +815,62 @@ document.getElementById('ultimateUltimate').addEventListener('pointerdown',e=>{
 addEventListener('pagehide',saveProgress);addEventListener('blur',saveProgress);
 let dragging=false,lastX=0,lastY=0,cameraPointer=null;renderer.domElement.style.touchAction='none';renderer.domElement.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;dragging=true;cameraPointer=e.pointerId;lastX=e.clientX;lastY=e.clientY;try{renderer.domElement.setPointerCapture(e.pointerId)}catch(_){}});renderer.domElement.addEventListener('pointermove',e=>{if(!dragging||e.pointerId!==cameraPointer)return;const dx=e.clientX-lastX,dy=e.clientY-lastY;yaw+=dx*.008;pitch=Math.max(-.08,Math.min(.72,pitch-dy*.004));lastX=e.clientX;lastY=e.clientY});function stopCameraDrag(e){if(cameraPointer===null||e.pointerId===cameraPointer){dragging=false;cameraPointer=null}}renderer.domElement.addEventListener('pointerup',stopCameraDrag);renderer.domElement.addEventListener('pointercancel',stopCameraDrag);
 const moveAnim={moving:false};
+function updateVillageNPCs(dt){
+ const t=clock.elapsedTime;
+ for(const npc of npcGroups){
+   const dist=Math.hypot(player.position.x-npc.group.position.x,player.position.z-npc.group.position.z);
+   npc.group.visible=dist<34;
+   if(dist>42)continue;
+   npc.targetTimer-=dt;
+   let dx=npc.targetX-npc.group.position.x,dz=npc.targetZ-npc.group.position.z,d=Math.hypot(dx,dz);
+   if(npc.targetTimer<=0||d<.65){
+     const radius=npc.wanderRadius;
+     npc.targetX=Math.max(-19,Math.min(19,npc.homeX+(Math.random()*2-1)*radius));
+     npc.targetZ=Math.max(-116,Math.min(-3,npc.homeZ+(Math.random()*2-1)*radius));
+     npc.targetTimer=2.5+Math.random()*4.5;
+     dx=npc.targetX-npc.group.position.x;dz=npc.targetZ-npc.group.position.z;d=Math.hypot(dx,dz);
+   }
+   const moving=d>.45&&npc.targetTimer>0;
+   if(moving){
+     const step=Math.min(d,npc.speed*dt);
+     npc.group.position.x+=dx/(d||1)*step;npc.group.position.z+=dz/(d||1)*step;
+     npc.group.rotation.y=Math.atan2(-dx,-dz);
+   }
+   npc.group.position.y=dist<18?(moving?Math.abs(Math.sin(t*8+npc.phase))*.035:Math.sin(t*1.8+npc.phase)*.012):0;
+   if(npc.mixerNPC&&dist<18){
+     if(moving!==npc.isMoving){
+       const next=moving?(npc.walkAction||npc.idleAction):(npc.idleAction||npc.walkAction);
+       if(next&&next!==npc.activeNPCAction){
+         next.reset();next.setLoop(THREE.LoopRepeat,Infinity);
+         if(npc.activeNPCAction)npc.activeNPCAction.crossFadeTo(next,.18,true);
+         next.play();npc.activeNPCAction=next;
+       }
+     }
+     npc.mixerNPC.update(dt);
+   }else if(npc.bones?.length&&dist<18){
+     const wave=Math.sin(t*7+npc.phase);
+     for(const b of npc.bones)b.bone.rotation.copy(b.base);
+     const find=re=>npc.bones.find(b=>re.test(b.name));
+     const la=find(/leftarm|upperarml|armleft/),ra=find(/rightarm|upperarmr|armright/);
+     const ll=find(/leftupleg|upperlegl|leftthigh/),rl=find(/rightupleg|upperlegr|rightthigh/);
+     const lf=find(/leftleg|lowerlegl|leftcalf/),rf=find(/rightleg|lowerlegr|rightcalf/);
+     if(moving){
+       if(la)la.bone.rotation.x=la.base.x-wave*.28;if(ra)ra.bone.rotation.x=ra.base.x+wave*.28;
+       if(ll)ll.bone.rotation.x=ll.base.x+wave*.42;if(rl)rl.bone.rotation.x=rl.base.x-wave*.42;
+       if(lf)lf.bone.rotation.x=lf.base.x+Math.max(0,-wave)*.3;if(rf)rf.bone.rotation.x=rf.base.x+Math.max(0,wave)*.3;
+     }else{
+       if(la)la.bone.rotation.z=la.base.z+Math.sin(t*1.1+npc.phase)*.025;
+       if(ra)ra.bone.rotation.z=ra.base.z-Math.sin(t*1.1+npc.phase)*.025;
+     }
+   }
+   npc.isMoving=moving;
+   if(npc.gear?.badge)npc.gear.badge.position.y=2.22+Math.sin(t*1.4+npc.phase)*.06;
+   if(npc.gear?.weapon)npc.gear.weapon.rotation.z=-.25+Math.sin(t*1.1+npc.phase)*.035;
+   if(npc.ring)npc.ring.material.emissiveIntensity=.08+Math.sin(t*2+npc.phase)*.035;
+ }
+}
 function frame(){
- requestAnimationFrame(frame);const dt=Math.min(clock.getDelta(),.04);if(mixer)mixer.update(dt);updateCombatSequence();updateProceduralRig();updateWeaponVFX(dt);weaponAura.rotation.z+=dt*.9;for(let i=0;i<fireFlames.length;i++){const fl=fireFlames[i];fl.scale.y=.82+Math.sin(clock.elapsedTime*8+i*1.7)*.24;fl.rotation.y=clock.elapsedTime*.8+i;}for(const l of fireLights)l.intensity=1.05+Math.sin(clock.elapsedTime*7)*.3;for(const p of ambienceParticles){p.mesh.position.y=p.base.y+Math.sin(clock.elapsedTime*.8+p.phase)*.28;p.mesh.position.x=p.base.x+Math.sin(clock.elapsedTime*.35+p.phase)*.22;}for(const npc of npcGroups){npc.gear.badge.position.y=npc.baseY+Math.sin(clock.elapsedTime*1.4+npc.phase)*.06;npc.gear.weapon.rotation.z=-.25+Math.sin(clock.elapsedTime*1.1+npc.phase)*.035;}attackCooldown=Math.max(0,attackCooldown-dt);specialCooldown=Math.max(0,specialCooldown-dt);ultimateCooldown=Math.max(0,ultimateCooldown-dt);ultimateUltimateCooldown=Math.max(0,ultimateUltimateCooldown-dt);enemyAttackTimer=Math.max(0,enemyAttackTimer-dt);if(!enemyDefeated&&enemy.visible&&Math.hypot(player.position.x-enemy.position.x,player.position.z-enemy.position.z)<2.15&&enemyAttackTimer<=0){enemyAttackTimer=2.1;takeDamage(8);hint.textContent='La cible te frappe : -8 PV !'}let f=0,s=0;
+ requestAnimationFrame(frame);const dt=Math.min(clock.getDelta(),.04);if(mixer)mixer.update(dt);updateCombatSequence();updateProceduralRig();updateWeaponVFX(dt);weaponAura.rotation.z+=dt*.9;for(let i=0;i<fireFlames.length;i++){const fl=fireFlames[i];fl.scale.y=.82+Math.sin(clock.elapsedTime*8+i*1.7)*.24;fl.rotation.y=clock.elapsedTime*.8+i;}for(const l of fireLights)l.intensity=1.05+Math.sin(clock.elapsedTime*7)*.3;for(const p of ambienceParticles){p.mesh.position.y=p.base.y+Math.sin(clock.elapsedTime*.8+p.phase)*.28;p.mesh.position.x=p.base.x+Math.sin(clock.elapsedTime*.35+p.phase)*.22;}updateVillageNPCs(dt);attackCooldown=Math.max(0,attackCooldown-dt);specialCooldown=Math.max(0,specialCooldown-dt);ultimateCooldown=Math.max(0,ultimateCooldown-dt);ultimateUltimateCooldown=Math.max(0,ultimateUltimateCooldown-dt);enemyAttackTimer=Math.max(0,enemyAttackTimer-dt);if(!enemyDefeated&&enemy.visible&&Math.hypot(player.position.x-enemy.position.x,player.position.z-enemy.position.z)<2.15&&enemyAttackTimer<=0){enemyAttackTimer=2.1;takeDamage(8);hint.textContent='La cible te frappe : -8 PV !'}let f=0,s=0;
  if(keys.w||keys.z||keys.arrowup||touchMove.forward)f+=1;
  if(keys.s||keys.arrowdown||touchMove.back)f-=1;
  if(keys.d||keys.arrowright||touchMove.right)s+=1;
@@ -726,8 +886,9 @@ function frame(){
  const homeDistance=Math.hypot(player.position.x+5.5,player.position.z+3.35);
  const chest=nearestChest();
  const interact=document.getElementById('interact');
- interact.style.opacity=(insideHouse||chest||guideDistance<=3.1||homeDistance<2.5)?'1':'.68';
- interact.textContent=insideHouse?'SORTIR':chest?'OUVRIR':homeDistance<2.5?'MAISON':guideDistance<=3.1?'PARLER':'PNJ';
+ const nearbyNPC=nearestVillageNPC(2.8);
+ interact.style.opacity=(insideHouse||chest||guideDistance<=3.1||homeDistance<2.5||nearbyNPC)?'1':'.68';
+ interact.textContent=insideHouse?'SORTIR':chest?'OUVRIR':homeDistance<2.5?'MAISON':nearbyNPC?'PARLER':guideDistance<=3.1?'PARLER':'PNJ';
  const target=new THREE.Vector3(player.position.x,player.position.y+1.1,player.position.z),dist=7.5;
  camera.position.set(target.x+Math.sin(yaw)*dist,target.y+2.4+pitch*5,target.z+Math.cos(yaw)*dist);camera.lookAt(target);
  // Scintillement très discret des lumières du village : effet vivant sans bloom ni ombres dynamiques.
@@ -735,7 +896,7 @@ function frame(){
  renderer.render(scene,camera);
 }
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
-addVillageAtmosphere();window.ASTREA_WORLD=initAstreaWorld({THREE,scene,player,hint,collisionBoxes,equipWeapon,addItem,renderer});status.textContent='Chargement des GLB…';frame();loadVillageNPCs().catch(e=>console.warn('Chargement des PNJ interrompu',e));loadPrimaryAssets().catch(e=>{console.error(e);status.textContent='Mode de secours actif';hint.textContent='Certains assets sont indisponibles, formes provisoires conservées.'});
+addVillageAtmosphere();addTownLandmarks();window.ASTREA_WORLD=initAstreaWorld({THREE,scene,player,hint,collisionBoxes,equipWeapon,addItem,renderer});status.textContent='Chargement des GLB…';frame();loadVillageNPCs().catch(e=>console.warn('Chargement des PNJ interrompu',e));loadPrimaryAssets().catch(e=>{console.error(e);status.textContent='Mode de secours actif';hint.textContent='Certains assets sont indisponibles, formes provisoires conservées.'});
 })();
 </script>
 </body>
