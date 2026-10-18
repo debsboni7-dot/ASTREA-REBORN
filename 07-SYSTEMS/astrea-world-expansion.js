@@ -2,15 +2,15 @@
 // Monnaie, continents, voyages maritimes, royaumes et créatures.
 // Les créatures procédurales sont provisoires et seront remplacées par les GLB finaux.
 export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes, equipWeapon, addItem, renderer }) {
-  const SAVE_KEY = 'astrea-world-save-v1';
+  const SAVE_KEY = 'astrea-world-save-v2';
   const regions = [
-    { id:'village', name:'Village d’Astrea', biome:'Plaine verdoyante', color:0x6b9b52, sky:0x9dc5d0, price:0, bounds:{minX:-21,maxX:21,minZ:-117,maxZ:1}, description:'Ton point de départ : la grande ville médiévale.' },
-    { id:'elarion', name:'Elarion', biome:'Continent des forêts', color:0x477a43, sky:0x9fc8b5, price:100, bounds:{minX:-42,maxX:42,minZ:-42,maxZ:42}, description:'Forêts anciennes, ruines et ressources rares.' },
-    { id:'solkar', name:'Solkar', biome:'Désert doré', color:0xc9a15b, sky:0xe5c99a, price:150, bounds:{minX:-42,maxX:42,minZ:-42,maxZ:42}, description:'Dunes, canyons et routes caravanières.' },
-    { id:'frostholm', name:'Frostholm', biome:'Terres glacées', color:0xb8d8e5, sky:0x9ebacb, price:200, bounds:{minX:-42,maxX:42,minZ:-42,maxZ:42}, description:'Montagnes enneigées, glaciers et ruines oubliées.' },
-    { id:'drakorys', name:'Drakorys', biome:'Archipel volcanique', color:0x554b4a, sky:0x9d7772, price:250, bounds:{minX:-42,maxX:42,minZ:-42,maxZ:42}, description:'Îles volcaniques, cavernes et anciennes forteresses.' }
+    { id:'astrea', name:'Astrea', biome:'Prairies et cité royale', color:0x6b9b52, sky:0x9dc5d0, price:0, bounds:{minX:-21,maxX:21,minZ:-117,maxZ:1}, description:'Le continent natal : la capitale, ses quartiers, sa forge et ses routes.' },
+    { id:'van', name:'Van', biome:'Forêts anciennes', color:0x477a43, sky:0x9fc8b5, price:0, bounds:{minX:-42,maxX:42,minZ:-42,maxZ:42}, description:'Continent boisé, villages et ruines enfouies.' },
+    { id:'beurg', name:'Beurg', biome:'Hautes terres et vallées', color:0x9b855e, sky:0xcbbd9b, price:0, bounds:{minX:-42,maxX:42,minZ:-42,maxZ:42}, description:'Villes fortifiées, collines et routes commerciales.' },
+    { id:'night', name:'Night', biome:'Forêt nocturne', color:0x263b59, sky:0x18243e, price:0, bounds:{minX:-42,maxX:42,minZ:-42,maxZ:42}, description:'Forêt bleue, ruines lumineuses et créatures nocturnes.' },
+    { id:'dark-continent', name:'Continent noir', biome:'Terres corrompues', color:0x302b35, sky:0x4b394d, price:0, bounds:{minX:-42,maxX:42,minZ:-42,maxZ:42}, description:'Zone dangereuse réservée aux aventuriers préparés.' }
   ];
-  const defaults = { coins:500, region:'village', kingdoms:[], discovered:['village'], inventory:['Épée de départ'], resources:{bois:0,pierre:0,herbes:0,ecaille:0,ivoire:0}, potions:1, equipment:'Épée de départ', defeated:[], claimedQuests:[], harvestAt:{}, questStep:0, level:1, xp:0, hp:100, maxHp:100 };
+  const defaults = { coins:500, region:'astrea', kingdoms:[], discovered:['astrea'], inventory:['Épée de départ'], resources:{bois:0,pierre:0,herbes:0,ecaille:0,ivoire:0}, potions:1, equipment:'Épée de départ', defeated:[], claimedQuests:[], harvestAt:{}, questStep:0, level:1, xp:0, hp:100, maxHp:100 };
   let save = defaults;
   try { const old=JSON.parse(localStorage.getItem(SAVE_KEY)||'null'); if(old&&typeof old==='object') save={...defaults,...old,resources:{...defaults.resources,...(old.resources||{})},inventory:Array.isArray(old.inventory)?old.inventory:defaults.inventory,claimedQuests:Array.isArray(old.claimedQuests)?old.claimedQuests:[],harvestAt:old.harvestAt&&typeof old.harvestAt==='object'?old.harvestAt:{}}; } catch {}
   let currentRegion = regions.find(r=>r.id===save.region) || regions[0];
@@ -33,10 +33,10 @@ export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes, eq
     const balance=el('div',{class:'aw-card'});balance.append(el('strong',{},'💰 '+save.coins+' Couronnes'),el('p',{class:'aw-muted'},'Récompenses gagnées en explorant et en affrontant les créatures.'));panel.append(balance);
     panel.append(el('h3',{},'🌐 CONTINENTS & VOYAGES'));
     for(const r of regions){
-      const unlocked=save.discovered.includes(r.id)||r.id==='village';
+      const unlocked=save.discovered.includes(r.id)||r.id==='astrea';
       const isCurrent=currentRegion.id===r.id;
       const action=button(isCurrent?'ZONE ACTUELLE':unlocked?'VOYAGER':'Voyager — '+r.price+' couronnes',()=>travel(r.id),isCurrent||(!unlocked&&save.coins<r.price));
-      panel.append(makeCard(r.name+' · '+r.biome,r.description+' '+(r.price?'Coût du premier voyage : '+r.price+' couronnes.':'Départ gratuit.'),[action]));
+      panel.append(makeCard(r.name+' · '+r.biome,r.description+' '+(r.price?'Coût du premier voyage : '+r.price+' couronnes.':'Voyage par monture à débloquer dans la progression.'),[action]));
     }
     panel.append(el('h3',{},'🚢 VOYAGE PAR OCÉAN'));
     panel.append(makeCard('Navire d’Astrea','Les traversées relient les continents. Le premier voyage vers une région coûte son tarif ; les retours vers les régions découvertes sont gratuits.',[
