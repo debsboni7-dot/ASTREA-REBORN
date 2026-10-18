@@ -1,28 +1,33 @@
 # Feuille de route ASTREA REBORN
 
-## Phase 1 — Base stable
-- [x] Créer le cahier des charges maître.
-- [ ] Mettre en place la scène de test et les commandes tactiles.
-- [ ] Vérifier le chargement et le redimensionnement mobile.
+## Phase 1 — Base du prototype
+- [x] Cahier des charges maître.
+- [x] Scène de test et commandes tactiles/clavier.
+- [x] Redimensionnement mobile.
 
 ## Phase 2 — Assets
-- [ ] Recenser les fichiers GLB réellement disponibles.
-- [ ] Intégrer le personnage principal.
-- [ ] Intégrer l'animation de course compatible.
-- [ ] Intégrer l'épée divine.
-- [ ] Ajouter les textures et vérifier les matériaux.
+- [x] Recenser les modèles, textures et animations disponibles dans ASTREA-ASSETS.
+- [x] Copier les assets dans les dossiers de leur domaine.
+- [x] Brancher le personnage GLB, l'épée, les maisons et les textures de terrain au prototype.
+- [x] Ajouter le chargement à la demande des clips d'inactivité, de marche et d'attaque.
+- [ ] Vérifier visuellement le modèle, l'échelle et les matériaux sur Chrome Android.
+- [ ] Vérifier que les clips d'animation correspondent au squelette du personnage.
+- [ ] Convertir les FBX utiles en GLB si nécessaire.
 
 ## Phase 3 — Gameplay
-- [ ] Déplacement, course et saut.
-- [ ] Attaque de base et combos.
+- [ ] Déplacement, course et saut avec animation confirmée.
+- [ ] Combos d'attaque synchronisés avec l'épée.
 - [ ] Interactions avec objets et PNJ.
 - [ ] Première quête test.
 
 ## Phase 4 — Village
-- [ ] Terrain et chemins.
-- [ ] Bâtiments et points d'intérêt.
+- [ ] Placer progressivement les bâtiments et points d'intérêt importés.
+- [ ] Textures de terrain, végétation et environnement.
 - [ ] Intérieurs et portes interactives.
-- [ ] Optimisation du rendu mobile.
+- [ ] Profilage et optimisation du rendu mobile.
+
+## Audio
+- [ ] Ajouter des sons réels quand les fichiers source seront fournis ou retrouvés.
 
 ## Règle de progression
-Chaque étape doit être testée avant de commencer la suivante. Les tâches non vérifiées restent marquées comme incomplètes.
+Un fichier importé n'est pas automatiquement un système terminé : conserver les tâches de compatibilité et de test comme incomplètes jusqu'à vérification en jeu.
