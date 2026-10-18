@@ -4,7 +4,7 @@
 export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes, equipWeapon, addItem, renderer }) {
   const SAVE_KEY = 'astrea-world-save-v2';
   const regions = [
-    { id:'astrea', name:'Astrea', biome:'Prairies et cité royale', color:0x6b9b52, sky:0x9dc5d0, price:0, bounds:{minX:-21,maxX:21,minZ:-117,maxZ:1}, description:'Le continent natal : la capitale, ses quartiers, sa forge et ses routes.' },
+    { id:'astrea', name:'Astrea', biome:'Prairies et cité royale', color:0x6b9b52, sky:0x9dc5d0, price:0, bounds:{minX:-78,maxX:78,minZ:-135,maxZ:82}, description:'Le continent natal : la capitale, ses quartiers, sa forge et ses routes.' },
     { id:'van', name:'Van', biome:'Forêts anciennes', color:0x477a43, sky:0x9fc8b5, price:0, bounds:{minX:-42,maxX:42,minZ:-42,maxZ:42}, description:'Continent boisé, villages et ruines enfouies.' },
     { id:'beurg', name:'Beurg', biome:'Hautes terres et vallées', color:0x9b855e, sky:0xcbbd9b, price:0, bounds:{minX:-42,maxX:42,minZ:-42,maxZ:42}, description:'Villes fortifiées, collines et routes commerciales.' },
     { id:'night', name:'Night', biome:'Forêt nocturne', color:0x263b59, sky:0x18243e, price:0, bounds:{minX:-42,maxX:42,minZ:-42,maxZ:42}, description:'Forêt bleue, ruines lumineuses et créatures nocturnes.' },
@@ -16,6 +16,18 @@ export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes, eq
   let currentRegion = regions.find(r=>r.id===save.region) || regions[0];
   let boatTrips = 0;
   const zoneGroups = {};
+  // Plaine extérieure d'Astrea : zone de sortie continue au-delà des remparts.
+  const outskirts = new THREE.Group(); outskirts.userData.astreaOutskirts=true; scene.add(outskirts);
+  {
+    const geo=new THREE.PlaneGeometry(300,300,80,80),a=geo.attributes.position;
+    for(let i=0;i<a.count;i++){const x=a.getX(i),z=a.getY(i),d=Math.max(Math.abs(x),Math.abs(z));const fade=Math.min(1,Math.max(0,(d-28)/42));const h=(Math.sin(x*.035)*1.4+Math.cos(z*.041)*1.2+Math.sin((x+z)*.023)*1.7)*fade;a.setZ(i,h);}
+    geo.computeVertexNormals();
+    const canvas=document.createElement('canvas');canvas.width=128;canvas.height=128;const ctx=canvas.getContext('2d');ctx.fillStyle='#65884b';ctx.fillRect(0,0,128,128);let seed=771;const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};for(let i=0;i<900;i++){ctx.globalAlpha=.12+rand()*.3;ctx.fillStyle=['#456b38','#8da85d','#6f9148','#b3aa69'][i%4];ctx.beginPath();ctx.ellipse(rand()*128,rand()*128,1+rand()*2,1+rand()*1.5,rand()*3,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
+    const tex=new THREE.CanvasTexture(canvas);tex.wrapS=tex.wrapT=THREE.RepeatWrapping;tex.repeat.set(14,14);tex.colorSpace=THREE.SRGBColorSpace;
+    const ground=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({map:tex,roughness:1}));ground.rotation.x=-Math.PI/2;ground.position.set(0,-.24,0);ground.receiveShadow=true;outskirts.add(ground);
+    // Bord de mer et sentier de sortie visibles au-delà du village.
+    const path=new THREE.Mesh(new THREE.PlaneGeometry(5,95),new THREE.MeshStandardMaterial({color:0xb8a17a,roughness:1}));path.rotation.x=-Math.PI/2;path.position.set(0,-.12,40);outskirts.add(path);
+  }
   // Aucun dragon ni mammouth factice : ils seront ajoutés lorsqu'un vrai modèle GLB sera disponible.
   function persist(){ try { localStorage.setItem(SAVE_KEY,JSON.stringify({...save,region:currentRegion.id})); } catch {} }
   function el(tag, attrs={}, text=''){const n=document.createElement(tag);for(const [k,v] of Object.entries(attrs)){if(k==='style')n.style.cssText=v;else if(k==='class')n.className=v;else n.setAttribute(k,v)}if(text)n.textContent=text;return n}
