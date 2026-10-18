@@ -40,3 +40,11 @@ L'inventaire complet des fichiers copiés se trouve dans [ASSETS-IMPORTES.md](./
 - Le prototype utilise une petite sélection d'assets dans la scène afin d'éviter de charger tous les modèles lourds en même temps sur Android.
 - Les exports FBX sont conservés comme sources ; le chargeur actuel du prototype lit les GLB.
 - L'import ne prouve pas que tous les rigs et clips d'animation sont compatibles. Il faut vérifier le rendu et les mouvements dans le navigateur mobile.
+
+
+## Fichiers ajoutés manuellement et prototypes de référence
+- [Inventaire des fichiers ajoutés par l'utilisateur](./01-DOCUMENTATION/ASSETS-UTILISATEUR.md)
+- [Prototypes historiques conservés](./10-PROTOTYPES/README.md)
+- Les deux archives de l'épée divine restent conservées dans `02-MODELS/weapons/`; le workflow extrait leurs fichiers sources et textures dans des sous-dossiers séparés sans écraser les originaux.
+- Les packs ZIP de textures restent dans `03-TEXTURES/environment/` et ne sont pas supprimés.
+- Les prototypes HTML d'animation présents dans `04-ANIMATIONS/` sont des démonstrations 2D indépendantes ; ils sont conservés et ne sont pas présentés comme des animations 3D directement jouables.
