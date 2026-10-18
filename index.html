@@ -265,9 +265,25 @@ async function loadPrimaryAssets(){
        }
      });
    }
-   // Le squelette et les clips éventuels sont conservés ; lecture désactivée temporairement tant que le root-motion n'est pas corrigé.
+   // Utiliser les clips réellement intégrés au personnage Meshy, lorsqu'ils existent.
+   // On retire le root-motion des pistes de position des hanches pour éviter que le clip
+   // déplace le modèle hors du contrôleur de déplacement du jeu.
    mixer=null;currentAction=null;heroClips={};
-   (g.animations||[]).forEach(clip=>{heroClips[clip.name||'animation']=clip;});
+   (g.animations||[]).forEach((clip,i)=>{heroClips[clip.name||('animation_'+i)]=clip;});
+   if(g.animations&&g.animations.length){
+     mixer=new THREE.AnimationMixer(model);
+     for(const clip of g.animations){
+       for(const track of clip.tracks||[]){
+         if(/\.position$/.test(track.name)&&/hips|pelvis|root/i.test(track.name)){
+           const values=track.values;
+           if(values&&values.length>=3){
+             const x=values[0],y=values[1],z=values[2];
+             for(let j=0;j<values.length;j+=3){values[j]=x;values[j+1]=y;values[j+2]=z;}
+           }
+         }
+       }
+     }
+   }
    // Utilise la position réelle de l'os de la main droite, mais pas sa rotation locale
    // (qui pouvait retourner ou décaler l'épée). L'arme garde ainsi une orientation stable.
    let handBone=null;model.traverse(o=>{if(o.isBone&&/right.?hand|hand.?r$|r.?hand|mixamorig.*right.?hand/i.test(o.name||''))handBone=handBone||o});
@@ -292,11 +308,38 @@ jobs.push(Promise.resolve('arsenal 3D ASTREA chargé depuis le catalogue procéd
  status.textContent='Ville médiévale chargée';hint.textContent='20 maisons • remparts • personnage Meshy prioritaire si importé • animations en attente de stabilisation';
 }
 function playCharacterAnimation(kind){
- // Clips désactivés tant que le root-motion n'est pas corrigé.
- return false;
+ if(!mixer||!visualRoot||!Object.keys(heroClips).length)return false;
+ const names=Object.keys(heroClips);
+ const aliases={
+   idle:/idle|stand|rest|breath|repos/i,
+   walk:/walk|walking|marche/i,
+   run:/run|running|course|sprint/i,
+   jump:/jump|saut/i,
+   attack1:/attack.?1|attack.?a|slash|sword.?1|combo.?1|attaque.?1/i,
+   attack2:/attack.?2|combo.?2|attaque.?2/i,
+   attack3:/attack.?3|combo.?3|attaque.?3/i,
+   dodge:/dodge|roll|esquive/i,
+   death:/death|die|mort/i,
+   wave:/wave|salut/i
+ };
+ const pattern=aliases[kind]||new RegExp(kind,'i');
+ let name=names.find(n=>pattern.test(n));
+ if(!name&&kind==='walk')name=names.find(n=>/run|course/i.test(n));
+ if(!name&&kind==='run')name=names.find(n=>/walk|marche/i.test(n));
+ if(!name&&kind==='attack1')name=names.find(n=>/attack|slash|sword|combo/i.test(n));
+ if(!name&&kind==='idle')name=names.find(n=>/animation/i.test(n));
+ if(!name)return false;
+ const clip=heroClips[name];
+ if(currentAction&&currentAction.getClip()===clip&&currentAction.isRunning())return true;
+ const next=mixer.clipAction(clip);
+ next.reset();next.enabled=true;next.setEffectiveWeight(1);next.setEffectiveTimeScale(1);
+ if(kind==='attack1'||kind==='attack2'||kind==='attack3'||kind==='jump'||kind==='dodge'||kind==='death')next.setLoop(THREE.LoopOnce,1);
+ else next.setLoop(THREE.LoopRepeat,Infinity);
+ if(currentAction&&currentAction!==next)currentAction.crossFadeTo(next,.12,true);
+ next.play();currentAction=next;return true;
 }
-// Les GLB d'attaque externes ciblent des objets séparés, pas les os du héros.
-// Ils ne sont pas appliqués au mauvais squelette en attendant leur retargeting.
+// Les animations externes restent à retargeter : les clips qui n'ont pas de pistes
+// os compatibles avec le rig du personnage ne sont volontairement pas joués dessus.
 
 let selectedWeapon=ASTREA_WEAPONS.find(w=>w.id===savedGame.selectedWeapon)||ASTREA_WEAPONS[0];
 function equipWeapon(id){
@@ -376,7 +419,7 @@ addEventListener('pagehide',saveProgress);addEventListener('blur',saveProgress);
 let dragging=false,lastX=0,lastY=0,cameraPointer=null;renderer.domElement.style.touchAction='none';renderer.domElement.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;dragging=true;cameraPointer=e.pointerId;lastX=e.clientX;lastY=e.clientY;try{renderer.domElement.setPointerCapture(e.pointerId)}catch(_){}});renderer.domElement.addEventListener('pointermove',e=>{if(!dragging||e.pointerId!==cameraPointer)return;const dx=e.clientX-lastX,dy=e.clientY-lastY;yaw+=dx*.008;pitch=Math.max(-.08,Math.min(.72,pitch-dy*.004));lastX=e.clientX;lastY=e.clientY});function stopCameraDrag(e){if(cameraPointer===null||e.pointerId===cameraPointer){dragging=false;cameraPointer=null}}renderer.domElement.addEventListener('pointerup',stopCameraDrag);renderer.domElement.addEventListener('pointercancel',stopCameraDrag);
 const moveAnim={moving:false};
 function frame(){
- requestAnimationFrame(frame);const dt=Math.min(clock.getDelta(),.04);for(let i=0;i<fireFlames.length;i++){const fl=fireFlames[i];fl.scale.y=.82+Math.sin(clock.elapsedTime*8+i*1.7)*.24;fl.rotation.y=clock.elapsedTime*.8+i;}for(const l of fireLights)l.intensity=1.05+Math.sin(clock.elapsedTime*7)*.3;for(const p of ambienceParticles){p.mesh.position.y=p.base.y+Math.sin(clock.elapsedTime*.8+p.phase)*.28;p.mesh.position.x=p.base.x+Math.sin(clock.elapsedTime*.35+p.phase)*.22;}for(const npc of npcGroups){npc.gear.badge.position.y=npc.baseY+Math.sin(clock.elapsedTime*1.4+npc.phase)*.06;npc.gear.weapon.rotation.z=-.25+Math.sin(clock.elapsedTime*1.1+npc.phase)*.035;}attackCooldown=Math.max(0,attackCooldown-dt);specialCooldown=Math.max(0,specialCooldown-dt);enemyAttackTimer=Math.max(0,enemyAttackTimer-dt);if(!enemyDefeated&&Math.hypot(player.position.x-enemy.position.x,player.position.z-enemy.position.z)<2.15&&enemyAttackTimer<=0){enemyAttackTimer=2.1;takeDamage(8);hint.textContent='La cible te frappe : -8 PV !'}let f=0,s=0;
+ requestAnimationFrame(frame);const dt=Math.min(clock.getDelta(),.04);if(mixer)mixer.update(dt);for(let i=0;i<fireFlames.length;i++){const fl=fireFlames[i];fl.scale.y=.82+Math.sin(clock.elapsedTime*8+i*1.7)*.24;fl.rotation.y=clock.elapsedTime*.8+i;}for(const l of fireLights)l.intensity=1.05+Math.sin(clock.elapsedTime*7)*.3;for(const p of ambienceParticles){p.mesh.position.y=p.base.y+Math.sin(clock.elapsedTime*.8+p.phase)*.28;p.mesh.position.x=p.base.x+Math.sin(clock.elapsedTime*.35+p.phase)*.22;}for(const npc of npcGroups){npc.gear.badge.position.y=npc.baseY+Math.sin(clock.elapsedTime*1.4+npc.phase)*.06;npc.gear.weapon.rotation.z=-.25+Math.sin(clock.elapsedTime*1.1+npc.phase)*.035;}attackCooldown=Math.max(0,attackCooldown-dt);specialCooldown=Math.max(0,specialCooldown-dt);enemyAttackTimer=Math.max(0,enemyAttackTimer-dt);if(!enemyDefeated&&Math.hypot(player.position.x-enemy.position.x,player.position.z-enemy.position.z)<2.15&&enemyAttackTimer<=0){enemyAttackTimer=2.1;takeDamage(8);hint.textContent='La cible te frappe : -8 PV !'}let f=0,s=0;
  if(keys.w||keys.z||keys.arrowup||touchMove.forward)f+=1;
  if(keys.s||keys.arrowdown||touchMove.back)f-=1;
  if(keys.d||keys.arrowright||touchMove.right)s+=1;
