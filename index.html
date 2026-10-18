@@ -276,7 +276,7 @@ function tintNPC(model,tint){
    o.castShadow=false;o.receiveShadow=false;
    const partName=String(o.name||'').toLowerCase();
    const tintMaterial=mat=>{
-     const cacheKey=(mat?.uuid||'fallback')+':'+target.getHexString();
+     const cacheKey=(mat?.uuid||'fallback')+':'+target.getHexString()+':'+partName;
      if(npcMaterialVariantCache.has(cacheKey))return npcMaterialVariantCache.get(cacheKey);
      const m=mat&&mat.clone?mat.clone():new THREE.MeshStandardMaterial({color:target,roughness:.82});
      if(!m.color)m.color=new THREE.Color(0xffffff);
@@ -916,6 +916,12 @@ function updateVillageNPCs(dt){
        }
      }
      npc.mixerNPC.update(dt);
+     if(talking&&npc.bones?.length){
+       const talkArm=npc.bones.find(b=>/rightarm|upperarmr|armright/.test(b.name));
+       const talkHead=npc.bones.find(b=>/head/.test(b.name));
+       if(talkArm)talkArm.bone.rotation.z=talkArm.base.z+Math.sin(t*4.5+npc.phase)*.28;
+       if(talkHead)talkHead.bone.rotation.y=talkHead.base.y+Math.sin(t*2+npc.phase)*.07;
+     }
    }else if(npc.bones?.length&&dist<15){
      const wave=Math.sin(t*7+npc.phase);
      for(const b of npc.bones)b.bone.rotation.copy(b.base);
