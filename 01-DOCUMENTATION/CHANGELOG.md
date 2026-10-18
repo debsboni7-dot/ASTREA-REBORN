@@ -45,3 +45,5 @@
 - Population du village portée à 100 instances de PNJ utilisant les GLB masculins présents, avec teintes de tenues, itinéraires locaux, animations intégrées lorsqu'elles existent, mouvement procédural de secours et dialogues amicaux.
 - Ajout du marché, de la forge, de la mairie, du château et du camp d'aventuriers en 3D ; aucun PNJ civil n'attaque le joueur.
 - Distance d'affichage et animation des PNJ limitées autour du joueur pour préserver les performances Android. Contrôle syntaxique automatique réussi ; test visuel et FPS réels encore nécessaires.
+
+- Ajout de textures textiles procédurales légères (motif de tissage) et de couleurs de matériaux pour les vêtements/maillages de PNJ dépourvus de texture, avec cache partagé pour limiter la mémoire GPU.
