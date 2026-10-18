@@ -24,8 +24,8 @@ import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/
 import { ASTREA_WEAPONS, createWeaponModel } from './02-MODELS/weapons/weapon-catalog.js';
 (()=>{
 const status=document.getElementById('status'),hint=document.getElementById('hint');
-const scene=new THREE.Scene();scene.background=new THREE.Color(0x9dc5d0);scene.fog=new THREE.Fog(0x9dc5d0,28,82);
-const camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,150);
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x9dc5d0);scene.fog=new THREE.Fog(0x9dc5d0,42,142);
+const camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,220);
 const renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'low-power'});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.15));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=false;renderer.outputColorSpace=THREE.SRGBColorSpace;document.body.appendChild(renderer.domElement);
 scene.add(new THREE.HemisphereLight(0xdaf3ff,0x53634a,2));
 const sun=new THREE.DirectionalLight(0xffe2b3,2);sun.position.set(-8,15,7);scene.add(sun);
@@ -35,16 +35,42 @@ const loadGLB=(p)=>new Promise((resolve,reject)=>{let settled=false;const timer=
 function box(w,h,d,c,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial({color:c,roughness:.92}));m.position.set(x,y,z);scene.add(m);return m}
 const collisionBoxes=[];function addCollider(x,z,hw,hz,tag='obstacle'){collisionBoxes.push({x,z,hw,hz,tag})}function addHouseColliders(x,z,hw=1.9,hz=1.7,door=false){if(!door){addCollider(x,z,hw,hz,'maison');return}const side=.72,frontZ=z+hz-.12,wall=.18;addCollider(x-hw+wall/2,z,wall/2,hz,'maison');addCollider(x+hw-wall/2,z,wall/2,hz,'maison');addCollider(x,z-hz+wall/2,hw,wall/2,'maison');addCollider(x-(hw-side)/2,frontZ,(hw-side)/2,wall/2,'maison');addCollider(x+(hw-side)/2,frontZ,(hw-side)/2,wall/2,'maison')}
 const groundMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1});
-const ground=new THREE.Mesh(new THREE.PlaneGeometry(150,150),groundMat);ground.rotation.x=-Math.PI/2;ground.position.y=-.06;scene.add(ground);
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(260,260),groundMat);ground.rotation.x=-Math.PI/2;ground.position.y=-.06;scene.add(ground);
 const pathMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1});
-const path=new THREE.Mesh(new THREE.PlaneGeometry(5,80),pathMat);path.rotation.x=-Math.PI/2;path.position.set(0,-.025,-31);scene.add(path);
-const crossRoads=[];for(const z of [-12,-24,-36,-48,-60]){const road=new THREE.Mesh(new THREE.PlaneGeometry(36,2.8),pathMat);road.rotation.x=-Math.PI/2;road.position.set(0,-.022,z);scene.add(road);crossRoads.push(road)}
+const path=new THREE.Mesh(new THREE.PlaneGeometry(5,130),pathMat);path.rotation.x=-Math.PI/2;path.position.set(0,-.025,-54);scene.add(path);
+const crossRoads=[];for(const z of [-12,-24,-36,-48,-60,-72,-84,-96,-108]){const road=new THREE.Mesh(new THREE.PlaneGeometry(36,2.8),pathMat);road.rotation.x=-Math.PI/2;road.position.set(0,-.022,z);scene.add(road);crossRoads.push(road)}
 const plaza=new THREE.Mesh(new THREE.CircleGeometry(7,20),new THREE.MeshStandardMaterial({color:0xb7a58b,roughness:1}));plaza.rotation.x=-Math.PI/2;plaza.position.set(0,-.018,-8);scene.add(plaza);
-const housePlaceholders=[];const cityLots=[{x:-5.5,z:-5},{x:5.5,z:-5},{x:-7.5,z:-17},{x:7.5,z:-17},{x:-7.5,z:-29},{x:7.5,z:-29},{x:-7.5,z:-41},{x:7.5,z:-41},{x:-7.5,z:-53},{x:7.5,z:-53},{x:-7.5,z:-65},{x:7.5,z:-65}];cityLots.forEach((p,i)=>{const hw=i===0?1.9:1.8,hz=i===0?1.7:1.65;housePlaceholders.push(box(3.3,2.6,2.8,0xc8b18b,p.x,1.3,p.z),box(3.7,.35,3.2,0x6d4435,p.x,2.8,p.z),box(.65,1.25,.12,0x553b2b,p.x,.65,p.z+hz));addHouseColliders(p.x,p.z,hw,hz,i===0)});
+const housePlaceholders=[];const cityLots=[{x:-5.5,z:-5},{x:5.5,z:-5},{x:-7.5,z:-17},{x:7.5,z:-17},{x:-7.5,z:-29},{x:7.5,z:-29},{x:-7.5,z:-41},{x:7.5,z:-41},{x:-7.5,z:-53},{x:7.5,z:-53},{x:-7.5,z:-65},{x:7.5,z:-65},{x:-7.5,z:-77},{x:7.5,z:-77},{x:-7.5,z:-89},{x:7.5,z:-89},{x:-7.5,z:-101},{x:7.5,z:-101},{x:-7.5,z:-113},{x:7.5,z:-113}];cityLots.forEach((p,i)=>{const hw=i===0?1.9:1.8,hz=i===0?1.7:1.65;housePlaceholders.push(box(3.3,2.6,2.8,0xc8b18b,p.x,1.3,p.z),box(3.7,.35,3.2,0x6d4435,p.x,2.8,p.z),box(.65,1.25,.12,0x553b2b,p.x,.65,p.z+hz));addHouseColliders(p.x,p.z,hw,hz,i===0)});
 function stall(x,z){box(2.1,.12,1.25,0x795332,x,1.15,z);for(const dx of [-.9,.9])for(const dz of [-.48,.48])box(.13,1.1,.13,0x62432c,x+dx,.55,z+dz);box(2.35,.12,1.5,0x9c4e3e,x,1.8,z);addCollider(x,z,1.15,.85,'étal')}stall(-2.6,-8);stall(2.6,-8);
 const wellRing=new THREE.Mesh(new THREE.CylinderGeometry(.72,.8,.8,10),new THREE.MeshStandardMaterial({color:0x8a8276,roughness:1}));wellRing.position.set(0,.4,-13.5);scene.add(wellRing);addCollider(0,-13.5,.9,.9,'puits');const wellWater=new THREE.Mesh(new THREE.CircleGeometry(.57,12),new THREE.MeshStandardMaterial({color:0x4a9aa5,roughness:.25,metalness:.15}));wellWater.rotation.x=-Math.PI/2;wellWater.position.set(0,.82,-13.5);scene.add(wellWater);
 for(const z of [-18,-30,-42,-54,-66])for(const x of [-15,15]){box(.18,2.1,.18,0x59422e,x,1.05,z);const lamp=new THREE.Mesh(new THREE.OctahedronGeometry(.22),new THREE.MeshStandardMaterial({color:0xf3c96b,emissive:0x6a4310}));lamp.position.set(x,2.25,z);scene.add(lamp);addCollider(x,z,.35,.35,'poteau')}
-for(let i=0;i<22;i++){const side=i%2?1:-1,x=side*(15.8+(i%3)*.5),z=-3-i*3.1;box(.18,1.25,.18,0x60472d,x,.62,z);const crown=new THREE.Mesh(new THREE.ConeGeometry(.8,2.1,5),new THREE.MeshStandardMaterial({color:[0x386b43,0x477b45,0x527e4a][i%3],roughness:1}));crown.position.set(x,2.05,z);scene.add(crown);addCollider(x,z,.55,.55,'arbre')}
+for(let i=0;i<36;i++){const side=i%2?1:-1,x=side*(15.8+(i%3)*.5),z=-3-i*3.1;box(.18,1.25,.18,0x60472d,x,.62,z);const crown=new THREE.Mesh(new THREE.ConeGeometry(.8,2.1,5),new THREE.MeshStandardMaterial({color:[0x386b43,0x477b45,0x527e4a][i%3],roughness:1}));crown.position.set(x,2.05,z);scene.add(crown);addCollider(x,z,.55,.55,'arbre')}
+
+// Remparts, tours et porte fortifiée : limites physiques de la ville.
+const wallMat=new THREE.MeshStandardMaterial({color:0x77766d,roughness:1});
+function cityWall(w,h,d,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),wallMat);m.position.set(x,y,z);scene.add(m);return m}
+for(const side of [-1,1]){
+ cityWall(.75,3.2,120,side*22,1.6,-59);
+ addCollider(side*22,-59,.55,60,'rempart');
+ for(const z of [-2,-32,-62,-92,-118]){
+  const tower=box(2.3,4.2,2.3,0x8b887e,side*22,2.1,z);
+  const roof=new THREE.Mesh(new THREE.ConeGeometry(1.65,1.7,5),new THREE.MeshStandardMaterial({color:0x68483b,roughness:1}));
+  roof.position.set(side*22,5,z);scene.add(roof);addCollider(side*22,z,1.35,1.35,'tour');
+ }
+}
+cityWall(19.5,3.2,.75,-12.25,1.6,2);
+cityWall(19.5,3.2,.75,12.25,1.6,2);
+addCollider(-12.25,2,9.75,.55,'rempart');addCollider(12.25,2,9.75,.55,'rempart');
+cityWall(44,3.2,.75,0,1.6,-119);
+addCollider(0,-119,22,.55,'rempart');
+// Entrée fortifiée dans l'ouverture des remparts.
+for(const x of [-2.45,2.45]){
+ box(.55,4.4,1.05,0x89867b,x,2.2,1.9);
+ const roof=new THREE.Mesh(new THREE.ConeGeometry(.62,.85,4),new THREE.MeshStandardMaterial({color:0x6d4435,roughness:1}));
+ roof.position.set(x,4.8,1.9);scene.add(roof);addCollider(x,1.9,.5,.7,'tour de porte');
+}
+box(4.9,.28,.4,0x68452d,0,4.15,1.9);
+addCollider(0,1.9,2.5,.5,'porte');
 
 const player=new THREE.Group();player.position.set(0,0,2);scene.add(player);const weaponMount=new THREE.Group();weaponMount.position.set(.43,1.03,-.08);player.add(weaponMount);let weaponHandAttached=false;
 let savedCharacter=null;try{savedCharacter=JSON.parse(localStorage.getItem('astrea-character-v1')||'null')?.character||null}catch(e){}
@@ -139,7 +165,7 @@ async function loadPrimaryAssets(){
      });
    }
    // Clips coupés temporairement pour éviter le root-motion qui déplace le modèle hors des collisions.
-   mixer=null;currentAction=null;heroClips={};let hand=null;model.traverse(o=>{if(o.isBone&&/right.?hand|hand.?r$|r.?hand|mixamorig.*right.?hand/i.test(o.name||''))hand=hand||o});if(hand){weaponMount.parent?.remove(weaponMount);hand.add(weaponMount);weaponMount.position.set(0,0,0);weaponMount.rotation.set(0,0,0);weaponHandAttached=true}return 'personnage 3D chargé sans animation instable';
+   mixer=null;currentAction=null;heroClips={};let hand=null;model.traverse(o=>{if(o.isBone&&/right.?hand|hand.?r$|r.?hand|mixamorig.*right.?hand/i.test(o.name||''))hand=hand||o});if(hand){weaponMount.parent?.remove(weaponMount);hand.add(weaponMount);weaponMount.position.set(0,-.035,.045);weaponMount.rotation.set(0,0,0);weaponHandAttached=true}else{player.add(weaponMount);weaponMount.position.set(.38,1.02,-.08);weaponMount.rotation.set(0,0,0);weaponHandAttached=false}return hand?'personnage 3D stable, animations désactivées, arme attachée à la main droite':'personnage 3D stable sans animation; support d’arme de secours actif';
  })().catch(e=>{console.warn('Personnage GLB indisponible',e);return 'personnage provisoire'}));
 jobs.push(Promise.resolve('arsenal 3D ASTREA chargé depuis le catalogue procédural'));
  jobs.push(loadGLB('02-MODELS/buildings/small-house.glb').then(g=>{
@@ -152,7 +178,7 @@ jobs.push(Promise.resolve('arsenal 3D ASTREA chargé depuis le catalogue procéd
    const timer=setTimeout(()=>{console.warn('Délai texture pavage dépassé');resolve('pavage provisoire')},10000);new THREE.TextureLoader().load(asset('03-TEXTURES/terrain/paving-village-1.jpg'),t=>{clearTimeout(timer);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(2,24);pathMat.map=t;pathMat.needsUpdate=true;resolve('pavage')},undefined,e=>{clearTimeout(timer);console.warn('Paving texture indisponible',e);resolve('pavage provisoire')});
  }));
  const result=await Promise.all(jobs);
- status.textContent='Assets chargés';hint.textContent='Actifs : '+result.join(' • ');
+ status.textContent='Ville médiévale chargée';hint.textContent='20 maisons • remparts • porte fortifiée • collisions • animations désactivées pour stabiliser le héros';
 }
 function playCharacterAnimation(kind){
  // Clips désactivés tant que le root-motion n'est pas corrigé.
@@ -163,8 +189,8 @@ function playCharacterAnimation(kind){
 
 let selectedWeapon=ASTREA_WEAPONS.find(w=>w.id===savedGame.selectedWeapon)||ASTREA_WEAPONS[0];
 function equipWeapon(id){
- const next=ASTREA_WEAPONS.find(w=>w.id===id);if(!next)return;selectedWeapon=next;const model=createWeaponModel(THREE,next);model.position.set(0,-.1,0);if(swordVisual.parent)swordVisual.parent.remove(swordVisual);swordVisual=model;weaponMount.add(model);
- const isSword=['sword','katana','greatsword','sun','abyss','divine','cosmic','chaos','hakai','shin'].includes(next.type);if(isSword){const swordPath=(next.type==='sword'||next.type==='katana')?'02-MODELS/weapons/sword-meshy.glb':'02-MODELS/weapons/converted/divine-red-sword-4643.glb';loadGLB(swordPath).then(g=>{if(selectedWeapon.id!==next.id)return;const actual=g.scene;normalizeModel(actual,next.type==='greatsword'?1.55:1.25);actual.position.y-=.03;if(swordVisual.parent)swordVisual.parent.remove(swordVisual);swordVisual=actual;weaponMount.add(actual)}).catch(e=>console.warn('Modèle Meshy indisponible, secours conservé',e))}
+ const next=ASTREA_WEAPONS.find(w=>w.id===id);if(!next)return;selectedWeapon=next;const model=createWeaponModel(THREE,next);model.position.set(0,-.1,0);model.rotation.set(0,0,0);if(swordVisual.parent)swordVisual.parent.remove(swordVisual);swordVisual=model;weaponMount.add(model);
+ const isSword=['sword','katana','greatsword','sun','abyss','divine','cosmic','chaos','hakai','shin'].includes(next.type);if(isSword){const swordPath=(next.type==='sword'||next.type==='katana')?'02-MODELS/weapons/sword-meshy.glb':'02-MODELS/weapons/converted/divine-red-sword-4643.glb';loadGLB(swordPath).then(g=>{if(selectedWeapon.id!==next.id)return;const actual=g.scene;normalizeModel(actual,next.type==='greatsword'?1.55:1.25);actual.position.set(0,-.035,.025);actual.rotation.set(0,0,0);if(swordVisual.parent)swordVisual.parent.remove(swordVisual);swordVisual=actual;weaponMount.add(actual)}).catch(e=>console.warn('Modèle Meshy indisponible, secours conservé',e))}
  const info=document.getElementById('weaponInfo');
  if(info)info.innerHTML='<strong>'+next.name+'</strong><br>Niveau unique : '+next.level+' — Rang '+next.rank+'<br>Dégâts : '+next.damage+' • Portée : '+next.reach+'<br>Vitesse : '+next.speed.toFixed(2)+' • Technique : '+next.skill;
  const select=document.getElementById('weaponSelect');if(select)select.value=next.id;
@@ -236,7 +262,7 @@ document.getElementById('jump').addEventListener('pointerdown',e=>{e.preventDefa
 document.getElementById('attack').addEventListener('pointerdown',async e=>{e.preventDefault();if(attackCooldown>0)return;attackCooldown=.62/selectedWeapon.speed;attackTimer=.3/selectedWeapon.speed;attackCombo=attackCombo%3+1;attackStyle=selectedWeapon.type;swordVisual.rotation.z=(selectedWeapon.type==='bow'||selectedWeapon.type==='crossbow')?.55:(attackCombo===1?-1.05:attackCombo===2?1.15:-1.65);swordVisual.rotation.x=['spear','celestial','trident','scythe'].includes(attackStyle)?-.65:attackCombo===2?.35:0;swordVisual.rotation.y=attackCombo===3?.6:0;/* Chaque arme utilise ses propres dégâts, sa portée et son rythme. */if(!enemyDefeated&&Math.hypot(player.position.x-enemy.position.x,player.position.z-enemy.position.z)<selectedWeapon.reach){enemyHP=Math.max(0,enemyHP-selectedWeapon.damage);enemyStatus.textContent='Cible : '+enemyHP+' PV';enemyBody.material.color.set(enemyHP===0?0x555555:0x9c493d);if(enemyHP===0){enemyDefeated=true;enemy.visible=false;enemyStatus.textContent='Cible vaincue';questStatus.textContent='Quête terminée ! Récompense : 100 XP';hint.textContent='Bravo ! Première quête terminée.'}else{questStatus.textContent='Touché ! Continue le combo.'}saveProgress()}else if(!enemyDefeated){questStatus.textContent='Trop loin : rapproche-toi ou équipe une arme à distance.'}});
 document.getElementById('specialAttack').addEventListener('pointerdown',e=>{e.preventDefault();if(specialCooldown>0){hint.textContent='Technique en recharge : '+specialCooldown.toFixed(1)+' s';return}specialCooldown=6;attackStyle=selectedWeapon.type;attackTimer=.55;swordVisual.rotation.z=-2.1;swordVisual.rotation.x=.8;swordVisual.rotation.y=1.1;hint.textContent='Technique spéciale : '+selectedWeapon.skill+' !';if(!enemyDefeated&&Math.hypot(player.position.x-enemy.position.x,player.position.z-enemy.position.z)<selectedWeapon.reach+1){const damage=Math.round(selectedWeapon.damage*1.8);enemyHP=Math.max(0,enemyHP-damage);enemyStatus.textContent='Cible : '+enemyHP+' PV';enemyBody.material.color.set(enemyHP===0?0x555555:0x9c493d);if(enemyHP===0){enemyDefeated=true;enemy.visible=false;enemyStatus.textContent='Cible vaincue';questStatus.textContent='Quête terminée ! Récompense : 100 XP';hint.textContent=selectedWeapon.skill+' : cible vaincue !'}else questStatus.textContent=selectedWeapon.skill+' : -'+damage+' PV !';saveProgress()}else if(!enemyDefeated)questStatus.textContent='Trop loin pour '+selectedWeapon.skill+'.'});
 addEventListener('pagehide',saveProgress);addEventListener('blur',saveProgress);
-let dragging=false,lastX=0,lastY=0,cameraPointer=null;renderer.domElement.style.touchAction='none';renderer.domElement.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;dragging=true;cameraPointer=e.pointerId;lastX=e.clientX;lastY=e.clientY;try{renderer.domElement.setPointerCapture(e.pointerId)}catch(_){}});renderer.domElement.addEventListener('pointermove',e=>{if(!dragging||e.pointerId!==cameraPointer)return;const dx=e.clientX-lastX,dy=e.clientY-lastY;yaw+=dx*.006;pitch=Math.max(-.08,Math.min(.72,pitch+dy*.003));lastX=e.clientX;lastY=e.clientY});function stopCameraDrag(e){if(cameraPointer===null||e.pointerId===cameraPointer){dragging=false;cameraPointer=null}}renderer.domElement.addEventListener('pointerup',stopCameraDrag);renderer.domElement.addEventListener('pointercancel',stopCameraDrag);
+let dragging=false,lastX=0,lastY=0,cameraPointer=null;renderer.domElement.style.touchAction='none';renderer.domElement.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;dragging=true;cameraPointer=e.pointerId;lastX=e.clientX;lastY=e.clientY;try{renderer.domElement.setPointerCapture(e.pointerId)}catch(_){}});renderer.domElement.addEventListener('pointermove',e=>{if(!dragging||e.pointerId!==cameraPointer)return;const dx=e.clientX-lastX,dy=e.clientY-lastY;yaw+=dx*.008;pitch=Math.max(-.08,Math.min(.72,pitch-dy*.004));lastX=e.clientX;lastY=e.clientY});function stopCameraDrag(e){if(cameraPointer===null||e.pointerId===cameraPointer){dragging=false;cameraPointer=null}}renderer.domElement.addEventListener('pointerup',stopCameraDrag);renderer.domElement.addEventListener('pointercancel',stopCameraDrag);
 const moveAnim={moving:false};
 function frame(){
  requestAnimationFrame(frame);const dt=Math.min(clock.getDelta(),.04);attackCooldown=Math.max(0,attackCooldown-dt);specialCooldown=Math.max(0,specialCooldown-dt);enemyAttackTimer=Math.max(0,enemyAttackTimer-dt);if(!enemyDefeated&&Math.hypot(player.position.x-enemy.position.x,player.position.z-enemy.position.z)<2.15&&enemyAttackTimer<=0){enemyAttackTimer=2.1;takeDamage(8);hint.textContent='La cible te frappe : -8 PV !'}let f=0,s=0;
@@ -247,7 +273,7 @@ function frame(){
  const moving=!!(f||s);
  if(moving!==moveAnim.moving){moveAnim.moving=moving;if(loadedHero)playCharacterAnimation(moving?'walk':'idle')}
  const len=Math.hypot(f,s)||1;f/=len;s/=len;const speed=4.2*dt;
- const dx=(-Math.sin(yaw)*f+Math.cos(yaw)*s)*speed;const dz=(-Math.cos(yaw)*f-Math.sin(yaw)*s)*speed;if(!insideHouse){const radius=.38;const blocked=(x,z)=>collisionBoxes.some(b=>x+radius>b.x-b.hw&&x-radius<b.x+b.hw&&z+radius>b.z-b.hz&&z-radius<b.z+b.hz);const nx=Math.max(-18,Math.min(18,player.position.x+dx));if(!blocked(nx,player.position.z))player.position.x=nx;const nz=Math.max(-70,Math.min(8,player.position.z+dz));if(!blocked(player.position.x,nz))player.position.z=nz;for(const obj of [guide,enemy]){if(!obj.visible)continue;const ox=player.position.x-obj.position.x,oz=player.position.z-obj.position.z,d=Math.hypot(ox,oz);if(d<.85){player.position.x=obj.position.x+(ox/(d||1))*.85;player.position.z=obj.position.z+(oz/(d||1))*.85}}}else{player.position.x=Math.max(9.1,Math.min(14.9,player.position.x+dx));player.position.z=Math.max(-12.2,Math.min(-7.8,player.position.z+dz))}if(moving)player.rotation.y=Math.atan2(dx,dz);
+ const dx=(-Math.sin(yaw)*f+Math.cos(yaw)*s)*speed;const dz=(-Math.cos(yaw)*f-Math.sin(yaw)*s)*speed;if(!insideHouse){const radius=.46;const blocked=(x,z)=>collisionBoxes.some(b=>x+radius>b.x-b.hw&&x-radius<b.x+b.hw&&z+radius>b.z-b.hz&&z-radius<b.z+b.hz);const nx=Math.max(-21,Math.min(21,player.position.x+dx));if(!blocked(nx,player.position.z))player.position.x=nx;const nz=Math.max(-117,Math.min(1,player.position.z+dz));if(!blocked(player.position.x,nz))player.position.z=nz;for(const obj of [guide,enemy]){if(!obj.visible)continue;const ox=player.position.x-obj.position.x,oz=player.position.z-obj.position.z,d=Math.hypot(ox,oz);if(d<.85){player.position.x=obj.position.x+(ox/(d||1))*.85;player.position.z=obj.position.z+(oz/(d||1))*.85}}}else{player.position.x=Math.max(9.1,Math.min(14.9,player.position.x+dx));player.position.z=Math.max(-12.2,Math.min(-7.8,player.position.z+dz))}if(moving)player.rotation.y=Math.atan2(-dx,-dz);
  vy-=14*dt;player.position.y+=vy*dt;if(player.position.y<=0){player.position.y=0;vy=0;onGround=true}
  if(attackTimer>0){attackTimer-=dt;if(attackTimer<=0){swordVisual.rotation.z=0;swordVisual.rotation.x=0;swordVisual.rotation.y=0}}
  
