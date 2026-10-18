@@ -98,7 +98,8 @@ export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes }) 
   function buildZone(id){
     const r=regions.find(x=>x.id===id),g=new THREE.Group();g.userData.astreaZone=id;scene.add(g);
     const mat=(color,roughness=.95)=>new THREE.MeshStandardMaterial({color,roughness});
-    const ocean=new THREE.Mesh(new THREE.PlaneGeometry(320,320),new THREE.MeshStandardMaterial({color:0x1d6388,roughness:.32,metalness:.12}));ocean.rotation.x=-Math.PI/2;ocean.position.y=-.22;g.add(ocean);\n    const floor=new THREE.Mesh(new THREE.PlaneGeometry(90,90),mat(r.color));floor.rotation.x=-Math.PI/2;floor.position.y=-.06;g.add(floor);
+    const ocean=new THREE.Mesh(new THREE.PlaneGeometry(320,320),new THREE.MeshStandardMaterial({color:0x1d6388,roughness:.32,metalness:.12}));ocean.rotation.x=-Math.PI/2;ocean.position.y=-.22;g.add(ocean);
+    const floor=new THREE.Mesh(new THREE.PlaneGeometry(90,90),mat(r.color));floor.rotation.x=-Math.PI/2;floor.position.y=-.06;g.add(floor);
     const rng=(n)=>{let x=Math.sin(n*127.1+(id.length*17))*43758.5453;return x-Math.floor(x)};
     for(let i=0;i<44;i++){
       const x=(rng(i+2)-.5)*82,z=(rng(i+100)-.5)*82;if(Math.abs(x)<5&&Math.abs(z)<7)continue;
