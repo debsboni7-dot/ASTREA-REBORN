@@ -169,20 +169,6 @@ const MAX_PLAYER_HP=100;let playerHP=100,enemyAttackTimer=0;
 const healthText=document.getElementById('healthText'),healthFill=document.getElementById('healthFill');
 function renderHealth(){playerHP=Math.max(0,Math.min(MAX_PLAYER_HP,playerHP));healthText.textContent=playerHP+' / '+MAX_PLAYER_HP;healthFill.style.width=playerHP+'%';healthFill.style.background=playerHP<=25?'#e44b4b':playerHP<=55?'#e5b544':'#4fc879'}
 let yaw=0,pitch=.22,vy=0,onGround=true,attackTimer=0,attackCooldown=0,specialCooldown=0,attackCombo=0,attackStyle='sword',mixer=null,currentAction=null,heroClips={},animationCache={};
-// PNJ-guide provisoire : formes légères, sans fichier externe ni animation.
-const guide=new THREE.Group();guide.position.set(-1.2,0,0.8);scene.add(guide);
-const guideRobe=new THREE.Mesh(new THREE.CapsuleGeometry(.34,.82,3,6),new THREE.MeshStandardMaterial({color:0x356d62,roughness:.9}));guideRobe.position.y=.92;guide.add(guideRobe);
-const guideHead=new THREE.Mesh(new THREE.SphereGeometry(.25,8,6),new THREE.MeshStandardMaterial({color:0xb98260,roughness:.9}));guideHead.position.y=1.68;guide.add(guideHead);
-const guideHair=new THREE.Mesh(new THREE.SphereGeometry(.26,8,5),new THREE.MeshStandardMaterial({color:0x30251f,roughness:1}));guideHair.scale.y=.55;guideHair.position.y=1.85;guide.add(guideHair);
-const guideMarker=new THREE.Mesh(new THREE.OctahedronGeometry(.16,0),new THREE.MeshStandardMaterial({color:0xf2ce74,emissive:0x60410c}));guideMarker.position.y=2.2;guide.add(guideMarker);
-const enemy=new THREE.Group();enemy.position.set(1.8,0,-4.5);scene.add(enemy);
-const enemyBody=new THREE.Mesh(new THREE.CapsuleGeometry(.38,.82,3,6),new THREE.MeshStandardMaterial({color:0x9c493d,roughness:.85}));enemyBody.position.y=1.0;enemy.add(enemyBody);
-const enemyHead=new THREE.Mesh(new THREE.SphereGeometry(.27,8,6),new THREE.MeshStandardMaterial({color:0xb77c61,roughness:.9}));enemyHead.position.y=1.78;enemy.add(enemyHead);
-const enemyRing=new THREE.Mesh(new THREE.TorusGeometry(.62,.055,6,20),new THREE.MeshStandardMaterial({color:0xe7b55d,emissive:0x3d2100}));enemyRing.rotation.x=Math.PI/2;enemyRing.position.y=.08;enemy.add(enemyRing);
-let enemyHP=100,enemyDefeated=false;const dialogue=document.getElementById('dialogue'),dialogueText=document.getElementById('dialogueText');const enemyStatus=document.getElementById("enemyStatus"),questStatus=document.getElementById("questStatus");
-const MAX_PLAYER_HP=100;let playerHP=100,enemyAttackTimer=0;
-const healthText=document.getElementById('healthText'),healthFill=document.getElementById('healthFill');
-function renderHealth(){playerHP=Math.max(0,Math.min(MAX_PLAYER_HP,playerHP));healthText.textContent=playerHP+' / '+MAX_PLAYER_HP;healthFill.style.width=playerHP+'%';healthFill.style.background=playerHP<=25?'#e44b4b':playerHP<=55?'#e5b544':'#4fc879'}
 function takeDamage(amount){playerHP=Math.max(0,playerHP-amount);renderHealth();if(playerHP<=0){playerHP=50;player.position.set(0,0,2);hint.textContent='K.-O. ! Tu reprends tes esprits avec 50 PV.';questStatus.textContent='Retour au point de départ : soigne-toi et esquive.';renderHealth()}saveProgress()}
 function usePotion(){if((inventory['Potion de soin']||0)<=0){hint.textContent='Tu n’as aucune potion de soin.';return}if(playerHP>=MAX_PLAYER_HP){hint.textContent='Tes PV sont déjà au maximum.';return}inventory['Potion de soin']--;playerHP=Math.min(MAX_PLAYER_HP,playerHP+35);renderInventory();renderHealth();hint.textContent='Potion utilisée : +35 PV.';saveProgress()}
 let savedGame={};try{savedGame=JSON.parse(localStorage.getItem('astrea-save-v1')||'{}')||{}}catch(e){}
