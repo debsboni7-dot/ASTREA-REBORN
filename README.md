@@ -9,6 +9,7 @@ Les clips réellement intégrés au personnage sont détectés automatiquement. 
 
 ## Fichiers ajoutés par l'utilisateur — conservés et classés
 - [Inventaire des ajouts et extractions](./01-DOCUMENTATION/ASSETS-UTILISATEUR.md)
+- [Audit des modèles de personnages et nettoyage des placeholders](./01-DOCUMENTATION/AUDIT-MODELES-PERSONNAGES.md)
 - [Épée divine : sources FBX, textures PBR et GLB optimisés](./02-MODELS/weapons/README.md)
 - [Packs de textures classés par domaine](./03-TEXTURES/README.md)
 - [Prototypes historiques conservés](./10-PROTOTYPES/README.md)
