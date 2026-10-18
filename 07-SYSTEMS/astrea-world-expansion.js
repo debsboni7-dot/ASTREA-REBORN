@@ -1,7 +1,7 @@
 // ASTREA REBORN — systèmes monde v1
 // Monnaie, continents, voyages maritimes, royaumes et créatures.
 // Les créatures procédurales sont provisoires et seront remplacées par les GLB finaux.
-export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes, equipWeapon, addItem }) {
+export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes, equipWeapon, addItem, renderer }) {
   const SAVE_KEY = 'astrea-world-save-v1';
   const regions = [
     { id:'village', name:'Village d’Astrea', biome:'Plaine verdoyante', color:0x6b9b52, sky:0x9dc5d0, price:0, bounds:{minX:-21,maxX:21,minZ:-117,maxZ:1}, description:'Ton point de départ : la grande ville médiévale.' },
@@ -244,15 +244,15 @@ export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes, eq
   }
   function hitFromPlayer(damage,reach){
     if(currentRegion.id==='village')return false;
-    let nearest=null,nearestDistance=Infinity;
+    let nearest=null,nearestId=null,nearestDistance=Infinity;
     for(const id of ['dragon','mammoth']){
       const c=creatureState[id];if(!c||c.region!==currentRegion.id||c.hp<=0||!c.root||!c.root.visible)continue;
       const distance=Math.hypot(player.position.x-c.root.getWorldPosition(new THREE.Vector3()).x,player.position.z-c.root.getWorldPosition(new THREE.Vector3()).z);
-      if(distance<nearestDistance){nearest=c;nearestDistance=distance}
+      if(distance<nearestDistance){nearest=c;nearestId=id;nearestDistance=distance}
     }
     if(!nearest)return false;
     if(nearestDistance>Math.max(2,reach+1.0)){hint.textContent='Approche-toi de la créature pour la toucher.';return true}
-    applyCreatureDamage(damage,damage);renderPanel();return true;
+    applyCreatureDamage(nearestId,damage);renderPanel();return true;
   }
   window.ASTREA_BOUNDS=currentRegion.bounds;
   if(currentRegion.id!=='village'){setZone(currentRegion.id);player.position.set(0,0,5);window.ASTREA_BOUNDS=currentRegion.bounds;scene.background=new THREE.Color(currentRegion.sky);scene.fog=new THREE.Fog(currentRegion.sky,65,185);if(collisionBoxes)collisionBoxes.forEach(c=>c.active=false)}
