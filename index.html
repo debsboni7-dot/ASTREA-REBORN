@@ -36,7 +36,51 @@ const loader=new GLTFLoader(),fbxLoader=new FBXLoader(),clock=new THREE.Clock();
 const asset=(p)=>new URL(p,document.baseURI).href;
 const loadGLB=(p)=>new Promise((resolve,reject)=>{let settled=false;const timer=setTimeout(()=>{if(!settled){settled=true;reject(new Error('Délai dépassé : '+p))}},15000);loader.load(asset(p),g=>{if(!settled){settled=true;clearTimeout(timer);resolve(g)}},undefined,e=>{if(!settled){settled=true;clearTimeout(timer);reject(e)}})});
 const loadFBX=(p)=>new Promise((resolve,reject)=>{let settled=false;const timer=setTimeout(()=>{if(!settled){settled=true;reject(new Error('Délai FBX dépassé : '+p))}},20000);fbxLoader.load(asset(p),o=>{if(!settled){settled=true;clearTimeout(timer);resolve(o)}},undefined,e=>{if(!settled){settled=true;clearTimeout(timer);reject(e)}})});
-async function loadPrimaryCharacter(){try{const fbx=await loadFBX('02-MODELS/characters/astrea-meshy/Meshy_AI_Un_personnage_homme_a_biped_Character_output.fbx');return {scene:fbx,animations:fbx.animations||[],source:'Meshy FBX'};}catch(e){console.warn('Personnage Meshy FBX non disponible, repli sur hero.glb',e);const glb=await loadGLB('02-MODELS/characters/hero.glb');return {...glb,source:'hero.glb'};}}
+async function loadPrimaryCharacter(){
+ // Le dépôt conserve le ZIP original : on extrait le FBX et ses textures en mémoire.
+ try{
+  const zipUrl=asset('02-MODELS/characters/astrea-meshy-character-upload.zip');
+  const zipResponse=await fetch(zipUrl);
+  if(!zipResponse.ok)throw new Error('Archive personnage introuvable ('+zipResponse.status+')');
+  const JSZipModule=await import('https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm');
+  const JSZip=JSZipModule.default||JSZipModule;
+  const zip=await JSZip.loadAsync(await zipResponse.arrayBuffer());
+  const fbxEntries=Object.values(zip.files).filter(f=>!f.dir&&/\\.fbx$/i.test(f.name));
+  if(!fbxEntries.length)throw new Error('Aucun fichier FBX trouvé dans l’archive Meshy');
+  fbxEntries.sort((a,b)=>Number(/character_output/i.test(b.name))-Number(/character_output/i.test(a.name)));
+  const fbxEntry=fbxEntries[0];
+  const blobUrls=new Map();
+  const files=Object.values(zip.files).filter(f=>!f.dir);
+  for(const file of files){
+   const ext=file.name.split('.').pop().toLowerCase();
+   if(['png','jpg','jpeg','webp','tga','bmp'].includes(ext)){
+    const blob=await file.async('blob');
+    const mime=ext==='jpg'||ext==='jpeg'?'image/jpeg':ext==='webp'?'image/webp':ext==='png'?'image/png':'application/octet-stream';
+    blobUrls.set(file.name,new URL(URL.createObjectURL(new Blob([blob],{type:mime}))));
+    blobUrls.set(file.name.split('/').pop(),blobUrls.get(file.name));
+   }
+  }
+  const manager=new THREE.LoadingManager();
+  manager.setURLModifier((url)=>{
+   let decoded=url;try{decoded=decodeURIComponent(url)}catch(e){}
+   const base=decoded.split(/[\\/]/).pop().replace(/^.*?=/,'');
+   for(const [name,blobUrl] of blobUrls){if(name===decoded||name.split('/').pop()===base)return blobUrl.href}
+   return url;
+  });
+  const loaderForZip=new FBXLoader(manager);
+  const fbxBlob=await fbxEntry.async('blob');
+  const fbxUrl=URL.createObjectURL(fbxBlob);
+  const model=await new Promise((resolve,reject)=>loaderForZip.load(fbxUrl,resolve,undefined,reject));
+  URL.revokeObjectURL(fbxUrl);
+  model.userData.astreaSource='Meshy ZIP';
+  model.userData.astreaArchiveFiles=files.length;
+  return {scene:model,animations:model.animations||[],source:'Meshy FBX + textures'};
+ }catch(e){
+  console.warn('Chargement du personnage Meshy depuis le ZIP impossible, repli sur hero.glb',e);
+  const glb=await loadGLB('02-MODELS/characters/hero.glb');
+  return {...glb,source:'hero.glb (repli)'};
+ }
+}
 function box(w,h,d,c,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial({color:c,roughness:.92}));m.position.set(x,y,z);scene.add(m);return m}
 const collisionBoxes=[];function addCollider(x,z,hw,hz,tag='obstacle'){const collider={x,z,hw,hz,tag,active:true};collisionBoxes.push(collider);return collider}function addHouseColliders(x,z,hw=1.9,hz=1.7,door=false){if(!door){addCollider(x,z,hw,hz,'maison');return}const side=.72,frontZ=z+hz-.12,wall=.18;addCollider(x-hw+wall/2,z,wall/2,hz,'maison');addCollider(x+hw-wall/2,z,wall/2,hz,'maison');addCollider(x,z-hz+wall/2,hw,wall/2,'maison');addCollider(x-(hw-side)/2,frontZ,(hw-side)/2,wall/2,'maison');addCollider(x+(hw-side)/2,frontZ,(hw-side)/2,wall/2,'maison')}
 const groundMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1});
