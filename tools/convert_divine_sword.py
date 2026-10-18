@@ -62,6 +62,18 @@ metal_img = load_image(choose_map("metal"))
 rough_img = load_image(choose_map("rough"))
 normal_img = load_image(choose_map("normal"))
 
+# Mobile-first texture budget: keep source PNGs untouched in the repository,
+# but downscale embedded copies for the in-game GLB files.
+for image in (base_img, metal_img, rough_img, normal_img):
+    if image is None:
+        continue
+    width, height = int(image.size[0]), int(image.size[1])
+    largest = max(width, height)
+    if largest > 1024:
+        factor = 1024.0 / largest
+        image.scale(max(1, int(width * factor)), max(1, int(height * factor)))
+        log(f"Resized embedded texture {image.name}: {width}x{height} -> {image.size[0]}x{image.size[1]}")
+
 for obj in mesh_objects:
     for slot in obj.material_slots:
         mat = slot.material
