@@ -20,7 +20,7 @@ Valider le premier prototype jouable sur Chrome Android avant d'ajouter plus de 
 
 ## Résultats à vérifier
 - [ ] La scène s'affiche sans écran noir.
-- [ ] Le personnage Meshy réel se charge ; si son archive échoue, le GLB riggé `hero.glb` sert de secours. Aucune silhouette primitive ne doit apparaître.
+- [ ] Le personnage masculin de Kimi se charge en priorité ; si sa source échoue, le chargeur essaie l’archive Meshy texturée et riggée. Le `hero.glb` local n’est pas utilisé comme héros contrôlable. Aucune silhouette primitive ne doit apparaître.
 - [ ] Le chemin et le terrain affichent leurs textures.
 - [ ] Les boutons tactiles COMBO, ULTIME et ULTIME+ répondent ; les séquences se terminent sans bloquer les commandes.
 - [ ] Le personnage principal chargé depuis l'archive Meshy est visible, texturé et contrôlable.
