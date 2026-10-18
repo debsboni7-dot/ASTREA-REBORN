@@ -28,7 +28,7 @@ scene.add(new THREE.HemisphereLight(0xdaf3ff,0x53634a,2));
 const sun=new THREE.DirectionalLight(0xffe2b3,2);sun.position.set(-8,15,7);scene.add(sun);
 const loader=new GLTFLoader(),clock=new THREE.Clock();
 const asset=(p)=>new URL(p,document.baseURI).href;
-const loadGLB=(p)=>new Promise((resolve,reject)=>loader.load(asset(p),g=>resolve(g),undefined,reject));
+const loadGLB=(p)=>new Promise((resolve,reject)=>{let settled=false;const timer=setTimeout(()=>{if(!settled){settled=true;reject(new Error('Délai dépassé : '+p))}},15000);loader.load(asset(p),g=>{if(!settled){settled=true;clearTimeout(timer);resolve(g)}},undefined,e=>{if(!settled){settled=true;clearTimeout(timer);reject(e)}})});
 function box(w,h,d,c,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial({color:c,roughness:.92}));m.position.set(x,y,z);scene.add(m);return m}
 const groundMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1});
 const ground=new THREE.Mesh(new THREE.PlaneGeometry(150,150),groundMat);ground.rotation.x=-Math.PI/2;ground.position.y=-.06;scene.add(ground);
@@ -143,10 +143,10 @@ jobs.push(Promise.resolve('arsenal 3D ASTREA chargé depuis le catalogue procéd
    loadedHouse=true;return 'maisons';
  }).catch(e=>{console.warn('House GLB indisponible',e);return 'maisons provisoires'}));
  jobs.push(new Promise(resolve=>{
-   new THREE.TextureLoader().load(asset('03-TEXTURES/terrain/grass-1.jpg'),t=>{t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(32,32);groundMat.map=t;groundMat.needsUpdate=true;resolve('texture herbe')},undefined,e=>{console.warn('Grass texture indisponible',e);resolve('herbe provisoire')});
+   const timer=setTimeout(()=>{console.warn('Délai texture herbe dépassé');resolve('herbe provisoire')},10000);new THREE.TextureLoader().load(asset('03-TEXTURES/terrain/grass-1.jpg'),t=>{clearTimeout(timer);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(32,32);groundMat.map=t;groundMat.needsUpdate=true;resolve('texture herbe')},undefined,e=>{clearTimeout(timer);console.warn('Grass texture indisponible',e);resolve('herbe provisoire')});
  }));
  jobs.push(new Promise(resolve=>{
-   new THREE.TextureLoader().load(asset('03-TEXTURES/terrain/paving-village-1.jpg'),t=>{t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(2,24);pathMat.map=t;pathMat.needsUpdate=true;resolve('pavage')},undefined,e=>{console.warn('Paving texture indisponible',e);resolve('pavage provisoire')});
+   const timer=setTimeout(()=>{console.warn('Délai texture pavage dépassé');resolve('pavage provisoire')},10000);new THREE.TextureLoader().load(asset('03-TEXTURES/terrain/paving-village-1.jpg'),t=>{clearTimeout(timer);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(2,24);pathMat.map=t;pathMat.needsUpdate=true;resolve('pavage')},undefined,e=>{clearTimeout(timer);console.warn('Paving texture indisponible',e);resolve('pavage provisoire')});
  }));
  const result=await Promise.all(jobs);
  status.textContent='Assets chargés';hint.textContent='Actifs : '+result.join(' • ');
