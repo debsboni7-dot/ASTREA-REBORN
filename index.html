@@ -91,7 +91,8 @@ async function loadPrimaryAssets(){
        }
      });
    }
-   if(g.animations?.length){mixer=new THREE.AnimationMixer(model);const a=mixer.clipAction(g.animations[0]);a.play();currentAction=a}
+   mixer=new THREE.AnimationMixer(model);
+   if(g.animations?.length){const a=mixer.clipAction(g.animations[0]);a.play();currentAction=a}
    return savedCharacter?'personnage personnalisé ('+(savedCharacter.gender==='female'?'féminin':'masculin')+')':'personnage Meshy';
  })().catch(e=>{console.warn('Personnage GLB indisponible',e);return 'personnage provisoire'}));
 jobs.push((async()=>{
