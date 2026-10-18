@@ -1,0 +1,52 @@
+name: Importer les textures animees ASTREA
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "textures_animees.zip"
+
+permissions:
+  contents: write
+
+jobs:
+  import-textures:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extraire et classer les textures animees
+        shell: bash
+        run: |
+          set -euo pipefail
+          ZIP="textures_animees.zip"
+          test -f "$ZIP"
+          python3 - <<'PY'
+          from pathlib import Path
+          import zipfile, shutil
+          z=zipfile.ZipFile('textures_animees.zip')
+          root=Path('.')
+          mapping={
+            'ciel.gif':'03-TEXTURES/environment/animated-sky.gif',
+            'ciel_spritesheet_8x4.png':'03-TEXTURES/environment/sky-spritesheet-8x4.png',
+            'eau.gif':'03-TEXTURES/environment/animated-water.gif',
+            'eau_spritesheet_8x4.png':'03-TEXTURES/environment/water-spritesheet-8x4.png',
+            'herbe_plaines.gif':'03-TEXTURES/vegetation/animated-plains-grass.gif',
+            'herbe_plaines_spritesheet_8x4.png':'03-TEXTURES/vegetation/plains-grass-spritesheet-8x4.png',
+            'verre.gif':'03-TEXTURES/effects/animated-glass.gif',
+            'verre_spritesheet_8x4.png':'03-TEXTURES/effects/glass-spritesheet-8x4.png',
+          }
+          for name,dest in mapping.items():
+            matches=[i for i in z.infolist() if Path(i.filename).name==name]
+            if matches:
+              out=root/dest; out.parent.mkdir(parents=True,exist_ok=True)
+              with z.open(matches[0]) as src, out.open('wb') as dst: shutil.copyfileobj(src,dst)
+          print('Textures animées copiées dans 03-TEXTURES/.')
+          PY
+          rm -f "$ZIP"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add 03-TEXTURES
+          if ! git diff --cached --quiet; then
+            git commit -m "Importer les textures animées du ciel, de l'eau, de l'herbe et du verre"
+            git push
+          fi
