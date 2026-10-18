@@ -27,15 +27,38 @@ import { ASTREA_WEAPONS, createWeaponModel } from './02-MODELS/weapons/weapon-ca
 import { initAstreaWorld } from './07-SYSTEMS/astrea-world-expansion.js';
 (()=>{
 const status=document.getElementById('status'),hint=document.getElementById('hint');
-const scene=new THREE.Scene();scene.background=new THREE.Color(0x9dc5d0);scene.fog=new THREE.Fog(0x9dc5d0,42,142);
+const scene=new THREE.Scene();
+// Palette fantasy cinématographique : ciel doux, brume distante et soleil doré.
+scene.background=new THREE.Color(0xb8d3dc);
+scene.fog=new THREE.Fog(0xb8d3dc,38,132);
 const camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,220);
-const renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'low-power'});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.15));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;document.body.appendChild(renderer.domElement);
-// Éclairage fantasy réaliste, réglé pour les téléphones modestes : lumière du ciel, soleil chaud et contraste doux.
-scene.add(new THREE.HemisphereLight(0xdaf0ff,0x62513b,1.45));
-scene.add(new THREE.AmbientLight(0xffffff,0.22));
-const sun=new THREE.DirectionalLight(0xffdfad,2.65);sun.position.set(-8,15,7);scene.add(sun);
-// Lumières locales chaudes autour de la place : pas d'ombres coûteuses ni de post-traitement lourd.
-const villageLights=[];for(const p of [{x:-6,y:2.2,z:-7},{x:6,y:2.2,z:-7},{x:-2.6,y:2.4,z:-13.5},{x:2.6,y:2.4,z:-13.5}]){const glow=new THREE.PointLight(0xffb95c,1.15,7,2);glow.position.set(p.x,p.y,p.z);scene.add(glow);villageLights.push(glow)}
+const renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'low-power'});
+renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.15));
+renderer.setSize(innerWidth,innerHeight);
+renderer.shadowMap.enabled=false;
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.12;
+document.body.appendChild(renderer.domElement);
+// Lumière diffuse du ciel : ombres colorées fraîches et tons chauds sous les objets.
+scene.add(new THREE.HemisphereLight(0xdcefff,0x66503b,1.28));
+scene.add(new THREE.AmbientLight(0xfff0d8,0.16));
+// Soleil principal chaud pour une ambiance de fin d'après-midi fantasy.
+const sun=new THREE.DirectionalLight(0xffd7a0,2.85);
+sun.position.set(-8,15,7);
+scene.add(sun);
+// Remplissage bleu très léger : garde les détails lisibles dans les zones à l'ombre.
+const coolFill=new THREE.DirectionalLight(0x9bcaff,0.42);
+coolFill.position.set(8,7,-10);
+scene.add(coolFill);
+// Lumières locales chaudes autour de la place, sans ombres dynamiques ni bloom coûteux.
+const villageLights=[];
+for(const p of [{x:-6,y:2.2,z:-7},{x:6,y:2.2,z:-7},{x:-2.6,y:2.4,z:-13.5},{x:2.6,y:2.4,z:-13.5}]){
+ const glow=new THREE.PointLight(0xffb45c,1.25,8,2);
+ glow.position.set(p.x,p.y,p.z);
+ scene.add(glow);
+ villageLights.push(glow);
+}
 const loader=new GLTFLoader(),fbxLoader=new FBXLoader(),clock=new THREE.Clock();
 const asset=(p)=>new URL(p,document.baseURI).href;
 const loadGLB=(p)=>new Promise((resolve,reject)=>{let settled=false;const timer=setTimeout(()=>{if(!settled){settled=true;reject(new Error('Délai dépassé : '+p))}},15000);loader.load(asset(p),g=>{if(!settled){settled=true;clearTimeout(timer);resolve(g)}},undefined,e=>{if(!settled){settled=true;clearTimeout(timer);reject(e)}})});
