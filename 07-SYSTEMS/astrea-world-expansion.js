@@ -10,9 +10,9 @@ export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes, eq
     { id:'frostholm', name:'Frostholm', biome:'Terres glacées', color:0xb8d8e5, sky:0x9ebacb, price:200, bounds:{minX:-42,maxX:42,minZ:-42,maxZ:42}, description:'Montagnes enneigées et mammouths ancestraux.' },
     { id:'drakorys', name:'Drakorys', biome:'Archipel volcanique', color:0x554b4a, sky:0x9d7772, price:250, bounds:{minX:-42,maxX:42,minZ:-42,maxZ:42}, description:'Îles volcaniques, cavernes et dragons.' }
   ];
-  const defaults = { coins:500, region:'village', kingdoms:[], discovered:['village'], inventory:['Épée de départ'], resources:{bois:0,pierre:0,herbes:0,ecaille:0,ivoire:0}, potions:1, equipment:'Épée de départ', defeated:[], claimedQuests:[], questStep:0, level:1, xp:0, hp:100, maxHp:100 };
+  const defaults = { coins:500, region:'village', kingdoms:[], discovered:['village'], inventory:['Épée de départ'], resources:{bois:0,pierre:0,herbes:0,ecaille:0,ivoire:0}, potions:1, equipment:'Épée de départ', defeated:[], claimedQuests:[], harvestAt:{}, questStep:0, level:1, xp:0, hp:100, maxHp:100 };
   let save = defaults;
-  try { const old=JSON.parse(localStorage.getItem(SAVE_KEY)||'null'); if(old&&typeof old==='object') save={...defaults,...old,resources:{...defaults.resources,...(old.resources||{})},inventory:Array.isArray(old.inventory)?old.inventory:defaults.inventory,claimedQuests:Array.isArray(old.claimedQuests)?old.claimedQuests:[]}; } catch {}
+  try { const old=JSON.parse(localStorage.getItem(SAVE_KEY)||'null'); if(old&&typeof old==='object') save={...defaults,...old,resources:{...defaults.resources,...(old.resources||{})},inventory:Array.isArray(old.inventory)?old.inventory:defaults.inventory,claimedQuests:Array.isArray(old.claimedQuests)?old.claimedQuests:[],harvestAt:old.harvestAt&&typeof old.harvestAt==='object'?old.harvestAt:{}}; } catch {}
   let currentRegion = regions.find(r=>r.id===save.region) || regions[0];
   let boatTrips = 0;
   const zoneGroups = {};
@@ -103,8 +103,18 @@ export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes, eq
         if(save.hp>=save.maxHp){hint.textContent='Tes PV sont déjà au maximum.';return}
         save.potions--;save.hp=Math.min(save.maxHp,save.hp+35);persist();hint.textContent='Potion utilisée : +35 PV.';renderPanel();
       },(save.potions||0)<1||save.hp>=save.maxHp),
-      button('RAMASSER DES RESSOURCES',()=>{
-        save.resources.bois+=2;save.resources.pierre+=2;save.resources.herbes+=1;persist();hint.textContent='Ressources de test collectées : 2 bois, 2 pierres, 1 herbe.';renderPanel();
+      button('EXPLORER & RÉCOLTER',()=>{
+        if(!save.harvestAt||typeof save.harvestAt!=='object')save.harvestAt={};
+        const last=save.harvestAt[currentRegion.id]||0;
+        if(Date.now()-last<30000){hint.textContent='Cette zone a déjà été récoltée. Explore un peu puis reviens dans 30 secondes.';return}
+        save.harvestAt[currentRegion.id]=Date.now();
+        let found=[];
+        if(currentRegion.id==='elarion'){save.resources.bois+=3;save.resources.herbes+=2;found=['3 bois','2 herbes'];}
+        else if(currentRegion.id==='solkar'){save.resources.pierre+=3;save.resources.herbes+=1;found=['3 pierres','1 herbe'];}
+        else if(currentRegion.id==='frostholm'){save.resources.pierre+=2;save.resources.ivoire+=1;found=['2 pierres','1 ivoire'];}
+        else if(currentRegion.id==='drakorys'){save.resources.pierre+=2;save.resources.bois+=1;found=['2 pierres volcaniques','1 bois'];}
+        else {save.resources.bois+=2;save.resources.herbes+=1;found=['2 bois','1 herbe'];}
+        persist();hint.textContent='Récolte à '+currentRegion.name+' : '+found.join(', ')+'.';renderPanel();
       })
     ]));
     panel.append(makeCard('Fabriquer une potion','Coût : 2 herbes + 25 Couronnes.',[
