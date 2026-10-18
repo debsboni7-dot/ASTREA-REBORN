@@ -21,6 +21,7 @@
 <script type="module">
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js';
+import { clone as cloneSkeleton } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/utils/SkeletonUtils.js';
 import { ASTREA_WEAPONS, createWeaponModel } from './02-MODELS/weapons/weapon-catalog.js';
 (()=>{
 const status=document.getElementById('status'),hint=document.getElementById('hint');
@@ -127,6 +128,97 @@ roomBox(.8,.12,.8,0xd4b875,13.2,.66,-9.2);
 roomBox(.75,.6,.55,0x77502e,13.2,.3,-11);
 roomBox(.78,.12,.58,0xe0bd5f,13.2,.65,-11);
 function setHouseMode(enter){insideHouse=enter;room.visible=enter;if(enter){player.position.set(12,0,-10);hint.textContent='Intérieur : explore la maison, puis appuie sur SORTIR.'}else{doorOpen=false;doorPivot.rotation.y=0;doorCollider.active=true;player.position.set(-5.5,0,-2.5);hint.textContent='Retour dans le village.'}}
+
+/* Ambiance du village : PNJ 3D réels, variantes de tenues et accessoires colorés. */
+const npcPalette=[
+ {name:'Mira, marchande',x:-4.4,z:-10.2,model:'02-MODELS/characters/young-adventurer.glb',tint:0x36a7a0,weapon:0x45d9ce},
+ {name:'Kael, garde',x:4.2,z:-21.8,model:'02-MODELS/characters/character-extra.glb',tint:0x9a4ee0,weapon:0x9d5bff},
+ {name:'Toma, voyageur',x:-4.3,z:-34.5,model:'02-MODELS/characters/base-male.glb',tint:0xd58a32,weapon:0xffc15c},
+ {name:'Rin, éclaireur',x:4.5,z:-46.5,model:'02-MODELS/characters/young-adventurer.glb',tint:0x4d9b45,weapon:0x82e75f},
+ {name:'Darek, chevalier',x:-4.5,z:-58.5,model:'02-MODELS/characters/character-extra.glb',tint:0x3f72cf,weapon:0x75a8ff}
+];
+const npcGroups=[];
+function addNPCWeapon(group,color){
+ const weapon=new THREE.Group();
+ const grip=new THREE.Mesh(new THREE.CylinderGeometry(.035,.045,.27,6),new THREE.MeshStandardMaterial({color:0x493126,roughness:.85}));
+ grip.position.y=.17;weapon.add(grip);
+ const blade=new THREE.Mesh(new THREE.BoxGeometry(.085,.68,.035),new THREE.MeshStandardMaterial({color,metalness:.72,roughness:.25,emissive:color,emissiveIntensity:.12}));
+ blade.position.y=.62;weapon.add(blade);
+ const guard=new THREE.Mesh(new THREE.BoxGeometry(.28,.055,.07),new THREE.MeshStandardMaterial({color:0xe3c57b,metalness:.65,roughness:.3}));
+ guard.position.y=.31;weapon.add(guard);weapon.position.set(.43,.8,.1);weapon.rotation.z=-.25;group.add(weapon);
+ const badge=new THREE.Mesh(new THREE.OctahedronGeometry(.12,0),new THREE.MeshStandardMaterial({color,emissive:color,emissiveIntensity:.45}));
+ badge.position.set(0,2.22,0);group.add(badge);
+ return {weapon,badge};
+}
+function tintNPC(model,tint){
+ const target=new THREE.Color(tint);
+ model.traverse(o=>{
+   if(!o.isMesh)return;
+   o.castShadow=false;o.receiveShadow=false;
+   const mats=Array.isArray(o.material)?o.material:[o.material];
+   o.material=mats.map(mat=>{
+     if(!mat)return mat;
+     const m=mat.clone();
+     if(m.color){
+       const hsl={h:0,s:0,l:0};m.color.getHSL(hsl);
+       // Une variation légère conserve le relief et les textures d'origine.
+       const tc=target.clone();tc.getHSL(hsl);
+       m.color.lerp(target,.14);
+     }
+     return m;
+   });
+ });
+}
+async function loadVillageNPCs(){
+ const cache={};
+ for(const spec of npcPalette){
+   try{
+     if(!cache[spec.model])cache[spec.model]=await loadGLB(spec.model);
+     const model=cloneSkeleton(cache[spec.model].scene);
+     normalizeModel(model,1.78);tintNPC(model,spec.tint);
+     const group=new THREE.Group();group.position.set(spec.x,0,spec.z);group.add(model);scene.add(group);
+     const gear=addNPCWeapon(group,spec.weapon);
+     npcGroups.push({group,gear,baseY:2.22,phase:Math.random()*6.28,name:spec.name});
+     // Petit socle lumineux coloré pour distinguer immédiatement chaque habitant.
+     const ring=new THREE.Mesh(new THREE.TorusGeometry(.39,.025,5,18),new THREE.MeshStandardMaterial({color:spec.tint,emissive:spec.tint,emissiveIntensity:.22}));
+     ring.rotation.x=Math.PI/2;ring.position.y=.045;group.add(ring);
+   }catch(err){console.warn('PNJ 3D indisponible : '+spec.model,err)}
+ }
+ hint.textContent='Le village prend vie : '+npcGroups.length+' habitants 3D chargés.';
+}
+function addVillageAtmosphere(){
+ // Bannières colorées à l'entrée et sur la place.
+ for(const p of [{x:-2.8,z:-7,c:0x43b6b0},{x:2.8,z:-7,c:0xc95b65},{x:-7,z:-25,c:0xe0b24f},{x:7,z:-37,c:0x7d72dc}]){
+   const pole=new THREE.Mesh(new THREE.CylinderGeometry(.035,.05,2.5,6),new THREE.MeshStandardMaterial({color:0x67472e,roughness:.9}));
+   pole.position.set(p.x,1.25,p.z);scene.add(pole);
+   const cloth=new THREE.Mesh(new THREE.PlaneGeometry(.72,1.02),new THREE.MeshStandardMaterial({color:p.c,side:THREE.DoubleSide,roughness:.85,emissive:p.c,emissiveIntensity:.045}));
+   cloth.position.set(p.x+.34,1.85,p.z);scene.add(cloth);
+ }
+ // Petits massifs fleuris le long des rues : géométrie légère, sans textures externes.
+ for(let i=0;i<34;i++){
+   const side=i%2?-1:1,x=side*(5.8+(i%3)*.55),z=-4-(i*3.15)%108;
+   const stem=new THREE.Mesh(new THREE.CylinderGeometry(.018,.025,.24,4),new THREE.MeshStandardMaterial({color:0x47783d}));
+   stem.position.set(x,.12,z);scene.add(stem);
+   const petalColor=[0xe7b4dc,0xffd46b,0xb7d5ff,0xffffff][i%4];
+   const flower=new THREE.Mesh(new THREE.SphereGeometry(.09,6,5),new THREE.MeshStandardMaterial({color:petalColor,emissive:petalColor,emissiveIntensity:.08}));
+   flower.position.set(x,.29,z);scene.add(flower);
+ }
+ // Foyer de la place avec braises animées.
+ const fireBase=new THREE.Mesh(new THREE.CylinderGeometry(.72,.9,.18,8),new THREE.MeshStandardMaterial({color:0x6b5b4b,roughness:1}));
+ fireBase.position.set(0,.08,-8);scene.add(fireBase);
+ for(let i=0;i<5;i++){
+   const flame=new THREE.Mesh(new THREE.ConeGeometry(.16+(i%2)*.06,.58+(i%3)*.12,5),new THREE.MeshStandardMaterial({color:i%2?0xff8a32:0xffd05a,emissive:0xff5b13,emissiveIntensity:.65,transparent:true,opacity:.86}));
+   flame.position.set(Math.sin(i*2.4)*.25,.42,-8+Math.cos(i*2.4)*.2);scene.add(flame);fireFlames.push(flame);
+ }
+ const fireLight=new THREE.PointLight(0xff9a43,1.35,9,2);fireLight.position.set(0,1,-8);scene.add(fireLight);fireLights.push(fireLight);
+ // Poussières lumineuses peu nombreuses, animées sans physique lourde.
+ for(let i=0;i<18;i++){
+   const dot=new THREE.Mesh(new THREE.SphereGeometry(.035,5,4),new THREE.MeshBasicMaterial({color:i%3?0xffdca0:0x9de8dc,transparent:true,opacity:.7}));
+   dot.position.set((Math.random()-.5)*18,.45+Math.random()*2.1,-5-Math.random()*60);scene.add(dot);ambienceParticles.push({mesh:dot,phase:Math.random()*6.28,base:dot.position.clone()});
+ }
+}
+const fireFlames=[],fireLights=[],ambienceParticles=[];
+
 function normalizeModel(object,targetHeight){
  const b=new THREE.Box3().setFromObject(object),size=b.getSize(new THREE.Vector3()),center=b.getCenter(new THREE.Vector3());
  const h=Math.max(size.y,.001),s=targetHeight/h;object.scale.multiplyScalar(s);
@@ -274,7 +366,7 @@ addEventListener('pagehide',saveProgress);addEventListener('blur',saveProgress);
 let dragging=false,lastX=0,lastY=0,cameraPointer=null;renderer.domElement.style.touchAction='none';renderer.domElement.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;dragging=true;cameraPointer=e.pointerId;lastX=e.clientX;lastY=e.clientY;try{renderer.domElement.setPointerCapture(e.pointerId)}catch(_){}});renderer.domElement.addEventListener('pointermove',e=>{if(!dragging||e.pointerId!==cameraPointer)return;const dx=e.clientX-lastX,dy=e.clientY-lastY;yaw+=dx*.008;pitch=Math.max(-.08,Math.min(.72,pitch-dy*.004));lastX=e.clientX;lastY=e.clientY});function stopCameraDrag(e){if(cameraPointer===null||e.pointerId===cameraPointer){dragging=false;cameraPointer=null}}renderer.domElement.addEventListener('pointerup',stopCameraDrag);renderer.domElement.addEventListener('pointercancel',stopCameraDrag);
 const moveAnim={moving:false};
 function frame(){
- requestAnimationFrame(frame);const dt=Math.min(clock.getDelta(),.04);attackCooldown=Math.max(0,attackCooldown-dt);specialCooldown=Math.max(0,specialCooldown-dt);enemyAttackTimer=Math.max(0,enemyAttackTimer-dt);if(!enemyDefeated&&Math.hypot(player.position.x-enemy.position.x,player.position.z-enemy.position.z)<2.15&&enemyAttackTimer<=0){enemyAttackTimer=2.1;takeDamage(8);hint.textContent='La cible te frappe : -8 PV !'}let f=0,s=0;
+ requestAnimationFrame(frame);const dt=Math.min(clock.getDelta(),.04);for(let i=0;i<fireFlames.length;i++){const fl=fireFlames[i];fl.scale.y=.82+Math.sin(clock.elapsedTime*8+i*1.7)*.24;fl.rotation.y=clock.elapsedTime*.8+i;}for(const l of fireLights)l.intensity=1.05+Math.sin(clock.elapsedTime*7)*.3;for(const p of ambienceParticles){p.mesh.position.y=p.base.y+Math.sin(clock.elapsedTime*.8+p.phase)*.28;p.mesh.position.x=p.base.x+Math.sin(clock.elapsedTime*.35+p.phase)*.22;}for(const npc of npcGroups){npc.gear.badge.position.y=npc.baseY+Math.sin(clock.elapsedTime*1.4+npc.phase)*.06;npc.gear.weapon.rotation.z=-.25+Math.sin(clock.elapsedTime*1.1+npc.phase)*.035;}attackCooldown=Math.max(0,attackCooldown-dt);specialCooldown=Math.max(0,specialCooldown-dt);enemyAttackTimer=Math.max(0,enemyAttackTimer-dt);if(!enemyDefeated&&Math.hypot(player.position.x-enemy.position.x,player.position.z-enemy.position.z)<2.15&&enemyAttackTimer<=0){enemyAttackTimer=2.1;takeDamage(8);hint.textContent='La cible te frappe : -8 PV !'}let f=0,s=0;
  if(keys.w||keys.z||keys.arrowup||touchMove.forward)f+=1;
  if(keys.s||keys.arrowdown||touchMove.back)f-=1;
  if(keys.d||keys.arrowright||touchMove.right)s+=1;
@@ -297,7 +389,7 @@ function frame(){
  renderer.render(scene,camera);
 }
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
-status.textContent='Chargement des GLB…';frame();loadPrimaryAssets().catch(e=>{console.error(e);status.textContent='Mode de secours actif';hint.textContent='Certains assets sont indisponibles, formes provisoires conservées.'});
+addVillageAtmosphere();status.textContent='Chargement des GLB…';frame();loadVillageNPCs().catch(e=>console.warn('Chargement des PNJ interrompu',e));loadPrimaryAssets().catch(e=>{console.error(e);status.textContent='Mode de secours actif';hint.textContent='Certains assets sont indisponibles, formes provisoires conservées.'});
 })();
 </script>
 </body>
