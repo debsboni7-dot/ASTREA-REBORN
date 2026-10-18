@@ -395,7 +395,7 @@ function frame(){
  renderer.render(scene,camera);
 }
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
-addVillageAtmosphere();window.ASTREA_WORLD=initAstreaWorld({THREE,scene,player,hint,collisionBoxes});status.textContent='Chargement des GLB…';frame();loadVillageNPCs().catch(e=>console.warn('Chargement des PNJ interrompu',e));loadPrimaryAssets().catch(e=>{console.error(e);status.textContent='Mode de secours actif';hint.textContent='Certains assets sont indisponibles, formes provisoires conservées.'});
+addVillageAtmosphere();window.ASTREA_WORLD=initAstreaWorld({THREE,scene,player,hint,collisionBoxes,equipWeapon,addItem});status.textContent='Chargement des GLB…';frame();loadVillageNPCs().catch(e=>console.warn('Chargement des PNJ interrompu',e));loadPrimaryAssets().catch(e=>{console.error(e);status.textContent='Mode de secours actif';hint.textContent='Certains assets sont indisponibles, formes provisoires conservées.'});
 })();
 </script>
 </body>
