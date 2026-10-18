@@ -21,7 +21,9 @@ ASTREA REBORN est un RPG 3D d’action et d’exploration, pensé pour évoluer 
 Le monde est composé de zones maîtrisées en taille, avec un village, des maisons, des chemins, de la végétation et des points d’intérêt. Les intérieurs et interactions seront ajoutés progressivement.
 
 ## 5. Personnage et combat
-- Personnage principal masculin.
+- Création de personnage au début : choix masculin ou féminin.
+- Taille personnalisable de 1,60 m à 2,10 m par pas de 1 cm.
+- Options prévues : corpulence, teinte de peau, coiffure, couleur des cheveux, couleur des yeux et tenue.
 - Déplacement, course, saut et caméra.
 - Épée et attaques de base, puis combos.
 - Les animations finales doivent provenir de fichiers disponibles et compatibles.
