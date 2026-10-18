@@ -139,6 +139,6 @@ def potion():
     sphere("Bottle shine",( -.105,-.20,.48),(.035,.025,.12),CRYSTAL_CYAN,1)
     export("props/health-potion.glb")
 
-for build in (oak,pine,fern_model,rocks,barrel,crystal,potion):
+for build in (pine,fern_model,barrel,potion):
     build()
-print("[ASTREA-MODELS] All seven low-poly game assets generated.")
+print("[ASTREA-MODELS] All four additional low-poly game assets generated.")
