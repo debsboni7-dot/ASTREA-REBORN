@@ -19,13 +19,16 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Install Blender
+      - name: Install Blender and export dependency
         run: |
           sudo apt-get update
-          sudo apt-get install -y blender
+          sudo apt-get install -y blender python3-numpy
       - name: Generate male and female base GLB characters
         run: |
           set -euo pipefail
+          # Ubuntu's Blender package uses Python 3.12; expose Ubuntu's matching
+          # NumPy package to Blender's bundled Python for the glTF exporter.
+          export PYTHONPATH="/usr/lib/python3/dist-packages:${PYTHONPATH:-}"
           blender --background --python tools/create_character_bases.py -- "$GITHUB_WORKSPACE/02-MODELS/characters"
           test -s 02-MODELS/characters/base-male.glb
           test -s 02-MODELS/characters/base-female.glb
