@@ -10,9 +10,9 @@ export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes, eq
     { id:'night', name:'Night', biome:'Forêt nocturne', color:0x263b59, sky:0x18243e, price:0, bounds:{minX:-42,maxX:42,minZ:-42,maxZ:42}, description:'Forêt bleue, ruines lumineuses et créatures nocturnes.' },
     { id:'dark-continent', name:'Continent noir', biome:'Terres corrompues', color:0x302b35, sky:0x4b394d, price:0, bounds:{minX:-42,maxX:42,minZ:-42,maxZ:42}, description:'Zone dangereuse réservée aux aventuriers préparés.' }
   ];
-  const defaults = { coins:500, region:'astrea', kingdoms:[], discovered:['astrea'], inventory:[], resources:{bois:0,pierre:0,herbes:0,ecaille:0,ivoire:0}, potions:1, equipment:'Mains nues', hasHorse:false, defeated:[], claimedQuests:[], harvestAt:{}, questStep:0, level:1, xp:0, hp:100, maxHp:100 };
+  const defaults = { coins:500, region:'astrea', kingdoms:[], discovered:['astrea'], inventory:[], resources:{bois:0,pierre:0,herbes:0,ecaille:0,ivoire:0}, potions:1, equipment:'Mains nues', hasBoat:false, skillPoints:0, skills:{power:0,vitality:0,flow:0}, defeated:[], claimedQuests:[], harvestAt:{}, questStep:0, level:1, xp:0, hp:100, maxHp:100 };
   let save = defaults;
-  try { const old=JSON.parse(localStorage.getItem(SAVE_KEY)||'null'); if(old&&typeof old==='object') save={...defaults,...old,resources:{...defaults.resources,...(old.resources||{})},inventory:Array.isArray(old.inventory)?old.inventory:defaults.inventory,claimedQuests:Array.isArray(old.claimedQuests)?old.claimedQuests:[],harvestAt:old.harvestAt&&typeof old.harvestAt==='object'?old.harvestAt:{}}; } catch {}
+  try { const old=JSON.parse(localStorage.getItem(SAVE_KEY)||'null'); if(old&&typeof old==='object') save={...defaults,...old,resources:{...defaults.resources,...(old.resources||{})},skills:{...defaults.skills,...(old.skills||{})},skillPoints:Number.isFinite(old.skillPoints)?old.skillPoints:0,inventory:Array.isArray(old.inventory)?old.inventory:defaults.inventory,claimedQuests:Array.isArray(old.claimedQuests)?old.claimedQuests:[],harvestAt:old.harvestAt&&typeof old.harvestAt==='object'?old.harvestAt:{}}; } catch {}
   let currentRegion = regions.find(r=>r.id===save.region) || regions[0];
   let boatTrips = 0;
   const zoneGroups = {};
@@ -38,9 +38,9 @@ export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes, eq
       const action=button(isCurrent?'ZONE ACTUELLE':unlocked?'VOYAGER':'Voyager — '+r.price+' couronnes',()=>travel(r.id),isCurrent||(!unlocked&&save.coins<r.price));
       panel.append(makeCard(r.name+' · '+r.biome,r.description+' '+(r.price?'Coût du premier voyage : '+r.price+' couronnes.':'Voyage par monture à débloquer dans la progression.'),[action]));
     }
-    panel.append(el('h3',{},'🐎 VOYAGE À CHEVAL'));
-    panel.append(makeCard('Écurie et monture','Les voyages entre continents nécessitent un cheval. Prix de la monture : 350 couronnes. Les voyages sont déclenchés depuis ce menu après achat.',[
-      button(save.hasHorse?'CHEVAL POSSÉDÉ':'ACHETER UN CHEVAL — 350 💰',()=>{if(save.hasHorse){hint.textContent='Ton cheval est prêt pour le voyage.';return;}if(save.coins<350){hint.textContent='Il te faut 350 couronnes. Termine des quêtes et récupère des récompenses.';return;}save.coins-=350;save.hasHorse=true;persist();hint.textContent='Cheval acheté ! Tu peux maintenant voyager entre les continents.';renderPanel();},save.hasHorse||save.coins<350)
+    panel.append(el('h3',{},'🛶 VOYAGE EN BARQUE'));
+    panel.append(makeCard('Embarcadère d’Astrea','Achète une barque pour 350 couronnes pour traverser vers les autres continents.',[
+      button(save.hasBoat?'BARQUE POSSÉDÉE':'ACHETER UNE BARQUE — 350 💰',()=>{if(save.hasBoat){hint.textContent='Ta barque est prête à l’embarcadère.';return;}if(save.coins<350){hint.textContent='Il te faut 350 couronnes. Termine des quêtes pour gagner de l’argent.';return;}save.coins-=350;save.hasBoat=true;persist();hint.textContent='Barque achetée ! Tu peux voyager depuis l’embarcadère.';renderPanel();},save.hasBoat||save.coins<350)
     ]));
     panel.append(el('h3',{},'🏰 FONDER TON PAYS'));
     panel.append(el('p',{},'Prix de fondation : 5 000 couronnes. Choisis un nom et une région découverte. Le pays est enregistré dans ta sauvegarde locale.'));
@@ -97,10 +97,10 @@ export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes, eq
         if(Date.now()-last<30000){hint.textContent='Cette zone a déjà été récoltée. Explore un peu puis reviens dans 30 secondes.';return}
         save.harvestAt[currentRegion.id]=Date.now();
         let found=[];
-        if(currentRegion.id==='elarion'){save.resources.bois+=3;save.resources.herbes+=2;found=['3 bois','2 herbes'];}
-        else if(currentRegion.id==='solkar'){save.resources.pierre+=3;save.resources.herbes+=1;found=['3 pierres','1 herbe'];}
-        else if(currentRegion.id==='frostholm'){save.resources.pierre+=2;save.resources.ivoire+=1;found=['2 pierres','1 ivoire'];}
-        else if(currentRegion.id==='drakorys'){save.resources.pierre+=2;save.resources.bois+=1;found=['2 pierres volcaniques','1 bois'];}
+        if(currentRegion.id==='van'){save.resources.bois+=3;save.resources.herbes+=2;found=['3 bois','2 herbes'];}
+        else if(currentRegion.id==='beurg'){save.resources.pierre+=3;save.resources.herbes+=1;found=['3 pierres','1 herbe'];}
+        else if(currentRegion.id==='night'){save.resources.pierre+=2;save.resources.ivoire+=1;found=['2 pierres','1 ivoire'];}
+        else if(currentRegion.id==='dark-continent'){save.resources.pierre+=2;save.resources.bois+=1;found=['2 pierres volcaniques','1 bois'];}
         else {save.resources.bois+=2;save.resources.herbes+=1;found=['2 bois','1 herbe'];}
         persist();hint.textContent='Récolte à '+currentRegion.name+' : '+found.join(', ')+'.';renderPanel();
       })
@@ -132,11 +132,17 @@ export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes, eq
         button(claimed?'RÉCOMPENSE RÉCUPÉRÉE':q.done?'RÉCLAMER LA RÉCOMPENSE':'OBJECTIF À REMPLIR',()=>{
           if(claimed||!q.done)return;
           save.claimedQuests.push(q.id);save.coins+=q.reward;save.xp+=q.xp;
-          while(save.xp>=save.level*100){save.xp-=save.level*100;save.level++;save.maxHp+=10;save.hp=save.maxHp}
+          while(save.xp>=save.level*100){save.xp-=save.level*100;save.level++;save.skillPoints=(save.skillPoints||0)+1;save.maxHp+=10;save.hp=save.maxHp}
           persist();hint.textContent='Quête terminée : +'+q.reward+' Couronnes et '+q.xp+' XP.';renderPanel();
         },claimed||!q.done)
       ]));
     });
+    panel.append(el('h3',{},'✨ ARBRE DE COMPÉTENCES'));
+    panel.append(makeCard('Points disponibles : '+(save.skillPoints||0),'Gagne un point à chaque niveau. Chaque compétence peut être améliorée jusqu’à 5 fois.',[
+      button('FORCE · '+(save.skills.power||0)+'/5 — +8% dégâts',()=>{if(save.skillPoints<1||(save.skills.power||0)>=5)return;save.skillPoints--;save.skills.power++;persist();hint.textContent='Force améliorée.';renderPanel()},save.skillPoints<1||(save.skills.power||0)>=5),
+      button('VITALITÉ · '+(save.skills.vitality||0)+'/5 — +20 PV',()=>{if(save.skillPoints<1||(save.skills.vitality||0)>=5)return;save.skillPoints--;save.skills.vitality++;save.maxHp+=20;save.hp=Math.min(save.maxHp,save.hp+20);persist();hint.textContent='Vitalité améliorée : +20 PV maximum.';renderPanel()},save.skillPoints<1||(save.skills.vitality||0)>=5),
+      button('FLUX · '+(save.skills.flow||0)+'/5 — +5% technique',()=>{if(save.skillPoints<1||(save.skills.flow||0)>=5)return;save.skillPoints--;save.skills.flow++;persist();hint.textContent='Flux amélioré : techniques renforcées.';renderPanel()},save.skillPoints<1||(save.skills.flow||0)>=5)
+    ]));
     panel.append(el('h3',{},'🎒 PROGRESSION'));
     panel.append(makeCard('État du monde','Couronnes : '+save.coins+' · Niveau : '+save.level+' · Continents : '+save.discovered.length+'/'+regions.length+' · Pays : '+save.kingdoms.length+' · Voyages cette session : '+boatTrips,[
       button('SAUVEGARDER',()=>{persist();hint.textContent='Progression du monde sauvegardée.';}),
@@ -145,7 +151,7 @@ export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes, eq
   }
   function travel(id){
     const r=regions.find(x=>x.id===id);if(!r)return;
-    if(id!=='astrea'&&!save.hasHorse){hint.textContent='Il te faut un cheval pour voyager entre les continents. Achète-en un à l’écurie après avoir gagné des couronnes.';return;}
+    if(id!=='astrea'&&!save.hasBoat){hint.textContent='Il te faut une barque. Achète-la à l’embarcadère pour 350 couronnes.';return;}
     const unlocked=save.discovered.includes(id)||id==='astrea';
     if(!unlocked){if(save.coins<r.price){hint.textContent='Pas assez de couronnes pour voyager.';return}save.coins-=r.price;save.discovered.push(id)}
     currentRegion=r;save.region=id;persist();
@@ -191,7 +197,11 @@ export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes, eq
     const ocean=new THREE.Mesh(new THREE.PlaneGeometry(320,320),new THREE.MeshStandardMaterial({color:0x1d6388,roughness:.32,metalness:.12}));ocean.rotation.x=-Math.PI/2;ocean.position.y=-.22;g.add(ocean);
     const beachMat=new THREE.MeshStandardMaterial({map:biomeTexture('solkar'),roughness:1});
     const beach=new THREE.Mesh(new THREE.PlaneGeometry(96,96),beachMat);beach.rotation.x=-Math.PI/2;beach.position.y=-.105;g.add(beach);
-    const floor=new THREE.Mesh(new THREE.PlaneGeometry(84,84),new THREE.MeshStandardMaterial({map:biomeTexture(id),color:0xffffff,roughness:1}));floor.rotation.x=-Math.PI/2;floor.position.y=-.045;g.add(floor);
+    // Relief procédural avec collines douces et centre dégagé pour le joueur.
+    const terrainGeo=new THREE.PlaneGeometry(84,84,64,64),pos=terrainGeo.attributes.position;
+    for(let i=0;i<pos.count;i++){const x=pos.getX(i),z=pos.getY(i),fade=Math.min(1,Math.max(0,(Math.max(Math.abs(x),Math.abs(z))-7)/17));let h=(Math.sin(x*.19+id.length)*.55+Math.cos(z*.17-id.length)*.42+Math.sin((x+z)*.11)*.3)*fade;h+=Math.max(0,Math.sin(x*.075+id.length)*Math.cos(z*.09))*1.25*fade;pos.setZ(i,h);}
+    terrainGeo.computeVertexNormals();
+    const floor=new THREE.Mesh(terrainGeo,new THREE.MeshStandardMaterial({map:biomeTexture(id),color:0xffffff,roughness:1}));floor.rotation.x=-Math.PI/2;floor.position.y=-.045;floor.receiveShadow=true;g.add(floor);
     const rng=(n)=>{let x=Math.sin(n*127.1+(id.length*17))*43758.5453;return x-Math.floor(x)};
     for(let i=0;i<44;i++){
       const x=(rng(i+2)-.5)*82,z=(rng(i+100)-.5)*82;if(Math.abs(x)<5&&Math.abs(z)<7)continue;
