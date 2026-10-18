@@ -21,8 +21,8 @@
 | Pack de matériaux supplémentaires | `03-TEXTURES/environment/material-pack-lot3/` | Extrait ; catégorisation fine à poursuivre selon l'utilisation en jeu |
 | Textures PBR de l'épée divine | `03-TEXTURES/weapons/divine-sword/` | Albedo, metallic, normal et roughness extraits pour les deux variantes |
 | Ciel, atlas fleurs/fenêtres, éléments et VFX | `03-TEXTURES/` | Importés ; usage à intégrer |
-| Marche et inactivité | `04-ANIMATIONS/anim-walk.glb`, `anim-idle.glb` | Chargement à la demande ; compatibilité du rig à vérifier |
-| Attaques 1–3 | `04-ANIMATIONS/anim-attack-1.glb` à `anim-attack-3.glb` | Chargement à la demande ; compatibilité du rig à vérifier |
+| Marche et inactivité | `04-ANIMATIONS/anim-walk.glb`, `anim-idle.glb` | Chargement à la demande et tentative de retargeting sur le rig Meshy par correspondance des noms d’os ; validation visuelle nécessaire |
+| Attaques 1–3 | `04-ANIMATIONS/anim-attack-1.glb` à `anim-attack-3.glb` | Chargement à la demande depuis les commandes de combat et tentative de retargeting ; validation visuelle nécessaire |
 | Démonstrations HTML de nature, rig, combos et ultimes | `04-ANIMATIONS/01-*.html` à `05-*.html` | Prototypes 2D interactifs conservés ; pas des clips 3D glTF |
 | Village mobile et anciens tests HTML | `10-PROTOTYPES/legacy/` | Copiés en références séparées ; `index.html` principal n'a pas été remplacé |
 | Sons | `09-AUDIO/` | Aucun fichier audio autonome trouvé dans les deux dépôts inspectés |
