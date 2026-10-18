@@ -38,7 +38,10 @@ let savedCharacter=null;try{savedCharacter=JSON.parse(localStorage.getItem('astr
 const outfitColors={blue:0x315c9b,red:0x9d3939,green:0x327b58,black:0x252b38,white:0xe5e6df,purple:0x6e4bb0};
 const fallback=new THREE.Group();
 const body=new THREE.Mesh(new THREE.CapsuleGeometry(.38,.85,3,6),new THREE.MeshStandardMaterial({color:outfitColors[savedCharacter?.outfit]||0x355a88,roughness:.8}));body.position.y=1.05;fallback.add(body);
-const head=new THREE.Mesh(new THREE.SphereGeometry(.28,8,6),new THREE.MeshStandardMaterial({color:savedCharacter?.skin||0xc9946c}));head.position.y=1.85;fallback.add(head);\nconst fallbackHair=new THREE.Mesh(new THREE.SphereGeometry(.285,8,5),new THREE.MeshStandardMaterial({color:savedCharacter?.hair||0x241b18}));fallbackHair.scale.set(1,.42,.95);fallbackHair.position.y=2.04;fallback.add(fallbackHair);\nif(savedCharacter?.hairStyle==='bald')fallbackHair.visible=false;else if(savedCharacter?.hairStyle==='long'){const longHair=new THREE.Mesh(new THREE.CapsuleGeometry(.09,.35,2,5),new THREE.MeshStandardMaterial({color:savedCharacter?.hair||0x241b18}));longHair.position.set(0,1.77,-.19);fallback.add(longHair)}\nif(savedCharacter?.height)player.scale.y=savedCharacter.height/175;
+const head=new THREE.Mesh(new THREE.SphereGeometry(.28,8,6),new THREE.MeshStandardMaterial({color:savedCharacter?.skin||0xc9946c}));head.position.y=1.85;fallback.add(head);
+const fallbackHair=new THREE.Mesh(new THREE.SphereGeometry(.285,8,5),new THREE.MeshStandardMaterial({color:savedCharacter?.hair||0x241b18}));fallbackHair.scale.set(1,.42,.95);fallbackHair.position.y=2.04;fallback.add(fallbackHair);
+if(savedCharacter?.hairStyle==='bald')fallbackHair.visible=false;else if(savedCharacter?.hairStyle==='long'){const longHair=new THREE.Mesh(new THREE.CapsuleGeometry(.09,.35,2,5),new THREE.MeshStandardMaterial({color:savedCharacter?.hair||0x241b18}));longHair.position.set(0,1.77,-.19);fallback.add(longHair)}
+if(savedCharacter?.height)player.scale.y=savedCharacter.height/175;
 player.add(fallback);
 const fallbackSword=box(.12,.95,.16,0xb8d7df,0,0,0);scene.remove(fallbackSword);fallbackSword.position.set(.48,1.1,0);player.add(fallbackSword);
 let swordVisual=fallbackSword,visualRoot=fallback,loadedHero=false,loadedHouse=false;
@@ -59,7 +62,9 @@ function normalizeModel(object,targetHeight){
 async function loadPrimaryAssets(){
  const jobs=[];
  jobs.push(loadGLB('02-MODELS/characters/hero.glb').then(g=>{
-   const model=g.scene;normalizeModel(model,1.9);player.remove(fallback);player.add(model);visualRoot=model;loadedHero=true;\n   if(savedCharacter?.height)player.scale.y=savedCharacter.height/190;\n   if(savedCharacter){const outfit=new THREE.Color(outfitColors[savedCharacter.outfit]||0x315c9b);model.traverse(o=>{if(!o.isMesh||!o.material)return;const n=(o.name||'').toLowerCase();const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats){if(!m.color)continue;if(/hair|cheveu/.test(n))m.color.set(savedCharacter.hair||'#241b18');else if(/skin|head|face|hand/.test(n))m.color.set(savedCharacter.skin||'#bd8765');else if(/cloth|shirt|torso|outfit|body/.test(n))m.color.copy(outfit)}})}
+   const model=g.scene;normalizeModel(model,1.9);player.remove(fallback);player.add(model);visualRoot=model;loadedHero=true;
+   if(savedCharacter?.height)player.scale.y=savedCharacter.height/190;
+   if(savedCharacter){const outfit=new THREE.Color(outfitColors[savedCharacter.outfit]||0x315c9b);model.traverse(o=>{if(!o.isMesh||!o.material)return;const n=(o.name||'').toLowerCase();const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats){if(!m.color)continue;if(/hair|cheveu/.test(n))m.color.set(savedCharacter.hair||'#241b18');else if(/skin|head|face|hand/.test(n))m.color.set(savedCharacter.skin||'#bd8765');else if(/cloth|shirt|torso|outfit|body/.test(n))m.color.copy(outfit)}})}
    mixer=new THREE.AnimationMixer(model);
    if(g.animations?.length){const a=mixer.clipAction(g.animations[0]);a.play();currentAction=a}
    return 'personnage';
