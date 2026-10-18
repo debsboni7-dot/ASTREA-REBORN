@@ -58,6 +58,25 @@ const enemyHead=new THREE.Mesh(new THREE.SphereGeometry(.27,8,6),new THREE.MeshS
 const enemyRing=new THREE.Mesh(new THREE.TorusGeometry(.62,.055,6,20),new THREE.MeshStandardMaterial({color:0xe7b55d,emissive:0x3d2100}));enemyRing.rotation.x=Math.PI/2;enemyRing.position.y=.08;enemy.add(enemyRing);
 let enemyHP=3,enemyDefeated=false;const dialogue=document.getElementById('dialogue'),dialogueText=document.getElementById('dialogueText');const enemyStatus=document.getElementById("enemyStatus"),questStatus=document.getElementById("questStatus");
 const keys={},touchMove={};
+let insideHouse=false,doorOpen=false;
+const doorPivot=new THREE.Group();doorPivot.position.set(-5.83,0,-6.48);scene.add(doorPivot);
+const doorPanel=new THREE.Mesh(new THREE.BoxGeometry(.66,1.35,.09),new THREE.MeshStandardMaterial({color:0x68452d,roughness:.92}));doorPanel.position.set(.33,.68,0);doorPivot.add(doorPanel);
+const doorFrameMat=new THREE.MeshStandardMaterial({color:0x4b3326,roughness:1});
+for(const p of [{x:-5.83,y:.72,z:-6.53,w:.1,h:1.48,d:.14},{x:-5.17,y:.72,z:-6.53,w:.1,h:1.48,d:.14},{x:-5.5,y:1.45,z:-6.53,w:.76,h:.12,d:.14}]){const m=new THREE.Mesh(new THREE.BoxGeometry(p.w,p.h,p.d),doorFrameMat);m.position.set(p.x,p.y,p.z);scene.add(m)}
+const room=new THREE.Group();room.visible=false;scene.add(room);
+function roomBox(w,h,d,color,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial({color,roughness:.95}));m.position.set(x,y,z);room.add(m)}
+roomBox(5,.12,5,0x927653,12,0,-10);
+roomBox(5,2.7,.12,0xd5c29e,12,1.35,-12.5);
+roomBox(.12,2.7,5,0xc9b28b,9.5,1.35,-10);
+roomBox(.12,2.7,5,0xc9b28b,14.5,1.35,-10);
+roomBox(5,2.7,.12,0xd5c29e,12,1.35,-7.5);
+roomBox(1.6,.3,2,0x68472f,10.5,.25,-8.9);
+roomBox(1.45,.12,1.8,0x6e8b9e,10.5,.46,-8.9);
+roomBox(.9,.6,.9,0x805633,13.2,.3,-9.2);
+roomBox(.8,.12,.8,0xd4b875,13.2,.66,-9.2);
+roomBox(.75,.6,.55,0x77502e,13.2,.3,-11);
+roomBox(.78,.12,.58,0xe0bd5f,13.2,.65,-11);
+function setHouseMode(enter){insideHouse=enter;room.visible=enter;if(enter){player.position.set(12,0,-10);hint.textContent='Intérieur : explore la maison, puis appuie sur SORTIR.'}else{player.position.set(-5.5,0,-8.1);hint.textContent='Retour dans le village.'}}
 function normalizeModel(object,targetHeight){
  const b=new THREE.Box3().setFromObject(object),size=b.getSize(new THREE.Vector3()),center=b.getCenter(new THREE.Vector3());
  const h=Math.max(size.y,.001),s=targetHeight/h;object.scale.multiplyScalar(s);
@@ -147,7 +166,7 @@ function playCharacterAnimation(kind){
 function talkToGuide(){
  if(insideHouse){setHouseMode(false);return}
  const homeDistance=Math.hypot(player.position.x+5.5,player.position.z+6.5);
- if(homeDistance<2.5){setHouseMode(true);questStatus.textContent='Découverte : intérieur de la maison';return}
+ if(homeDistance<2.5){doorOpen=!doorOpen;doorPivot.rotation.y=doorOpen?-Math.PI/2:0;if(doorOpen){setHouseMode(true);questStatus.textContent='Découverte : intérieur de la maison'}else{hint.textContent='La porte est fermée.'}return}
 
  const d=Math.hypot(player.position.x-guide.position.x,player.position.z-guide.position.z);
  if(d>3.1){questStatus.textContent='Approche-toi du guide pour lui parler.';hint.textContent='Guide trop éloigné : rapproche-toi.';return}
