@@ -71,7 +71,8 @@ async function loadPrimaryCharacter(){
  try{
   const kimi=await new Promise((resolve,reject)=>{
    const loader=new GLTFLoader();
-   loader.load(kimiCharacterUrl,resolve,undefined,reject);
+   const timeout=setTimeout(()=>reject(new Error('Délai dépassé pour le modèle Kimi')),12000);
+   loader.load(kimiCharacterUrl,g=>{clearTimeout(timeout);resolve(g)},undefined,e=>{clearTimeout(timeout);reject(e)});
   });
   const model=kimi.scene;
   model.userData.astreaSource='Kimi — personnage principal masculin';
@@ -88,7 +89,7 @@ async function loadPrimaryCharacter(){
   const JSZipModule=await import('https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm');
   const JSZip=JSZipModule.default||JSZipModule;
   const zip=await JSZip.loadAsync(await zipResponse.arrayBuffer());
-  const fbxEntries=Object.values(zip.files).filter(f=>!f.dir&&/\\.fbx$/i.test(f.name));
+  const fbxEntries=Object.values(zip.files).filter(f=>!f.dir&&/\.fbx$/i.test(f.name));
   if(!fbxEntries.length)throw new Error('Aucun FBX trouvé dans l’archive Meshy');
   fbxEntries.sort((a,b)=>Number(/character_output/i.test(b.name))-Number(/character_output/i.test(a.name)));
   const fbxEntry=fbxEntries[0],blobUrls=new Map();
@@ -116,8 +117,12 @@ async function loadPrimaryCharacter(){
   model.userData.astreaSource='Meshy ZIP';model.userData.astreaArchiveFiles=files.length;
   return {scene:model,animations:model.animations||[],source:'Meshy FBX + textures'};
  }catch(meshyError){
-  console.error('Kimi et Meshy indisponibles : aucun remplacement hero.glb ne sera chargé.',meshyError);
-  throw new Error('Personnage masculin indisponible : vérifie le modèle Kimi et astrea-meshy-character-upload.zip.');
+  console.warn('Archive Meshy indisponible ; essai des GLB masculins déjà présents dans le dépôt.',meshyError);
+  for(const path of ['02-MODELS/characters/main-character-meshy.glb','02-MODELS/characters/base-male.glb']){
+   try{const local=await loadGLB(path);local.scene.userData.astreaSource='Modèle masculin local : '+path;return {scene:local.scene,animations:local.animations||[],source:'GLB masculin local'};}
+   catch(localError){console.warn('Modèle de secours indisponible : '+path,localError)}
+  }
+  throw new Error('Aucun personnage masculin utilisable : modèle Kimi, archive Meshy et GLB locaux indisponibles.');
  }
 }
 function box(w,h,d,c,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial({color:c,roughness:.92}));m.position.set(x,y,z);scene.add(m);return m}
@@ -235,7 +240,7 @@ const npcZones=[
  {role:'camp',x:-13,z:-97.5,r:2.6}
 ];
 const npcCrowdSpecs=[];
-for(let i=0;i<188;i++){
+for(let i=0;i<24;i++){
  const zone=npcZones[i%npcZones.length],angle=i*2.399963229728653,radius=1.5+(i%12)*.34;
  const tintPalette=[0x4d8dbe,0xc17b45,0x5d9d67,0x9272b8,0xb65a57,0x9b9a55,0x438f91,0x8e6c50,0x6d85b2,0xb77b9b];
  const x=Math.max(-18,Math.min(18,zone.x+Math.cos(angle)*radius));
@@ -457,7 +462,7 @@ function normalizeModel(object,targetHeight){
 async function loadPrimaryAssets(){
  const jobs=[];
  jobs.push((async()=>{
-   // Priorité au personnage masculin Meshy fourni par l'utilisateur ; hero.glb reste le repli si la source n'a pas encore été importée.
+   // Priorité au personnage masculin Kimi, puis à l'archive Meshy et aux GLB masculins locaux. hero.glb n'est jamais utilisé.
    const g=await loadPrimaryCharacter();
    const model=g.scene;normalizeModel(model,1.9);player.add(model);player.visible=true;visualRoot=model;loadedHero=true;cacheProceduralRig(model);
    if(savedCharacter && !String(g.source||'').startsWith('Meshy FBX')){
