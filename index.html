@@ -167,6 +167,15 @@ function tintNPC(model,tint){
 }
 async function loadVillageNPCs(){
  const cache={};
+ async function replacePlaceholder(group,path,tint,keepMesh){
+   if(!cache[path])cache[path]=await loadGLB(path);
+   group.traverse(o=>{if(o.isMesh&&o!==keepMesh)o.visible=false});
+   const model=cloneSkeleton(cache[path].scene);normalizeModel(model,1.78);tintNPC(model,tint);group.add(model);
+ }
+ try{
+   await replacePlaceholder(guide,'02-MODELS/characters/young-adventurer.glb',0x3b9d8d,guideMarker);
+   await replacePlaceholder(enemy,'02-MODELS/characters/character-extra.glb',0xb64d43,enemyRing);
+ }catch(err){console.warn('Modèles du guide/ennemi indisponibles, formes de secours conservées',err)}
  for(const spec of npcPalette){
    try{
      if(!cache[spec.model])cache[spec.model]=await loadGLB(spec.model);
