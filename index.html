@@ -11,7 +11,7 @@
 <body>
 <div id="hud"><div class="brand">ASTREA <span style="color:#b4dfc2">REBORN</span></div><div class="hint" id="hint">Chargement des assets ASTREA…</div><div class="health" id="health"><div class="health-label">❤️ VIE <strong id="healthText">100 / 100</strong></div><div class="health-track"><div id="healthFill"></div></div></div><div class="quest" id="quest">Objectif : <strong>vaincre l’entraînement</strong><br><span id="enemyStatus">Cible : 100 PV</span><br><span id="questStatus">Approche la cible et attaque.</span></div><div class="status" id="status">Initialisation…</div><a class="customize" href="08-UI/character-creator.html">PERSONNAGE ⚙</a><button class="inventory-button" id="inventoryToggle">SAC 🎒</button><button class="armory-button" id="armoryToggle">ARMES ⚔</button><div class="armory-panel" id="armoryPanel" hidden><h3>Arsenal d’Astrea</h3><label for="weaponSelect">Arme équipée</label><select id="weaponSelect"></select><div id="weaponInfo"></div><button id="equipWeapon">ÉQUIPER</button><p class="armory-note">Chaque arme possède son propre modèle 3D, son niveau unique, ses dégâts, sa portée, sa vitesse et sa technique.</p><button id="armoryClose">FERMER</button></div><div class="inventory-panel" id="inventoryPanel" hidden><h3>Inventaire d’Astrea</h3><div id="inventoryItems"><p>Ton sac est vide.</p></div><button id="inventoryClose">FERMER</button></div>
 <div class="controls"><button data-move="forward" aria-label="Avancer">▲</button><button data-move="left" aria-label="Gauche">◀</button><button data-move="back" aria-label="Reculer">▼</button><button data-move="right" aria-label="Droite">▶</button></div>
-<div class="actions"><button id="interact">PARLER</button><button id="jump">SAUT</button><button id="attack">ATTAQUE</button></div><div class="dialogue" id="dialogue" hidden><h2 id="dialogueTitle">Guide du village</h2><p id="dialogueText"></p><button id="dialogueClose">CONTINUER</button></div><div class="notice">ZQSD / WASD • Espace : saut • glisser : tourner la caméra</div></div>
+<div class="actions"><button id="interact">PARLER</button><button id="jump">SAUT</button><button id="attack">ATTAQUE</button><button id="specialAttack">TECHNIQUE</button></div><div class="dialogue" id="dialogue" hidden><h2 id="dialogueTitle">Guide du village</h2><p id="dialogueText"></p><button id="dialogueClose">CONTINUER</button></div><div class="notice">ZQSD / WASD • Espace : saut • glisser : tourner la caméra</div></div>
 <script type="module">
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js';
@@ -46,7 +46,7 @@ if(savedCharacter?.height)player.scale.y=savedCharacter.height/175;
 player.add(fallback);
 const fallbackSword=box(.12,.95,.16,0xb8d7df,0,0,0);scene.remove(fallbackSword);fallbackSword.position.set(.48,1.1,0);player.add(fallbackSword);
 let swordVisual=fallbackSword,visualRoot=fallback,loadedHero=false,loadedHouse=false;
-let yaw=0,pitch=.22,vy=0,onGround=true,attackTimer=0,attackCooldown=0,mixer=null,currentAction=null,heroClips={},animationCache={};
+let yaw=0,pitch=.22,vy=0,onGround=true,attackTimer=0,attackCooldown=0,specialCooldown=0,attackCombo=0,attackStyle='sword',mixer=null,currentAction=null,heroClips={},animationCache={};
 // PNJ-guide provisoire : formes légères, sans fichier externe ni animation.
 const guide=new THREE.Group();guide.position.set(-1.2,0,0.8);scene.add(guide);
 const guideRobe=new THREE.Mesh(new THREE.CapsuleGeometry(.34,.82,3,6),new THREE.MeshStandardMaterial({color:0x356d62,roughness:.9}));guideRobe.position.y=.92;guide.add(guideRobe);
@@ -185,7 +185,6 @@ document.getElementById('armoryToggle').addEventListener('click',()=>{const p=do
 document.getElementById('weaponSelect').addEventListener('change',()=>{const w=ASTREA_WEAPONS.find(x=>x.id===weaponSelect.value);if(w)document.getElementById('weaponInfo').innerHTML='<strong>'+w.name+'</strong><br>Niveau unique : '+w.level+' — Rang '+w.rank+'<br>Dégâts : '+w.damage+' • Portée : '+w.reach+'<br>Vitesse : '+w.speed.toFixed(2)+' • Technique : '+w.skill});
 document.getElementById('equipWeapon').addEventListener('click',()=>equipWeapon(weaponSelect.value));
 document.getElementById('armoryClose').addEventListener('click',()=>document.getElementById('armoryPanel').hidden=true);
-equipWeapon(selectedWeapon.id);
 const chests=[];
 function makeChest(x,z,reward){
  const group=new THREE.Group();group.position.set(x,0,z);scene.add(group);
@@ -207,6 +206,7 @@ makeChest(3.6,-19,'Pièces d’or');
 function saveProgress(){
  try{localStorage.setItem('astrea-save-v1',JSON.stringify({version:1,inventory,openedChests:chests.filter(c=>c.opened).map(c=>c.reward),enemyHP,enemyDefeated,playerHP,selectedWeapon:selectedWeapon.id,playerPosition:insideHouse?null:{x:player.position.x,z:player.position.z}}))}catch(e){console.warn('Sauvegarde locale indisponible',e)}
 }
+equipWeapon(selectedWeapon.id);
 function nearestChest(){let best=null,dist=2.35;for(const chest of chests){if(chest.opened)continue;const d=Math.hypot(player.position.x-chest.group.position.x,player.position.z-chest.group.position.z);if(d<dist){best=chest;dist=d}}return best}
 function talkToGuide(){
  if(insideHouse){setHouseMode(false);return}
@@ -230,7 +230,8 @@ document.querySelectorAll('[data-move]').forEach(b=>bindMove(b,b.dataset.move));
 addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.code==='Space'){e.preventDefault();jump()}});
 addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
 document.getElementById('jump').addEventListener('pointerdown',e=>{e.preventDefault();jump()});
-document.getElementById('attack').addEventListener('pointerdown',async e=>{e.preventDefault();if(attackCooldown>0)return;attackCooldown=.62/selectedWeapon.speed;attackTimer=.3/selectedWeapon.speed;swordVisual.rotation.z=selectedWeapon.type==='bow'||selectedWeapon.type==='crossbow'?.55:-1.05;const n=(Math.floor(Math.random()*3)+1);/* Attaque calculée selon l'arme équipée. */if(!enemyDefeated&&Math.hypot(player.position.x-enemy.position.x,player.position.z-enemy.position.z)<selectedWeapon.reach){enemyHP=Math.max(0,enemyHP-selectedWeapon.damage);enemyStatus.textContent='Cible : '+enemyHP+' PV';enemyBody.material.color.set(enemyHP===0?0x555555:0x9c493d);if(enemyHP===0){enemyDefeated=true;enemy.visible=false;enemyStatus.textContent='Cible vaincue';questStatus.textContent='Quête terminée ! Récompense : 100 XP';hint.textContent='Bravo ! Première quête terminée.'}else{questStatus.textContent='Touché ! Continue le combo.'}saveProgress()}else if(!enemyDefeated){questStatus.textContent='Trop loin : rapproche-toi ou équipe une arme à distance.'}});
+document.getElementById('attack').addEventListener('pointerdown',async e=>{e.preventDefault();if(attackCooldown>0)return;attackCooldown=.62/selectedWeapon.speed;attackTimer=.3/selectedWeapon.speed;attackCombo=attackCombo%3+1;attackStyle=selectedWeapon.type;swordVisual.rotation.z=(selectedWeapon.type==='bow'||selectedWeapon.type==='crossbow')?.55:(attackCombo===1?-1.05:attackCombo===2?1.15:-1.65);swordVisual.rotation.x=['spear','celestial','trident','scythe'].includes(attackStyle)?-.65:attackCombo===2?.35:0;swordVisual.rotation.y=attackCombo===3?.6:0;/* Chaque arme utilise ses propres dégâts, sa portée et son rythme. */if(!enemyDefeated&&Math.hypot(player.position.x-enemy.position.x,player.position.z-enemy.position.z)<selectedWeapon.reach){enemyHP=Math.max(0,enemyHP-selectedWeapon.damage);enemyStatus.textContent='Cible : '+enemyHP+' PV';enemyBody.material.color.set(enemyHP===0?0x555555:0x9c493d);if(enemyHP===0){enemyDefeated=true;enemy.visible=false;enemyStatus.textContent='Cible vaincue';questStatus.textContent='Quête terminée ! Récompense : 100 XP';hint.textContent='Bravo ! Première quête terminée.'}else{questStatus.textContent='Touché ! Continue le combo.'}saveProgress()}else if(!enemyDefeated){questStatus.textContent='Trop loin : rapproche-toi ou équipe une arme à distance.'}});
+document.getElementById('specialAttack').addEventListener('pointerdown',e=>{e.preventDefault();if(specialCooldown>0){hint.textContent='Technique en recharge : '+specialCooldown.toFixed(1)+' s';return}specialCooldown=6;attackStyle=selectedWeapon.type;attackTimer=.55;swordVisual.rotation.z=-2.1;swordVisual.rotation.x=.8;swordVisual.rotation.y=1.1;hint.textContent='Technique spéciale : '+selectedWeapon.skill+' !';if(!enemyDefeated&&Math.hypot(player.position.x-enemy.position.x,player.position.z-enemy.position.z)<selectedWeapon.reach+1){const damage=Math.round(selectedWeapon.damage*1.8);enemyHP=Math.max(0,enemyHP-damage);enemyStatus.textContent='Cible : '+enemyHP+' PV';enemyBody.material.color.set(enemyHP===0?0x555555:0x9c493d);if(enemyHP===0){enemyDefeated=true;enemy.visible=false;enemyStatus.textContent='Cible vaincue';questStatus.textContent='Quête terminée ! Récompense : 100 XP';hint.textContent=selectedWeapon.skill+' : cible vaincue !'}else questStatus.textContent=selectedWeapon.skill+' : -'+damage+' PV !';saveProgress()}else if(!enemyDefeated)questStatus.textContent='Trop loin pour '+selectedWeapon.skill+'.'});
 addEventListener('pagehide',saveProgress);addEventListener('blur',saveProgress);
 let dragging=false,lastX=0,lastY=0;
 renderer.domElement.addEventListener('pointerdown',e=>{dragging=true;lastX=e.clientX;lastY=e.clientY});
@@ -238,7 +239,7 @@ addEventListener('pointerup',()=>dragging=false);
 addEventListener('pointermove',e=>{if(!dragging)return;yaw-=(e.clientX-lastX)*.006;pitch=Math.max(-.05,Math.min(.65,pitch+(e.clientY-lastY)*.003));lastX=e.clientX;lastY=e.clientY});
 const moveAnim={moving:false};
 function frame(){
- requestAnimationFrame(frame);const dt=Math.min(clock.getDelta(),.04);attackCooldown=Math.max(0,attackCooldown-dt);enemyAttackTimer=Math.max(0,enemyAttackTimer-dt);if(!enemyDefeated&&Math.hypot(player.position.x-enemy.position.x,player.position.z-enemy.position.z)<2.15&&enemyAttackTimer<=0){enemyAttackTimer=2.1;takeDamage(8);hint.textContent='La cible te frappe : -8 PV !'}let f=0,s=0;
+ requestAnimationFrame(frame);const dt=Math.min(clock.getDelta(),.04);attackCooldown=Math.max(0,attackCooldown-dt);specialCooldown=Math.max(0,specialCooldown-dt);enemyAttackTimer=Math.max(0,enemyAttackTimer-dt);if(!enemyDefeated&&Math.hypot(player.position.x-enemy.position.x,player.position.z-enemy.position.z)<2.15&&enemyAttackTimer<=0){enemyAttackTimer=2.1;takeDamage(8);hint.textContent='La cible te frappe : -8 PV !'}let f=0,s=0;
  if(keys.w||keys.z||keys.arrowup||touchMove.forward)f+=1;
  if(keys.s||keys.arrowdown||touchMove.back)f-=1;
  if(keys.d||keys.arrowright||touchMove.right)s+=1;
@@ -251,7 +252,7 @@ function frame(){
  if(!insideHouse){player.position.x=Math.max(-18,Math.min(18,player.position.x));player.position.z=Math.max(-70,Math.min(8,player.position.z));}else{player.position.x=Math.max(9.1,Math.min(14.9,player.position.x));player.position.z=Math.max(-12.2,Math.min(-7.8,player.position.z));}
  if(moving)player.rotation.y=Math.atan2(s,f)+yaw;
  vy-=14*dt;player.position.y+=vy*dt;if(player.position.y<=0){player.position.y=0;vy=0;onGround=true}
- if(attackTimer>0){attackTimer-=dt;if(attackTimer<=0){swordVisual.rotation.z=0;swordVisual.rotation.x=0}}
+ if(attackTimer>0){attackTimer-=dt;if(attackTimer<=0){swordVisual.rotation.z=0;swordVisual.rotation.x=0;swordVisual.rotation.y=0}}
  if(mixer)mixer.update(dt);
  const guideDistance=Math.hypot(player.position.x-guide.position.x,player.position.z-guide.position.z);
  const homeDistance=Math.hypot(player.position.x+5.5,player.position.z+6.5);
