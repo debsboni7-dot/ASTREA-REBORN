@@ -3,9 +3,9 @@
 Prototype de RPG 3D d'action et d'exploration, avec priorité à la stabilité et aux performances mobiles.
 
 ## Tester le prototype principal
-Ouvrir [le prototype GitHub Pages](https://debsboni7-dot.github.io/ASTREA-REBORN/) si GitHub Pages est activé et publié, ou consulter [`index.html`](./index.html). Garder Internet actif : Three.js et GLTFLoader sont chargés depuis jsDelivr. Le prototype comprend commandes tactiles/clavier, saut, caméra, attaque, une cible d'entraînement, une quête simple, chargement des modèles GLB du personnage et de l'épée divine, maisons et textures d'herbe/pavage.
+Ouvrir [le prototype GitHub Pages](https://debsboni7-dot.github.io/ASTREA-REBORN/) si GitHub Pages est activé et publié, ou consulter [`index.html`](./index.html). Garder Internet actif : Three.js et GLTFLoader sont chargés depuis jsDelivr. Le prototype comprend commandes tactiles/clavier, saut, caméra, attaques, une cible d'entraînement, une quête simple, maisons et textures d'herbe/pavage. Le personnage Meshy prioritaire est chargé depuis l'archive `02-MODELS/characters/astrea-meshy-character-upload.zip` : le jeu extrait son FBX et ses textures en mémoire. `hero.glb` sert de repli si l'archive ne peut pas être chargée.
 
-Les animations intégrées à `hero.glb` sont utilisées pour le repos et la marche lorsque les clips correspondants sont présents. Les cinq GLB externes ont été inspectés : leur transfert vers le squelette du héros n'est pas encore validé. Utiliser le [laboratoire mobile d'animations](./08-UI/animation-lab.html) pour examiner les clips séparément. L'épée divine est convertie et chargée en priorité, avec une épée de secours en cas d'échec.
+Les clips d'animation intégrés au personnage Meshy sont détectés automatiquement et les commandes d'attaque appellent les clips correspondants lorsqu'ils sont présents. Les animations externes `04-ANIMATIONS/anim-*.glb` ne sont pas encore retargetées automatiquement sur son squelette ; la compatibilité et le rendu restent à valider sur Chrome Android. Utiliser le [laboratoire mobile d'animations](./08-UI/animation-lab.html) pour examiner les clips séparément. L'épée divine est convertie et chargée en priorité, avec une épée de secours en cas d'échec.
 
 ## Fichiers ajoutés par l'utilisateur — conservés et classés
 - [Inventaire des ajouts et extractions](./01-DOCUMENTATION/ASSETS-UTILISATEUR.md)
