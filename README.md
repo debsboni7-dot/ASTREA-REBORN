@@ -3,7 +3,7 @@
 Prototype de RPG 3D d'action et d'exploration, avec priorité à la stabilité et aux performances mobiles.
 
 ## Tester le prototype principal
-Ouvrir [le prototype GitHub Pages](https://debsboni7-dot.github.io/ASTREA-REBORN/) si GitHub Pages est activé et publié, ou consulter [`index.html`](./index.html). Garder Internet actif : Three.js et GLTFLoader sont chargés depuis jsDelivr. Le prototype comprend commandes tactiles/clavier, saut, caméra, attaques, une cible d'entraînement, une quête simple, maisons et textures d'herbe/pavage. Le personnage Meshy prioritaire est chargé depuis l'archive `02-MODELS/characters/astrea-meshy-character-upload.zip` : le jeu extrait son FBX et ses textures en mémoire. `hero.glb` sert de repli si l'archive ne peut pas être chargée.
+Ouvrir [le prototype GitHub Pages](https://debsboni7-dot.github.io/ASTREA-REBORN/) si GitHub Pages est activé et publié, ou consulter [`index.html`](./index.html). Garder Internet actif : Three.js et GLTFLoader sont chargés depuis jsDelivr. Le prototype comprend commandes tactiles/clavier, saut, caméra, combos, quatre attaques ultimes, une attaque ultime ultime de 20 secondes, une cible d'entraînement, une quête simple, maisons et textures d'herbe/pavage. La ville dispose d'une population prévue de 100 PNJ pacifiques basés sur de vrais modèles 3D, avec teintes, déplacements autonomes, animations disponibles et dialogues par métier ; le rendu limite la distance d'affichage pour protéger les performances mobiles. Le marché, la forge, la mairie, le château et le camp sont ajoutés comme lieux 3D. Le personnage Meshy prioritaire est chargé depuis l'archive `02-MODELS/characters/astrea-meshy-character-upload.zip` : le jeu extrait son FBX et ses textures en mémoire. `hero.glb` sert de repli si l'archive ne peut pas être chargée.
 
 Les clips réellement intégrés au personnage sont détectés automatiquement. Le rapport d'inspection indique que les GLB externes d'animation n'ont pas de squelette source exploitable : le jeu ne les télécharge donc plus pendant la partie. Si le personnage n'a pas de clip compatible, une animation procédurale pilotée par les os du vrai modèle riggé sert de secours. La compatibilité et le rendu doivent encore être validés sur Chrome Android. Utiliser le [laboratoire mobile d'animations](./08-UI/animation-lab.html) pour examiner les clips séparément. L'épée divine est convertie et chargée en priorité, avec une épée de secours en cas d'échec.
 
@@ -15,7 +15,7 @@ Les clips réellement intégrés au personnage sont détectés automatiquement. 
 - [Prototypes historiques conservés](./10-PROTOTYPES/README.md)
 - [Prototype du village mobile V2](./10-PROTOTYPES/legacy/ASTREA-MOBILE-VILLAGE-OPTIMISE-V2.html)
 - [Prototype de test des assets](./10-PROTOTYPES/legacy/ASTREA_ASSETS_TEST_CORRIGE.html)
-- Les cinq démonstrations HTML de nature, rig, combos et attaques ultimes restent dans `04-ANIMATIONS/`. Ce sont des simulations 2D interactives, distinctes des fichiers GLB d'animation.
+- Les démonstrations HTML de `04-ANIMATIONS/` restent conservées comme références de timing. Les combos de poings/épée, quatre ultimes et la séquence ultime ultime de 20 secondes sont désormais reliés aux commandes du prototype 3D ; les clips externes sans squelette source exploitable ne sont pas chargés en jeu.
 
 ## Création de personnage
 - [Ouvrir le créateur 3D ASTREA](./08-UI/character-creator.html) — choix masculin/féminin, taille de 1,60 à 2,10 m, corpulence, teintes de peau, coiffures, couleurs des cheveux et des yeux, tenues, rotation de l'aperçu et export JSON.
