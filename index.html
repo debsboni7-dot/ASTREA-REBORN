@@ -509,6 +509,8 @@ function frame(){
  interact.textContent=insideHouse?'SORTIR':chest?'OUVRIR':homeDistance<2.5?'MAISON':guideDistance<=3.1?'PARLER':'PNJ';
  const target=new THREE.Vector3(player.position.x,player.position.y+1.1,player.position.z),dist=7.5;
  camera.position.set(target.x+Math.sin(yaw)*dist,target.y+2.4+pitch*5,target.z+Math.cos(yaw)*dist);camera.lookAt(target);
+ // Scintillement très discret des lumières du village : effet vivant sans bloom ni ombres dynamiques.
+ const lightTime=clock.elapsedTime;for(let i=0;i<villageLights.length;i++){villageLights[i].intensity=1.05+Math.sin(lightTime*5.2+i*1.7)*.10+Math.sin(lightTime*8.1+i)*.035}
  renderer.render(scene,camera);
 }
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
