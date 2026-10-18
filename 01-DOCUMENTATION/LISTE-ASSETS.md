@@ -2,7 +2,7 @@
 
 | Asset | Chemin importé | État |
 |---|---|---|
-| Personnage principal GLB | `02-MODELS/characters/hero.glb` | Branché au chargement du prototype ; test visuel nécessaire |
+| Nouveau personnage Meshy riggé | `02-MODELS/characters/astrea-meshy-character-upload.zip` | Prioritaire : extraction en mémoire du FBX et des textures au lancement ; animation intégrée utilisée si présente ; test visuel sur Android encore nécessaire |\n| Personnage de secours | `02-MODELS/characters/hero.glb` | Chargé automatiquement si l’archive Meshy ou le FBX échoue |
 | Variante du personnage Meshy | `02-MODELS/characters/main-character-meshy.glb` | Importée, non chargée par défaut |
 | Personnage supplémentaire | `02-MODELS/characters/character-extra.glb` | Importé |
 | Jeune aventurier | `02-MODELS/characters/young-adventurer.glb` | Importé |
@@ -29,4 +29,4 @@
 
 L'inventaire avec tailles et chemins source est dans [ASSETS-IMPORTES.md](./ASSETS-IMPORTES.md). Les fichiers ajoutés manuellement et extraits des archives sont décrits dans [ASSETS-UTILISATEUR.md](./ASSETS-UTILISATEUR.md).
 
-Les exports FBX sont conservés comme sources : le chargeur actuel du prototype utilise GLB/glTF et ne charge pas directement le FBX.
+Le personnage Meshy principal est conservé dans son ZIP source et extrait en mémoire par `index.html` au lancement ; les FBX d'autres assets restent des sources non chargées directement par le prototype. Les clips d'animation intégrés au FBX sont détectés automatiquement, mais la correspondance des noms de clips et leur lecture doivent encore être vérifiées visuellement sur Chrome Android.
