@@ -1,3 +1,4 @@
+"""ASTREA REBORN: convert Meshy FBX swords to textured GLB using Blender."""
 import bpy
 import sys
 import os
