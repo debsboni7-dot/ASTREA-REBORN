@@ -10,9 +10,9 @@ export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes }) 
     { id:'frostholm', name:'Frostholm', biome:'Terres glacées', color:0xb8d8e5, sky:0x9ebacb, price:200, bounds:{minX:-42,maxX:42,minZ:-42,maxZ:42}, description:'Montagnes enneigées et mammouths ancestraux.' },
     { id:'drakorys', name:'Drakorys', biome:'Archipel volcanique', color:0x554b4a, sky:0x9d7772, price:250, bounds:{minX:-42,maxX:42,minZ:-42,maxZ:42}, description:'Îles volcaniques, cavernes et dragons.' }
   ];
-  const defaults = { coins:500, region:'village', kingdoms:[], discovered:['village'], inventory:['Épée de départ'], defeated:[], questStep:0 };
+  const defaults = { coins:500, region:'village', kingdoms:[], discovered:['village'], inventory:['Épée de départ'], resources:{bois:0,pierre:0,herbes:0,ecaille:0,ivoire:0}, potions:1, equipment:'Épée de départ', defeated:[], claimedQuests:[], questStep:0, level:1, xp:0, hp:100, maxHp:100 };
   let save = defaults;
-  try { const old=JSON.parse(localStorage.getItem(SAVE_KEY)||'null'); if(old&&typeof old==='object') save={...defaults,...old}; } catch {}
+  try { const old=JSON.parse(localStorage.getItem(SAVE_KEY)||'null'); if(old&&typeof old==='object') save={...defaults,...old,resources:{...defaults.resources,...(old.resources||{})},inventory:Array.isArray(old.inventory)?old.inventory:defaults.inventory,claimedQuests:Array.isArray(old.claimedQuests)?old.claimedQuests:[]}; } catch {}
   let currentRegion = regions.find(r=>r.id===save.region) || regions[0];
   let boatTrips = 0;
   const zoneGroups = {};
@@ -68,10 +68,70 @@ export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes }) 
         button('ATTAQUER ⚔',()=>{if(currentRegion.id!==c.region){hint.textContent='Voyage d’abord vers '+region.name+'.';return}fightCreature(id);renderPanel()},currentRegion.id!==c.region||c.hp<=0)
       ]));
     }
+    panel.append(el('h3',{},'🛒 MARCHANDS & ÉQUIPEMENT'));
+    const shopItems=[
+      {id:'potion',name:'Potion de soin',desc:'Restaure 35 PV hors combat.',price:35},
+      {id:'iron-sword',name:'Épée en fer',desc:'Une arme fiable pour l’aventure.',price:120},
+      {id:'forest-blade',name:'Lame sylvestre',desc:'Une lame ornée inspirée des forêts.',price:260},
+      {id:'dragon-edge',name:'Lame draconique',desc:'Arme rare. La légende dit qu’elle résiste au feu.',price:650}
+    ];
+    shopItems.forEach(item=>panel.append(makeCard(item.name,item.desc+' · '+item.price+' Couronnes',[
+      button(item.id==='potion'?'ACHETER':save.inventory.includes(item.name)?'DÉJÀ POSSÉDÉ':'ACHETER / ÉQUIPER',()=>{
+        if(item.id!=='potion'&&save.inventory.includes(item.name)){save.equipment=item.name;persist();hint.textContent=item.name+' équipée dans la progression.';renderPanel();return}
+        if(save.coins<item.price){hint.textContent='Pas assez de Couronnes.';return}
+        save.coins-=item.price;
+        if(item.id==='potion')save.potions=(save.potions||0)+1;
+        else {save.inventory.push(item.name);save.equipment=item.name}
+        persist();hint.textContent=item.name+' acheté.';renderPanel();
+      },item.id!=='potion'&&save.inventory.includes(item.name)&&save.equipment===item.name)
+    ])));
+    panel.append(el('h3',{},'🎒 INVENTAIRE & FABRICATION'));
+    panel.append(makeCard('Sac d’aventure','Arme équipée : '+(save.equipment||'Épée de départ')+' · Potions : '+(save.potions||0)+' · PV : '+save.hp+'/'+save.maxHp+' · Niveau '+save.level+' ('+save.xp+' XP)',[
+      button('UTILISER UNE POTION',()=>{
+        if((save.potions||0)<1){hint.textContent='Tu n’as aucune potion.';return}
+        if(save.hp>=save.maxHp){hint.textContent='Tes PV sont déjà au maximum.';return}
+        save.potions--;save.hp=Math.min(save.maxHp,save.hp+35);persist();hint.textContent='Potion utilisée : +35 PV.';renderPanel();
+      },(save.potions||0)<1||save.hp>=save.maxHp),
+      button('RAMASSER DES RESSOURCES',()=>{
+        save.resources.bois+=2;save.resources.pierre+=2;save.resources.herbes+=1;persist();hint.textContent='Ressources de test collectées : 2 bois, 2 pierres, 1 herbe.';renderPanel();
+      })
+    ]));
+    panel.append(makeCard('Fabriquer une potion','Coût : 2 herbes + 25 Couronnes.',[
+      button('FABRIQUER',()=>{
+        if(save.resources.herbes<2||save.coins<25){hint.textContent='Il faut 2 herbes et 25 Couronnes.';return}
+        save.resources.herbes-=2;save.coins-=25;save.potions=(save.potions||0)+1;persist();hint.textContent='Potion fabriquée.';renderPanel();
+      },save.resources.herbes<2||save.coins<25)
+    ]));
+    panel.append(makeCard('Fabriquer une lame en fer','Coût : 4 pierres + 3 bois + 90 Couronnes.',[
+      button('FABRIQUER LA LAME',()=>{
+        if(save.resources.pierre<4||save.resources.bois<3||save.coins<90){hint.textContent='Ressources insuffisantes.';return}
+        save.resources.pierre-=4;save.resources.bois-=3;save.coins-=90;
+        if(!save.inventory.includes('Lame forgée'))save.inventory.push('Lame forgée');
+        save.equipment='Lame forgée';persist();hint.textContent='Lame forgée et équipée.';renderPanel();
+      },save.resources.pierre<4||save.resources.bois<3||save.coins<90)
+    ]));
+    panel.append(el('p',{class:'aw-muted'},'Matériaux : '+save.resources.bois+' bois · '+save.resources.pierre+' pierres · '+save.resources.herbes+' herbes · '+save.resources.ecaille+' écailles · '+save.resources.ivoire+' ivoires.'));
+    panel.append(el('h3',{},'📜 QUÊTES'));
+    const quests=[
+      {id:'explorer',name:'Découvrir le monde',desc:'Débloque un premier continent en voyageant.',reward:100,xp:40,done:save.discovered.length>1},
+      {id:'hunter',name:'Chasseur de créatures',desc:'Vaincs le dragon ou le mammouth ancestral.',reward:200,xp:100,done:save.defeated.includes('dragon')||save.defeated.includes('mammoth')},
+      {id:'founder',name:'Un royaume à soi',desc:'Fonde ton premier pays.',reward:250,xp:120,done:save.kingdoms.length>0}
+    ];
+    quests.forEach(q=>{
+      const claimed=save.claimedQuests.includes(q.id);
+      panel.append(makeCard(q.name,(q.done?'Objectif accompli. ':'Objectif non accompli. ')+q.desc+' Récompense : '+q.reward+' Couronnes et '+q.xp+' XP.',[
+        button(claimed?'RÉCOMPENSE RÉCUPÉRÉE':q.done?'RÉCLAMER LA RÉCOMPENSE':'OBJECTIF À REMPLIR',()=>{
+          if(claimed||!q.done)return;
+          save.claimedQuests.push(q.id);save.coins+=q.reward;save.xp+=q.xp;
+          while(save.xp>=save.level*100){save.xp-=save.level*100;save.level++;save.maxHp+=10;save.hp=save.maxHp}
+          persist();hint.textContent='Quête terminée : +'+q.reward+' Couronnes et '+q.xp+' XP.';renderPanel();
+        },claimed||!q.done)
+      ]));
+    });
     panel.append(el('h3',{},'🎒 PROGRESSION'));
-    panel.append(makeCard('Inventaire / quêtes','Couronnes : '+save.coins+' · Continents découverts : '+save.discovered.length+'/'+regions.length+' · Pays fondés : '+save.kingdoms.length+' · Voyages effectués dans cette session : '+boatTrips,[
-      button('RÉCOMPENSE DE QUÊTE (+75 💰)',()=>{save.coins+=75;save.questStep++;persist();hint.textContent='Quête accomplie : +75 couronnes.';renderPanel()}),
-      button('SAUVEGARDER',()=>{persist();hint.textContent='Progression du monde sauvegardée.';})
+    panel.append(makeCard('État du monde','Couronnes : '+save.coins+' · Niveau : '+save.level+' · Continents : '+save.discovered.length+'/'+regions.length+' · Pays : '+save.kingdoms.length+' · Voyages cette session : '+boatTrips,[
+      button('SAUVEGARDER',()=>{persist();hint.textContent='Progression du monde sauvegardée.';}),
+      button('RÉINITIALISER LES PV',()=>{save.hp=save.maxHp;persist();hint.textContent='PV restaurés.';renderPanel();})
     ]));
   }
   function travel(id){
@@ -148,9 +208,11 @@ export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes }) 
   }
   function fightCreature(id){
     const c=creatureState[id];if(!c||c.hp<=0){hint.textContent='Cette créature a déjà été vaincue. Elle reviendra plus tard.';return}
-    c.hp=Math.max(0,c.hp-55);save.coins+=8;
-    if(c.hp===0){save.coins+=c.reward;save.defeated.push(id);hint.textContent=c.name+' vaincu ! Récompense : '+c.reward+' couronnes.'}
-    else hint.textContent='Coup réussi contre '+c.name+' : 55 dégâts. '+c.hp+'/'+c.maxHp+' PV.';
+    const damage=Math.max(1,55+(save.level-1)*5);c.hp=Math.max(0,c.hp-damage);save.coins+=8;save.xp+=12;
+    if(id==='dragon')save.resources.ecaille+=1;else save.resources.ivoire+=1;
+    while(save.xp>=save.level*100){save.xp-=save.level*100;save.level++;save.maxHp+=10;save.hp=save.maxHp}
+    if(c.hp===0){save.coins+=c.reward;if(!save.defeated.includes(id))save.defeated.push(id);hint.textContent=c.name+' vaincu ! Récompense : '+c.reward+' couronnes.'}
+    else hint.textContent='Coup réussi contre '+c.name+' : '+damage+' dégâts. '+c.hp+'/'+c.maxHp+' PV.';
     if(c.root){c.root.rotation.y+=.24;if(c.hp===0)c.root.visible=false}
     persist();
   }
