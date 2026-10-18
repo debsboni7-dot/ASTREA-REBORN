@@ -12,7 +12,9 @@
 - [x] Ajouter le chargement à la demande des clips d'inactivité, de marche et d'attaque.
 - [ ] Vérifier visuellement le modèle, l'échelle et les matériaux sur Chrome Android.
 - [ ] Vérifier que les clips d'animation correspondent au squelette du personnage.
-- [ ] Convertir les FBX utiles en GLB si nécessaire.
+- [x] Convertir les deux exports FBX de l'épée divine en GLB.
+- [ ] Vérifier l'orientation, les textures et le point d'attache de l'épée sur Chrome Android.
+- [ ] Terminer l'optimisation de taille des GLB pour mobile.
 
 ## Phase 3 — Gameplay
 - [ ] Déplacement, course et saut avec animation confirmée.
