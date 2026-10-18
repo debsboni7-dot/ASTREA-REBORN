@@ -375,7 +375,18 @@ function playCharacterAnimation(kind){
    if(!animationCache[kind]){
      animationCache[kind]=loadGLB('04-ANIMATIONS/'+file).then(g=>{
        const sourceClip=(g.animations||[])[0];if(!sourceClip)throw new Error('Aucun clip dans '+file);
-       const retargeted=retargetClip(visualRoot,g.scene,sourceClip,{useFirstFramePosition:true});
+       let targetSkin=null,sourceSkin=null;
+       visualRoot.traverse(o=>{if(o.isSkinnedMesh&&o.skeleton)targetSkin=targetSkin||o});
+       g.scene.traverse(o=>{if(o.isSkinnedMesh&&o.skeleton)sourceSkin=sourceSkin||o});
+       if(!targetSkin||!sourceSkin)throw new Error('Squelette source/cible introuvable pour '+file);
+       const boneKey=n=>String(n||'').toLowerCase().replace(/mixamorig|armature|skeleton|rig/g,'').replace(/[^a-z0-9]/g,'');
+       const sourceBones=sourceSkin.skeleton.bones;const names={};
+       for(const targetBone of targetSkin.skeleton.bones){
+         const key=boneKey(targetBone.name);const match=sourceBones.find(b=>boneKey(b.name)===key);
+         if(match)names[targetBone.name]=match.name;
+       }
+       if(!Object.keys(names).length)throw new Error('Aucun nom d’os commun entre les deux rigs pour '+file);
+       const retargeted=retargetClip(targetSkin,sourceSkin,sourceClip,{useFirstFramePosition:true,names});
        if(!retargeted||!retargeted.tracks||!retargeted.tracks.length)throw new Error('Aucune piste compatible pour '+file);
        retargeted.name='ASTREA_'+kind;heroClips[retargeted.name]=retargeted;animationCache[kind]=true;
        return true;
