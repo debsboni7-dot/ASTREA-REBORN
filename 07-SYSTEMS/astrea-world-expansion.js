@@ -10,7 +10,7 @@ export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes, eq
     { id:'night', name:'Night', biome:'Forêt nocturne', color:0x263b59, sky:0x18243e, price:0, bounds:{minX:-42,maxX:42,minZ:-42,maxZ:42}, description:'Forêt bleue, ruines lumineuses et créatures nocturnes.' },
     { id:'dark-continent', name:'Continent noir', biome:'Terres corrompues', color:0x302b35, sky:0x4b394d, price:0, bounds:{minX:-42,maxX:42,minZ:-42,maxZ:42}, description:'Zone dangereuse réservée aux aventuriers préparés.' }
   ];
-  const defaults = { coins:500, region:'astrea', kingdoms:[], discovered:['astrea'], inventory:['Épée de départ'], resources:{bois:0,pierre:0,herbes:0,ecaille:0,ivoire:0}, potions:1, equipment:'Épée de départ', defeated:[], claimedQuests:[], harvestAt:{}, questStep:0, level:1, xp:0, hp:100, maxHp:100 };
+  const defaults = { coins:500, region:'astrea', kingdoms:[], discovered:['astrea'], inventory:[], resources:{bois:0,pierre:0,herbes:0,ecaille:0,ivoire:0}, potions:1, equipment:'Mains nues', hasHorse:false, defeated:[], claimedQuests:[], harvestAt:{}, questStep:0, level:1, xp:0, hp:100, maxHp:100 };
   let save = defaults;
   try { const old=JSON.parse(localStorage.getItem(SAVE_KEY)||'null'); if(old&&typeof old==='object') save={...defaults,...old,resources:{...defaults.resources,...(old.resources||{})},inventory:Array.isArray(old.inventory)?old.inventory:defaults.inventory,claimedQuests:Array.isArray(old.claimedQuests)?old.claimedQuests:[],harvestAt:old.harvestAt&&typeof old.harvestAt==='object'?old.harvestAt:{}}; } catch {}
   let currentRegion = regions.find(r=>r.id===save.region) || regions[0];
@@ -38,9 +38,9 @@ export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes, eq
       const action=button(isCurrent?'ZONE ACTUELLE':unlocked?'VOYAGER':'Voyager — '+r.price+' couronnes',()=>travel(r.id),isCurrent||(!unlocked&&save.coins<r.price));
       panel.append(makeCard(r.name+' · '+r.biome,r.description+' '+(r.price?'Coût du premier voyage : '+r.price+' couronnes.':'Voyage par monture à débloquer dans la progression.'),[action]));
     }
-    panel.append(el('h3',{},'🚢 VOYAGE PAR OCÉAN'));
-    panel.append(makeCard('Navire d’Astrea','Les traversées relient les continents. Le premier voyage vers une région coûte son tarif ; les retours vers les régions découvertes sont gratuits.',[
-      button('EMBARQUER',()=>{boatTrips++;hint.textContent='Voyage maritime prêt : choisis un continent dans le menu Monde.';panel.scrollTop=0;},false)
+    panel.append(el('h3',{},'🐎 VOYAGE À CHEVAL'));
+    panel.append(makeCard('Écurie et monture','Les voyages entre continents nécessitent un cheval. Prix de la monture : 350 couronnes. Les voyages sont déclenchés depuis ce menu après achat.',[
+      button(save.hasHorse?'CHEVAL POSSÉDÉ':'ACHETER UN CHEVAL — 350 💰',()=>{if(save.hasHorse){hint.textContent='Ton cheval est prêt pour le voyage.';return;}if(save.coins<350){hint.textContent='Il te faut 350 couronnes. Termine des quêtes et récupère des récompenses.';return;}save.coins-=350;save.hasHorse=true;persist();hint.textContent='Cheval acheté ! Tu peux maintenant voyager entre les continents.';renderPanel();},save.hasHorse||save.coins<350)
     ]));
     panel.append(el('h3',{},'🏰 FONDER TON PAYS'));
     panel.append(el('p',{},'Prix de fondation : 5 000 couronnes. Choisis un nom et une région découverte. Le pays est enregistré dans ta sauvegarde locale.'));
@@ -145,14 +145,15 @@ export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes, eq
   }
   function travel(id){
     const r=regions.find(x=>x.id===id);if(!r)return;
-    const unlocked=save.discovered.includes(id)||id==='village';
+    if(id!=='astrea'&&!save.hasHorse){hint.textContent='Il te faut un cheval pour voyager entre les continents. Achète-en un à l’écurie après avoir gagné des couronnes.';return;}
+    const unlocked=save.discovered.includes(id)||id==='astrea';
     if(!unlocked){if(save.coins<r.price){hint.textContent='Pas assez de couronnes pour voyager.';return}save.coins-=r.price;save.discovered.push(id)}
     currentRegion=r;save.region=id;persist();
-    if(id==='village'){setZone(null);player.position.set(0,0,-12);hint.textContent='Retour au village d’Astrea.';}
+    if(id==='astrea'){setZone(null);player.position.set(0,0,-12);hint.textContent='Retour sur le continent d’Astrea.';}
     else {setZone(id);player.position.set(0,0,5);hint.textContent='Bienvenue sur '+r.name+'. Explore la zone et rencontre ses créatures.';}
     window.ASTREA_BOUNDS=r.bounds;
-    if(collisionBoxes)collisionBoxes.forEach(c=>c.active=id==='village');
-    scene.background=new THREE.Color(r.sky);scene.fog=new THREE.Fog(r.sky,id==='village'?42:65,id==='village'?142:185);
+    if(collisionBoxes)collisionBoxes.forEach(c=>c.active=id==='astrea');
+    scene.background=new THREE.Color(r.sky);scene.fog=new THREE.Fog(r.sky,id==='astrea'?42:65,id==='astrea'?142:185);
     renderPanel();
   }
   function setZone(id){
