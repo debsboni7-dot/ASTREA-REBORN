@@ -14,7 +14,7 @@
 - [ ] Vérifier que les clips d'animation correspondent au squelette du personnage.
 - [x] Convertir les deux exports FBX de l'épée divine en GLB.
 - [ ] Vérifier l'orientation, les textures et le point d'attache de l'épée sur Chrome Android.
-- [ ] Terminer l'optimisation de taille des GLB pour mobile.
+- [x] Réduire la taille des textures embarquées et des GLB de l'épée (conversion validée par GitHub Actions ; test mobile restant).
 
 ## Phase 3 — Gameplay
 - [ ] Déplacement, course et saut avec animation confirmée.
@@ -31,6 +31,11 @@
 
 ## Audio
 - [ ] Ajouter des sons réels quand les fichiers source seront fournis ou retrouvés.
+
+## Prochaines étapes bloquées par un test réel
+- [ ] Ouvrir le prototype sur Chrome Android et confirmer l'affichage sans écran noir.
+- [ ] Confirmer le héros, l'épée, les textures, les animations et la quête.
+- [ ] Mesurer fluidité, temps de chargement et chauffe sur le Galaxy A06.
 
 ## Règle de progression
 Un fichier importé n'est pas automatiquement un système terminé : conserver les tâches de compatibilité et de test comme incomplètes jusqu'à vérification en jeu.
