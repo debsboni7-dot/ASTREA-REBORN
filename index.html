@@ -139,6 +139,49 @@ const wellRing=new THREE.Mesh(new THREE.CylinderGeometry(.72,.8,.8,10),new THREE
 for(const z of [-18,-30,-42,-54,-66])for(const x of [-15,15]){box(.18,2.1,.18,0x59422e,x,1.05,z);const lamp=new THREE.Mesh(new THREE.OctahedronGeometry(.22),new THREE.MeshStandardMaterial({color:0xffd98a,emissive:0xffa52e,emissiveIntensity:1.35,roughness:.28}));lamp.position.set(x,2.25,z);scene.add(lamp);const halo=new THREE.Mesh(new THREE.SphereGeometry(.34,8,6),new THREE.MeshBasicMaterial({color:0xffb84d,transparent:true,opacity:.12,depthWrite:false}));halo.position.copy(lamp.position);scene.add(halo);addCollider(x,z,.35,.35,'poteau')}
 for(let i=0;i<36;i++){const side=i%2?1:-1,x=side*(15.8+(i%3)*.5),z=-3-i*3.1;box(.18,1.25,.18,0x60472d,x,.62,z);const crown=new THREE.Mesh(new THREE.ConeGeometry(.8,2.1,5),new THREE.MeshStandardMaterial({color:[0x386b43,0x477b45,0x527e4a][i%3],roughness:1}));crown.position.set(x,2.05,z);scene.add(crown);addCollider(x,z,.55,.55,'arbre')}
 
+// Nature explorable au-delà des remparts : géométries instanciées légères pour mobile.
+function addExplorationNature(){
+ const treeTrunk=new THREE.CylinderGeometry(.12,.2,1.8,5);
+ const treeCrown=new THREE.ConeGeometry(1,2.7,5);
+ const trunkMat=new THREE.MeshStandardMaterial({color:0x60432d,roughness:1});
+ const crownMats=[0x2f7040,0x3f8248,0x528c4b].map(color=>new THREE.MeshStandardMaterial({color,roughness:1}));
+ const trunkInstances=new THREE.InstancedMesh(treeTrunk,trunkMat,72);
+ const crownInstances=crownMats.map(m=>new THREE.InstancedMesh(treeCrown,m,24));
+ const dummy=new THREE.Object3D();let ti=0;const ci=[0,0,0];
+ for(let i=0;i<72;i++){
+  const angle=i*2.3999632297,rad=27+(i%8)*5.5;
+  const x=Math.cos(angle)*rad,z=-18+Math.sin(angle)*rad*1.8;
+  if(Math.abs(x)<24&&z<2&&z>-120)continue;
+  dummy.position.set(x,.9,z);dummy.rotation.y=angle*.4;dummy.updateMatrix();trunkInstances.setMatrixAt(ti,dummy.matrix);
+  const kind=i%3;dummy.position.set(x,2.45,z);dummy.scale.setScalar(.85+(i%4)*.1);dummy.updateMatrix();crownInstances[kind].setMatrixAt(ci[kind]++,dummy.matrix);ti++;
+ }
+ trunkInstances.count=ti;trunkInstances.instanceMatrix.needsUpdate=true;scene.add(trunkInstances);
+ crownInstances.forEach((m,i)=>{m.count=ci[i];m.instanceMatrix.needsUpdate=true;scene.add(m)});
+ // Herbe en petits bouquets instanciés, surtout dans les zones hors routes et bâtiments.
+ const grassGeo=new THREE.ConeGeometry(.055,.42,3);
+ const grassMat=[0x4d8b43,0x6c9c4a,0x3d773d].map(color=>new THREE.MeshStandardMaterial({color,roughness:1,side:THREE.DoubleSide}));
+ const grass=grassMat.map(m=>new THREE.InstancedMesh(grassGeo,m,420));
+ let seed=9137;const rand=()=>{seed=(seed*16807)%2147483647;return(seed-1)/2147483646};
+ for(let i=0;i<420;i++){
+  let x,z;
+  do{x=(rand()-.5)*240;z=10-rand()*245}while((Math.abs(x)<24&&z>-120)||(Math.abs(x)<5&&z>-8));
+  const k=i%3;dummy.position.set(x,.18,z);dummy.rotation.set(0,rand()*Math.PI,0);dummy.scale.set(.6+rand(),.65+rand()*.8,.6+rand());dummy.updateMatrix();grass[k].setMatrixAt(Math.floor(i/3),dummy.matrix);
+ }
+ grass.forEach((m,k)=>{m.count=Math.ceil(420/3);m.instanceMatrix.needsUpdate=true;scene.add(m)});
+ // Petits animaux paisibles stylisés, avec déplacement lent et sans calcul physique lourd.
+ const wildlife=[];
+ for(let i=0;i<8;i++){
+  const animal=new THREE.Group(),fur=new THREE.MeshStandardMaterial({color:[0x9c7a50,0xb3a080,0x7c6548,0xd1c5a7][i%4],roughness:1});
+  const body=new THREE.Mesh(new THREE.SphereGeometry(.34,8,6),fur);body.scale.set(1.35,.78,.75);body.position.y=.43;animal.add(body);
+  const head=new THREE.Mesh(new THREE.SphereGeometry(.2,8,6),fur);head.position.set(.34,.67,0);animal.add(head);
+  for(const side of [-1,1]){const ear=new THREE.Mesh(new THREE.ConeGeometry(.07,.24,5),fur);ear.position.set(.36,.88,side*.1);ear.rotation.z=-.18;animal.add(ear)}
+  for(const x of [-.22,.2])for(const z of [-.16,.16]){const leg=new THREE.Mesh(new THREE.CylinderGeometry(.045,.055,.26,5),fur);leg.position.set(x,.15,z);animal.add(leg)}
+  animal.position.set((i%2?1:-1)*(29+(i%4)*7),0,-22-i*17);animal.userData.wildlife={phase:i*1.7,originX:animal.position.x,originZ:animal.position.z};scene.add(animal);wildlife.push(animal);
+ }
+ window.ASTREA_WILDLIFE=wildlife;
+}
+addExplorationNature();
+
 // Remparts, tours et porte fortifiée : limites physiques de la ville.
 const wallMat=new THREE.MeshStandardMaterial({color:0x77766d,roughness:1});
 function cityWall(w,h,d,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),wallMat);m.position.set(x,y,z);scene.add(m);return m}
@@ -464,7 +507,7 @@ async function loadPrimaryAssets(){
  jobs.push((async()=>{
    // Priorité au personnage masculin Kimi, puis à l'archive Meshy et aux GLB masculins locaux. hero.glb n'est jamais utilisé.
    const g=await loadPrimaryCharacter();
-   const model=g.scene;normalizeModel(model,1.9);player.add(model);player.visible=true;visualRoot=model;loadedHero=true;cacheProceduralRig(model);
+   const model=g.scene;normalizeModel(model,1.78);player.add(model);player.visible=true;visualRoot=model;loadedHero=true;cacheProceduralRig(model);
    if(savedCharacter && !String(g.source||'').startsWith('Meshy FBX')){
      player.scale.y=savedCharacter.height/190;
      const outfit=new THREE.Color(outfitColors[savedCharacter.outfit]||0x315c9b);
