@@ -953,7 +953,7 @@ function astreaSfx(kind='hit'){
   astreaAudioContext=astreaAudioContext||new AudioCtx();if(astreaAudioContext.state==='suspended')astreaAudioContext.resume();
   const ctx=astreaAudioContext,now=ctx.currentTime;
   const specs={hit:[150,.075,'triangle',.035],heavy:[85,.19,'sawtooth',.045],magic:[520,.22,'sine',.035],ultimate:[240,.34,'sawtooth',.045],jump:[280,.09,'sine',.018],purchase:[680,.12,'sine',.025]};
-  const [freq,dur,wave,gainValue]=specs[kind]||specs.hit;const osc=ctx.createOscillator(),gain=ctx.createGain();osc.type=wave;osc.frequency.setValueAtTime(freq,now);osc.frequency.exponentialRampToValueAtTime(Math.max(45,freq*.48),now+dur);gain.gain.setValueAtTime(gainValue,now);gain.gain.exponentialRampToValueAtTime(.0001,now+dur);osc.connect(gain);gain.connect(ctx.destination);osc.start(now);osc.stop(now+dur);
+  const [freq,dur,wave,baseGain]=specs[kind]||specs.hit;let volume=1;try{const prefs=JSON.parse(localStorage.getItem('astrea-reborn.settings.v1')||'{}');volume=prefs.muted?0:Math.max(0,Math.min(1,Number(prefs.masterVolume??70)/100))*Math.max(0,Math.min(1,Number(prefs.sfxVolume??70)/100));}catch(_){}if(volume<=0)return;const gainValue=baseGain*volume;const osc=ctx.createOscillator(),gain=ctx.createGain();osc.type=wave;osc.frequency.setValueAtTime(freq,now);osc.frequency.exponentialRampToValueAtTime(Math.max(45,freq*.48),now+dur);gain.gain.setValueAtTime(gainValue,now);gain.gain.exponentialRampToValueAtTime(.0001,now+dur);osc.connect(gain);gain.connect(ctx.destination);osc.start(now);osc.stop(now+dur);
  }catch(e){/* audio optionnel : ne doit jamais bloquer le combat */}
 }
 function startCombatSequence(name){
