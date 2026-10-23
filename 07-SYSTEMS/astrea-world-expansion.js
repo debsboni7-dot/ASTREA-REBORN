@@ -22,11 +22,22 @@ export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes, eq
     const geo=new THREE.PlaneGeometry(300,300,80,80),a=geo.attributes.position;
     for(let i=0;i<a.count;i++){const x=a.getX(i),z=a.getY(i),d=Math.max(Math.abs(x),Math.abs(z));const fade=Math.min(1,Math.max(0,(d-28)/42));const h=(Math.sin(x*.035)*1.4+Math.cos(z*.041)*1.2+Math.sin((x+z)*.023)*1.7)*fade;a.setZ(i,h);}
     geo.computeVertexNormals();
-    const canvas=document.createElement('canvas');canvas.width=128;canvas.height=128;const ctx=canvas.getContext('2d');ctx.fillStyle='#65884b';ctx.fillRect(0,0,128,128);let seed=771;const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};for(let i=0;i<900;i++){ctx.globalAlpha=.12+rand()*.3;ctx.fillStyle=['#456b38','#8da85d','#6f9148','#b3aa69'][i%4];ctx.beginPath();ctx.ellipse(rand()*128,rand()*128,1+rand()*2,1+rand()*1.5,rand()*3,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
-    const tex=new THREE.CanvasTexture(canvas);tex.wrapS=tex.wrapT=THREE.RepeatWrapping;tex.repeat.set(14,14);tex.colorSpace=THREE.SRGBColorSpace;
-    const ground=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({map:tex,roughness:1}));ground.rotation.x=-Math.PI/2;ground.position.set(0,-.24,0);ground.receiveShadow=true;outskirts.add(ground);
-    // Bord de mer et sentier de sortie visibles au-delà du village.
-    const path=new THREE.Mesh(new THREE.PlaneGeometry(5,95),new THREE.MeshStandardMaterial({color:0xb8a17a,roughness:1}));path.rotation.x=-Math.PI/2;path.position.set(0,-.12,40);outskirts.add(path);
+    const getPbr=window.ASTREA_GET_PBR_TEXTURE;
+    const terrainMat=new THREE.MeshStandardMaterial({
+      map:getPbr?getPbr('terrain','diff'):null,
+      normalMap:getPbr?getPbr('terrain','nor_gl'):null,
+      roughnessMap:getPbr?getPbr('terrain','rough'):null,
+      roughness:1
+    });
+    const ground=new THREE.Mesh(geo,terrainMat);ground.rotation.x=-Math.PI/2;ground.position.set(0,-.24,0);ground.receiveShadow=true;outskirts.add(ground);
+    // Sentier extérieur : terre photographique répétée à l'échelle du chemin.
+    const trailMat=new THREE.MeshStandardMaterial({
+      map:getPbr?getPbr('dirtTrail','diff'):null,
+      normalMap:getPbr?getPbr('dirtTrail','nor_gl'):null,
+      roughnessMap:getPbr?getPbr('dirtTrail','rough'):null,
+      roughness:1
+    });
+    const path=new THREE.Mesh(new THREE.PlaneGeometry(5,95),trailMat);path.rotation.x=-Math.PI/2;path.position.set(0,-.12,40);outskirts.add(path);
   }
   // Aucun dragon ni mammouth factice : ils seront ajoutés lorsqu'un vrai modèle GLB sera disponible.
   function persist(){ try { localStorage.setItem(SAVE_KEY,JSON.stringify({...save,region:currentRegion.id})); } catch {} }
@@ -186,34 +197,28 @@ export function initAstreaWorld({ THREE, scene, player, hint, collisionBoxes, eq
   function buildZone(id){
     const r=regions.find(x=>x.id===id),g=new THREE.Group();g.userData.astreaZone=id;scene.add(g);
     const mat=(color,roughness=.95)=>new THREE.MeshStandardMaterial({color,roughness});
-    function biomeTexture(kind){
-      const canvas=document.createElement('canvas');canvas.width=256;canvas.height=256;
-      const ctx=canvas.getContext('2d');let base='#65894a';
-      if(kind==='solkar')base='#c5a05d';else if(kind==='frostholm')base='#c5dbe2';else if(kind==='drakorys')base='#554a47';
-      ctx.fillStyle=base;ctx.fillRect(0,0,256,256);
-      let seed=kind.length*193+7;const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
-      for(let i=0;i<1800;i++){
-        const x=rand()*256,y=rand()*256,rad=.4+rand()*2.5;
-        if(kind==='elarion')ctx.fillStyle=['#416d3a','#799953','#9aa85b','#3d6033'][Math.floor(rand()*4)];
-        else if(kind==='solkar')ctx.fillStyle=['#e0c17a','#a9874b','#d0ad68','#b89555'][Math.floor(rand()*4)];
-        else if(kind==='frostholm')ctx.fillStyle=['#edf6f6','#9bbbc9','#c7e0e6','#8ba8b8'][Math.floor(rand()*4)];
-        else if(kind==='drakorys')ctx.fillStyle=['#332f31','#75615a','#51413e','#9b4c35'][Math.floor(rand()*4)];
-        else ctx.fillStyle=['#477542','#789451','#8e9b56','#554d36'][Math.floor(rand()*4)];
-        ctx.globalAlpha=.18+rand()*.36;ctx.beginPath();ctx.ellipse(x,y,rad,rad*(.45+rand()),rand()*3.14,0,Math.PI*2);ctx.fill();
-      }
-      if(kind==='elarion'){
-        for(let i=0;i<70;i++){ctx.globalAlpha=.35;ctx.strokeStyle=i%2?'#c0b66a':'#a3b66b';ctx.lineWidth=1;ctx.beginPath();const x=rand()*256,y=rand()*256;ctx.moveTo(x,y);ctx.lineTo(x+rand()*2-1,y-2-rand()*4);ctx.stroke();}
-      }
-      ctx.globalAlpha=1;const tex=new THREE.CanvasTexture(canvas);tex.wrapS=tex.wrapT=THREE.RepeatWrapping;tex.repeat.set(8,8);tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=Math.min(4,renderer?.capabilities?.getMaxAnisotropy?.()||1);return tex;
+    function biomeMaterial(kind){
+      const getPbr=window.ASTREA_GET_PBR_TEXTURE;
+      let type='terrain';
+      if(kind==='solkar')type='soilSurface';
+      else if(kind==='van'||kind==='night')type='forestFloor';
+      const tint=kind==='dark-continent'?0x777078:0xffffff;
+      return new THREE.MeshStandardMaterial({
+        map:getPbr?getPbr(type,'diff'):null,
+        normalMap:getPbr?getPbr(type,'nor_gl'):null,
+        roughnessMap:getPbr?getPbr(type,'rough'):null,
+        color:tint,
+        roughness:1
+      });
     }
     const ocean=new THREE.Mesh(new THREE.PlaneGeometry(320,320),new THREE.MeshStandardMaterial({color:0x1d6388,roughness:.32,metalness:.12}));ocean.rotation.x=-Math.PI/2;ocean.position.y=-.22;g.add(ocean);
-    const beachMat=new THREE.MeshStandardMaterial({map:biomeTexture('solkar'),roughness:1});
+    const beachMat=biomeMaterial('solkar');
     const beach=new THREE.Mesh(new THREE.PlaneGeometry(96,96),beachMat);beach.rotation.x=-Math.PI/2;beach.position.y=-.105;g.add(beach);
     // Relief procédural avec collines douces et centre dégagé pour le joueur.
     const terrainGeo=new THREE.PlaneGeometry(84,84,64,64),pos=terrainGeo.attributes.position;
     for(let i=0;i<pos.count;i++){const x=pos.getX(i),z=pos.getY(i),fade=Math.min(1,Math.max(0,(Math.max(Math.abs(x),Math.abs(z))-7)/17));let h=(Math.sin(x*.19+id.length)*.55+Math.cos(z*.17-id.length)*.42+Math.sin((x+z)*.11)*.3)*fade;h+=Math.max(0,Math.sin(x*.075+id.length)*Math.cos(z*.09))*1.25*fade;pos.setZ(i,h);}
     terrainGeo.computeVertexNormals();
-    const floor=new THREE.Mesh(terrainGeo,new THREE.MeshStandardMaterial({map:biomeTexture(id),color:0xffffff,roughness:1}));floor.rotation.x=-Math.PI/2;floor.position.y=-.045;floor.receiveShadow=true;g.add(floor);
+    const floor=new THREE.Mesh(terrainGeo,biomeMaterial(id));floor.rotation.x=-Math.PI/2;floor.position.y=-.045;floor.receiveShadow=true;g.add(floor);
     const rng=(n)=>{let x=Math.sin(n*127.1+(id.length*17))*43758.5453;return x-Math.floor(x)};
     for(let i=0;i<44;i++){
       const x=(rng(i+2)-.5)*82,z=(rng(i+100)-.5)*82;if(Math.abs(x)<5&&Math.abs(z)<7)continue;
