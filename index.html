@@ -33,6 +33,7 @@ import { initAstreaWorld } from './07-SYSTEMS/astrea-world-expansion.js';
 const ASTREA_SETTINGS_KEY='astrea-reborn.settings.v1';
 const astreaSettings=(()=>{const d={targetFps:30,resolutionScale:70,shadows:false,joystickLeft:true,joystickSize:100,buttonSize:100,cameraSensitivity:50,invertY:false,showFps:false};try{return {...d,...JSON.parse(localStorage.getItem(ASTREA_SETTINGS_KEY)||'{}')}}catch(_){return d}})();
 const fpsBadge=document.createElement('div');fpsBadge.id='astreaFpsCounter';fpsBadge.style.cssText='position:fixed;left:10px;bottom:10px;z-index:20;padding:5px 8px;border-radius:6px;background:#06101ddd;color:#f3d18a;font:700 11px system-ui;pointer-events:none;display:'+(astreaSettings.showFps?'block':'none');fpsBadge.textContent='FPS --';document.body.appendChild(fpsBadge);
+let astreaLastRender=0;
 const status=document.getElementById('status'),hint=document.getElementById('hint');
 const scene=new THREE.Scene();
 // Palette fantasy cinématographique : ciel doux, brume distante et soleil doré.
