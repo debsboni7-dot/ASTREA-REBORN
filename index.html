@@ -165,6 +165,18 @@ function addExplorationNature(){
   animal.position.set((i%2?1:-1)*(29+(i%4)*7),0,-22-i*17);animal.userData.wildlife={phase:i*1.7,originX:animal.position.x,originZ:animal.position.z};scene.add(animal);wildlife.push(animal);
  }
  window.ASTREA_WILDLIFE=wildlife;
+ // Relief visible hors du royaume : collines low-poly, géométrie légère pour mobile.
+ const hillGeo=new THREE.IcosahedronGeometry(1,1);
+ const hillMat=[0x587449,0x6d8250,0x7d7955].map(color=>new THREE.MeshStandardMaterial({color,roughness:1}));
+ const hills=hillMat.map(m=>new THREE.InstancedMesh(hillGeo,m,8));
+ for(let i=0;i<24;i++){
+  const side=i%2?1:-1,ring=42+(i%4)*15,z=16-Math.floor(i/2)*18;
+  const x=side*(ring+(i%3)*4),k=i%3;
+  dummy.position.set(x,-.45+(i%3)*.12,z);dummy.rotation.set(0,(i*1.13)%6.28,0);
+  dummy.scale.set(7+(i%4)*2,1.6+(i%3)*.7,9+(i%5)*2);dummy.updateMatrix();
+  hills[k].setMatrixAt(Math.floor(i/3),dummy.matrix);
+ }
+ hills.forEach((m,k)=>{m.count=8;m.instanceMatrix.needsUpdate=true;scene.add(m)});
 }
 addExplorationNature();
 
