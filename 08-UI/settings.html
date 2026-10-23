@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="theme-color" content="#0b1018"><title>ASTREA Reborn — Paramètres</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1018;--panel:#111b27;--gold:#d7b66c;--muted:#9fb0c0;--line:#354252;--text:#edf2f5}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% 0,#263448 0,transparent 55%),var(--bg);color:var(--text);font:16px system-ui,Arial,sans-serif;min-height:100vh}
+header{position:sticky;top:0;background:#0b1018ed;border-bottom:1px solid var(--line);padding:14px max(14px,calc((100% - 920px)/2));z-index:3;backdrop-filter:blur(12px)}
+.brand{font-weight:900;letter-spacing:2px;color:var(--gold);font-size:13px}.brand span{color:#eaf0f4}
+h1{font-size:clamp(22px,5vw,32px);margin:8px 0 4px;font-family:Georgia,serif}header p{margin:0;color:var(--muted);font-size:13px}
+main{max-width:920px;margin:auto;padding:14px 12px 110px}.tabs{display:flex;gap:6px;overflow:auto;padding:2px 0 12px;scrollbar-width:none}.tabs button{flex:0 0 auto;border:1px solid var(--line);border-radius:8px;padding:11px 13px;background:#111b27;color:var(--muted);font-weight:700}.tabs button[aria-selected=true]{color:#10151b;background:var(--gold);border-color:var(--gold)}
+section.panel{display:none;border:1px solid var(--line);border-radius:12px;background:linear-gradient(150deg,#172331f5,#0e151ef5);overflow:hidden;margin-bottom:12px}section.panel.active{display:block}.panel h2{font-size:13px;letter-spacing:2px;color:var(--gold);margin:0;padding:17px 16px 10px;text-transform:uppercase;border-bottom:1px solid #283646}
+.row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 16px;border-bottom:1px solid #263342;min-height:60px}.row:last-child{border-bottom:0}.row label,.label{font-size:14px;font-weight:650}.row small{display:block;color:var(--muted);font-weight:400;font-size:12px;margin-top:4px;line-height:1.4}.row input[type=checkbox]{width:23px;height:23px;accent-color:var(--gold);flex-shrink:0}.row input[type=range]{width:44%;min-width:110px;accent-color:var(--gold)}.row select{max-width:48%;background:#0a121c;border:1px solid #4a5c70;color:white;border-radius:7px;padding:10px}.value{color:var(--gold);font-size:12px;min-width:44px;text-align:right}.rangebox{display:flex;align-items:center;gap:8px}
+.notice{padding:12px 14px;border:1px solid #806c3e;background:#d7b66c12;color:#d8cba9;border-radius:10px;font-size:13px;line-height:1.45;margin-bottom:12px}
+footer{position:fixed;bottom:0;left:0;right:0;padding:10px 12px calc(10px + env(safe-area-inset-bottom));display:flex;gap:9px;justify-content:center;background:#0b1018ed;border-top:1px solid var(--line);backdrop-filter:blur(12px)}button,.btn{cursor:pointer}footer button,footer a{max-width:450px;flex:1;text-align:center;padding:13px 12px;border-radius:9px;font-weight:800;text-decoration:none;font-size:14px}.primary{background:linear-gradient(#e5cc87,#b9944a);color:#15191e;border:1px solid #f0d994}.secondary{background:#111b27;color:var(--text);border:1px solid var(--line)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;padding:14px 16px}.actions button{border:1px solid var(--line);background:#182535;color:var(--text);padding:10px;border-radius:8px}.actions .danger{border-color:#784444;color:#ffb6a9}
+#toast{position:fixed;top:12px;left:50%;transform:translateX(-50%);background:#d7b66c;color:#111923;padding:11px 16px;border-radius:9px;font-weight:800;font-size:13px;display:none;z-index:10;max-width:90vw}
+@media(min-width:700px){main{padding-top:20px}.tabs{flex-wrap:wrap}.row{padding:15px 20px}.row input[type=range]{max-width:260px}}
+</style></head>
+<body>
+<header><div class="brand">ASTREA <span>REBORN</span>　/　SYSTÈME</div><h1>Paramètres du jeu</h1><p>Personnalise ton expérience. Les options compatibles seront appliquées au prochain chargement du jeu.</p></header>
+<main>
+<div class="notice">Profil conseillé pour le Samsung Galaxy A06 : qualité faible, 30 FPS et textures 2K. Ces réglages sont enregistrés sur cet appareil et appliqués au jeu quand tu reviens sur ASTREA Reborn.</div>
+<nav class="tabs" aria-label="Catégories">
+<button data-tab="graphics" aria-selected="true">Graphismes</button><button data-tab="controls" aria-selected="false">Commandes</button><button data-tab="audio" aria-selected="false">Audio</button><button data-tab="gameplay" aria-selected="false">Gameplay</button><button data-tab="access" aria-selected="false">Accessibilité</button>
+</nav>
+<section class="panel active" id="graphics"><h2>Performances et rendu</h2>
+<div class="row"><div><label for="preset">Qualité globale</label><small>Un préréglage ajuste plusieurs options à la fois.</small></div><select id="preset"><option value="low">Faible</option><option value="medium">Moyen</option><option value="high">Élevé</option><option value="custom">Personnalisé</option></select></div>
+<div class="row"><label for="targetFps">FPS cible</label><select id="targetFps"><option value="30">30 FPS</option><option value="60">60 FPS</option></select></div>
+<div class="row"><div><label for="resolutionScale">Échelle de résolution</label><small>Plus bas = moins de charge graphique.</small></div><div class="rangebox"><input id="resolutionScale" type="range" min="50" max="100" step="5"><output class="value" data-for="resolutionScale"></output></div></div>
+<div class="row"><label for="shadows">Ombres</label><input id="shadows" type="checkbox"></div>
+<div class="row"><label for="ambientOcclusion">Occlusion ambiante</label><input id="ambientOcclusion" type="checkbox"></div>
+<div class="row"><label for="antiAliasing">Anticrénelage</label><input id="antiAliasing" type="checkbox"></div>
+<div class="row"><label for="textureQuality">Qualité des textures</label><select id="textureQuality"><option value="1k">1K</option><option value="2k">2K</option><option value="4k">4K</option></select></div>
+<div class="row"><label for="vfxQuality">Effets visuels (VFX)</label><select id="vfxQuality"><option value="low">Faible</option><option value="medium">Moyen</option><option value="high">Élevé</option></select></div>
+<div class="row"><div><label for="foliageDensity">Densité de végétation</label></div><div class="rangebox"><input id="foliageDensity" type="range" min="0" max="100" step="10"><output class="value" data-for="foliageDensity"></output></div></div>
+<div class="row"><label for="showFps">Afficher le compteur FPS</label><input id="showFps" type="checkbox"></div></section>
+<section class="panel" id="controls"><h2>Commandes tactiles et caméra</h2>
+<div class="row"><label for="joystickLeft">Joystick à gauche</label><input id="joystickLeft" type="checkbox"></div>
+<div class="row"><div><label for="joystickSize">Taille du joystick</label></div><div class="rangebox"><input id="joystickSize" type="range" min="60" max="140" step="5"><output class="value" data-for="joystickSize"></output></div></div>
+<div class="row"><div><label for="cameraSensitivity">Sensibilité caméra</label></div><div class="rangebox"><input id="cameraSensitivity" type="range" min="1" max="100"><output class="value" data-for="cameraSensitivity"></output></div></div>
+<div class="row"><label for="invertY">Inverser la caméra verticale</label><input id="invertY" type="checkbox"></div>
+<div class="row"><label for="cameraFollow">Suivi de caméra</label><input id="cameraFollow" type="checkbox"></div>
+<div class="row"><label for="aimAssist">Assistance à la visée</label><input id="aimAssist" type="checkbox"></div>
+<div class="row"><div><label for="buttonSize">Taille des boutons d'action</label></div><div class="rangebox"><input id="buttonSize" type="range" min="60" max="140" step="5"><output class="value" data-for="buttonSize"></output></div></div>
+<div class="row"><label for="vibration">Vibrations</label><input id="vibration" type="checkbox"></div></section>
+<section class="panel" id="audio"><h2>Volume et ambiance</h2>
+<div class="row"><label for="muted">Couper tous les sons</label><input id="muted" type="checkbox"></div>
+<div class="row"><div><label for="masterVolume">Volume général</label></div><div class="rangebox"><input id="masterVolume" type="range" min="0" max="100"><output class="value" data-for="masterVolume"></output></div></div>
+<div class="row"><div><label for="musicVolume">Musique</label></div><div class="rangebox"><input id="musicVolume" type="range" min="0" max="100"><output class="value" data-for="musicVolume"></output></div></div>
+<div class="row"><div><label for="sfxVolume">Bruitages</label></div><div class="rangebox"><input id="sfxVolume" type="range" min="0" max="100"><output class="value" data-for="sfxVolume"></output></div></div>
+<div class="row"><div><label for="ambienceVolume">Ambiance</label></div><div class="rangebox"><input id="ambienceVolume" type="range" min="0" max="100"><output class="value" data-for="ambienceVolume"></output></div></div></section>
+<section class="panel" id="gameplay"><h2>Préférences de jeu</h2>
+<div class="row"><label for="language">Langue</label><select id="language"><option value="fr">Français</option><option value="en">English</option></select></div>
+<div class="row"><label for="difficulty">Difficulté</label><select id="difficulty"><option value="story">Histoire</option><option value="normal">Normale</option><option value="hard">Difficile</option></select></div>
+<div class="row"><label for="subtitles">Sous-titres</label><input id="subtitles" type="checkbox"></div><div class="row"><label for="damageNumbers">Afficher les dégâts</label><input id="damageNumbers" type="checkbox"></div><div class="row"><label for="questMarkers">Marqueurs de quête</label><input id="questMarkers" type="checkbox"></div><div class="row"><label for="autoSave">Sauvegarde automatique</label><input id="autoSave" type="checkbox"></div><div class="row"><label for="autoTarget">Ciblage automatique</label><input id="autoTarget" type="checkbox"></div><div class="row"><label for="cameraShake">Secousses de caméra au combat</label><input id="cameraShake" type="checkbox"></div></section>
+<section class="panel" id="access"><h2>Accessibilité</h2><div class="row"><div><label for="uiScale">Taille de l'interface</label></div><div class="rangebox"><input id="uiScale" type="range" min="80" max="130" step="5"><output class="value" data-for="uiScale"></output></div></div><div class="row"><label for="highContrast">Contraste renforcé</label><input id="highContrast" type="checkbox"></div><div class="row"><label for="reduceFlashing">Réduire les effets clignotants</label><input id="reduceFlashing" type="checkbox"></div><div class="row"><label for="colorblind">Palette daltonisme</label><input id="colorblind" type="checkbox"></div></section>
+<section class="panel" style="display:block"><h2>Gestion des paramètres</h2><div class="actions"><button id="export">Exporter JSON</button><button id="import">Importer JSON</button><button class="danger" id="reset">Réinitialiser les paramètres</button><input id="file" type="file" accept="application/json,.json" hidden></div></section>
+<p style="color:var(--muted);font-size:12px;line-height:1.5;padding:4px 3px">Les préférences sont conservées dans le stockage local de ce navigateur. Certaines options avancées seront appliquées à mesure que leurs systèmes seront reliés au moteur du jeu.</p>
+</main><div id="toast" role="status" aria-live="polite"></div>
+<footer><a class="secondary" href="../index.html">← Retour au jeu</a><button class="primary" id="save">ENREGISTRER</button></footer>
+<script>
+(function(){
+const KEY='astrea-reborn.settings.v1';
+const defaults={preset:'low',targetFps:30,resolutionScale:70,shadows:false,ambientOcclusion:false,antiAliasing:false,textureQuality:'2k',vfxQuality:'low',foliageDensity:30,showFps:false,joystickLeft:true,joystickSize:100,cameraSensitivity:50,invertY:false,cameraFollow:true,aimAssist:true,buttonSize:100,vibration:true,masterVolume:70,musicVolume:60,sfxVolume:70,ambienceVolume:50,muted:false,language:'fr',subtitles:true,damageNumbers:true,questMarkers:true,autoSave:true,autoTarget:true,cameraShake:true,difficulty:'normal',uiScale:100,highContrast:false,reduceFlashing:false,colorblind:false};
+const presets={low:{targetFps:30,resolutionScale:70,shadows:false,ambientOcclusion:false,antiAliasing:false,textureQuality:'2k',vfxQuality:'low',foliageDensity:30},medium:{targetFps:30,resolutionScale:85,shadows:true,ambientOcclusion:false,antiAliasing:true,textureQuality:'2k',vfxQuality:'medium',foliageDensity:60},high:{targetFps:60,resolutionScale:100,shadows:true,ambientOcclusion:true,antiAliasing:true,textureQuality:'4k',vfxQuality:'high',foliageDensity:100}};
+let state={...defaults};let toastTimer;
+function toast(t){const el=document.getElementById('toast');el.textContent=t;el.style.display='block';clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.style.display='none',2100)}
+function save(show){try{localStorage.setItem(KEY,JSON.stringify(state));if(show)toast('Paramètres enregistrés')}catch(e){toast('Impossible de sauvegarder dans ce navigateur')}}
+function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||'null');if(v&&typeof v==='object')state={...defaults,...v}}catch(e){}}
+function paint(){Object.keys(defaults).forEach(k=>{const el=document.getElementById(k);if(!el)return;if(el.type==='checkbox')el.checked=!!state[k];else el.value=state[k];const out=document.querySelector('[data-for="'+k+'"]');if(out)out.textContent=state[k]+(k==='cameraSensitivity'?'': '%')});document.documentElement.style.fontSize=state.uiScale+'%';document.body.classList.toggle('contrast',state.highContrast);document.body.classList.toggle('cb',state.colorblind);document.body.classList.toggle('calm',state.reduceFlashing)}
+function changed(k,v){state[k]=v;if(['targetFps','resolutionScale','shadows','ambientOcclusion','antiAliasing','textureQuality','vfxQuality','foliageDensity'].includes(k)){let match=Object.keys(presets).find(p=>Object.keys(presets[p]).every(x=>state[x]===presets[p][x]));state.preset=match||'custom';document.getElementById('preset').value=state.preset}if(k==='preset'&&presets[v]){state={...state,...presets[v],preset:v};paint()}else paint();save(false)}
+function importSettings(obj){if(!obj||typeof obj!=='object'||Array.isArray(obj))throw Error('Fichier JSON invalide');for(const k of Object.keys(defaults)){if(!(k in obj))continue;const v=obj[k],d=defaults[k];if(typeof v!==typeof d)continue;if(typeof v==='number'&&(!Number.isFinite(v)||v<(k==='resolutionScale'?50:k==='joystickSize'||k==='buttonSize'?60:k==='uiScale'?80:0)||v>(k==='resolutionScale'?100:k==='joystickSize'||k==='buttonSize'?140:k==='uiScale'?130:100)))continue;if(typeof d==='string'&&!['preset','targetFps','textureQuality','vfxQuality','language','difficulty'].includes(k))continue;state[k]=v}paint();save(true)}
+load();paint();
+document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.setAttribute('aria-selected',String(x===b)));document.querySelectorAll('section.panel[id]').forEach(x=>x.classList.toggle('active',x.id===b.dataset.tab))}));
+Object.keys(defaults).forEach(k=>{const el=document.getElementById(k);if(!el)return;el.addEventListener('input',()=>changed(k,el.type==='checkbox'?el.checked:el.type==='range'||el.type==='number'?Number(el.value):(['targetFps'].includes(k)?Number(el.value):el.value)));el.addEventListener('change',()=>changed(k,el.type==='checkbox'?el.checked:el.type==='range'||el.type==='number'?Number(el.value):(['targetFps'].includes(k)?Number(el.value):el.value)))});
+document.getElementById('save').onclick=()=>save(true);
+document.getElementById('reset').onclick=()=>{if(confirm('Réinitialiser tous les paramètres ?')){state={...defaults};paint();save(true)}};
+document.getElementById('export').onclick=()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='astrea-reborn-settings.json';a.click();URL.revokeObjectURL(u);toast('Export prêt')};
+document.getElementById('import').onclick=()=>document.getElementById('file').click();
+document.getElementById('file').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{importSettings(JSON.parse(await f.text()))}catch(err){toast('Import impossible : fichier invalide')}e.target.value=''};
+})();
+</script></body></html>
