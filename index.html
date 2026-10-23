@@ -119,59 +119,99 @@ const collisionBoxes=[];function addCollider(x,z,hw,hz,tag='obstacle'){const col
 const groundMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1});
 const ground=new THREE.Mesh(new THREE.PlaneGeometry(260,260),groundMat);ground.rotation.x=-Math.PI/2;ground.position.y=-.06;scene.add(ground);
 const pathMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1});
-// ASTREA texture atlas: 200 variations in a 10x20 grid.
-// Existing authored PBR maps on the hero/GLB assets are preserved; every untextured
-// world material receives a suitable atlas tile, and ground/path use dedicated tiles.
-const astreaAtlasUrl=asset('03-TEXTURES/generated/astrea-atlas-200.svg');
-const astreaTextureCache=new Map();
-let astreaAtlasReady=false;
-const astreaAtlasImage=new Image();
-astreaAtlasImage.onload=()=>{
- astreaAtlasReady=true;
- const makeTile=(index)=>{
-  if(astreaTextureCache.has(index))return astreaTextureCache.get(index);
-  const canvas=document.createElement('canvas');canvas.width=128;canvas.height=128;
-  const ctx=canvas.getContext('2d');
-  const col=index%10,row=Math.floor(index/10);
-  ctx.drawImage(astreaAtlasImage,col*102.4,row*102.4,102.4,102.4,0,0,128,128);
-  const tex=new THREE.CanvasTexture(canvas);tex.colorSpace=THREE.SRGBColorSpace;
-  tex.wrapS=tex.wrapT=THREE.RepeatWrapping;tex.anisotropy=1;
-  astreaTextureCache.set(index,tex);return tex;
- };
- window.ASTREA_TEXTURES_200=Array.from({length:200},(_,i)=>({index:i,getTexture:()=>makeTile(i)}));
- groundMat.map=makeTile(0);groundMat.color.set(0xffffff);groundMat.needsUpdate=true;
- pathMat.map=makeTile(13);pathMat.color.set(0xffffff);pathMat.needsUpdate=true;
- const choose=(label)=>{
-  const s=String(label||'').toLowerCase();
-  if(/ground|terrain|grass|herb|prairie|leaf|tree|bush|foliage|nature|forest/.test(s))return 0+(Math.abs(s.length*7)%8);
-  if(/path|road|pav|cobble|stone|rock|wall|castle|brick|floor|tower|fortress/.test(s))return 13+(Math.abs(s.length*3)%18);
-  if(/wood|tree|bark|plank|door|crate|chest|barrel|boat|ship/.test(s))return 6+(Math.abs(s.length*5)%8);
-  if(/sand|desert|dune|beach/.test(s))return 15+(Math.abs(s.length*11)%6);
-  if(/water|river|ocean|lake|wave/.test(s))return 20+(Math.abs(s.length*13)%8);
-  if(/metal|iron|steel|armor|weapon|sword|gate/.test(s))return 38+(Math.abs(s.length*17)%12);
-  if(/cloth|fabric|banner|robe|cape|shirt|carpet/.test(s))return 58+(Math.abs(s.length*19)%12);
-  if(/magic|rune|crystal|gem|arcane|portal|spell/.test(s))return 43+(Math.abs(s.length*23)%20);
-  if(/roof|tile|shingle|thatch/.test(s))return 28+(Math.abs(s.length*29)%8);
-  return Math.abs((String(label||'ASTREA').split('').reduce((a,ch)=>a+ch.charCodeAt(0),0)*31))%200;
- };
- window.ASTREA_TEXTURE_INDEX=choose;
- window.applyAstreaTextures=(root)=>{
-  if(!root||!root.traverse)return;
-  root.traverse(obj=>{
+// Textures PBR photographiques CC0 de Poly Haven.
+// Le profil tactile utilise les fichiers 2K pour limiter la mémoire sur les téléphones;
+// les écrans desktop chargent les sources 4K. Les cartes diff/normal/roughness sont réelles.
+const astreaTextureResolution=(window.matchMedia('(pointer: coarse)').matches||window.innerWidth<=800)?'2k':'4k';
+const astreaPbrDefinitions={
+ terrain:{id:'rocky_terrain_02',repeat:[3,3]},
+ forestFloor:{id:'forrest_ground_03',repeat:[42,42]},
+ paving:{id:'cobblestone_01',repeat:[2,54]},
+ wood:{id:'brown_planks_03',repeat:[1,1]},
+ stone:{id:'rustic_stone_wall_02',repeat:[1,1]},
+ dirt:{id:'dirt',repeat:[1,1]},
+ soilSurface:{id:'dirt',repeat:[48,48]}
+};
+const astreaPbrTextureCache=new Map();
+const astreaPbrLoader=new THREE.TextureLoader();
+astreaPbrLoader.setCrossOrigin('anonymous');
+function astreaGetPbrTexture(type,channel='diff'){
+ const def=astreaPbrDefinitions[type];
+ if(!def)return null;
+ const key=type+':'+channel;
+ if(astreaPbrTextureCache.has(key))return astreaPbrTextureCache.get(key).texture;
+ const url='https://dl.polyhaven.org/file/ph-assets/Textures/jpg/'+astreaTextureResolution+'/'+def.id+'/'+def.id+'_'+channel+'_'+astreaTextureResolution+'.jpg';
+ let finish;
+ const loaded=new Promise(resolve=>{finish=resolve});
+ let texture;
+ texture=astreaPbrLoader.load(url,()=>{
+   texture.needsUpdate=true;
+   finish(true);
+ },undefined,error=>{
+   console.warn('Texture PBR Poly Haven indisponible:',url,error);
+   finish(false);
+ });
+ texture.wrapS=texture.wrapT=THREE.RepeatWrapping;
+ texture.repeat.set(def.repeat[0],def.repeat[1]);
+ texture.colorSpace=channel==='diff'?THREE.SRGBColorSpace:THREE.NoColorSpace;
+ texture.anisotropy=Math.min(astreaTextureResolution==='4k'?4:2,renderer.capabilities.getMaxAnisotropy());
+ astreaPbrTextureCache.set(key,{texture,promise:loaded,url});
+ return texture;
+}
+function astreaLoadPbrFamily(type){
+ return Promise.all(['diff','nor_gl','rough'].map(channel=>{
+   astreaGetPbrTexture(type,channel);
+   return astreaPbrTextureCache.get(type+':'+channel).promise;
+ }));
+}
+function astreaUsePbrMaterial(material,type){
+ material.map=astreaGetPbrTexture(type,'diff');
+ material.normalMap=astreaGetPbrTexture(type,'nor_gl');
+ material.roughnessMap=astreaGetPbrTexture(type,'rough');
+ material.color.set(0xffffff);
+ material.roughness=1;
+ material.needsUpdate=true;
+}
+astreaUsePbrMaterial(groundMat,'terrain');
+astreaUsePbrMaterial(pathMat,'paving');
+function astreaChoosePbr(label){
+ const s=String(label||'').toLowerCase();
+ if(/player|hero|character|personnage|npc|villager|villageois|horse|cheval|skin|hair|face|eye|cloth|fabric|weapon|sword|epee|magic|effect|vfx|creature|animal|dragon/.test(s))return null;
+ if(/path|road|cobble|pav|street|route|chemin|pave/.test(s))return 'paving';
+ if(/wood|bark|plank|door|crate|chest|barrel|boat|ship|timber|bois|planche|porte|coffre|charrette/.test(s))return 'wood';
+ if(/wall|stone|castle|brick|tower|fortress|building|house|masonry|pierre|mur|chateau|tour|batiment|maison/.test(s))return 'stone';
+ if(/sand|soil|dirt|mud|beach|sable|terre|boue/.test(s))return 'dirt';
+ if(/forest.?floor|forestground|sous.?bois/.test(s))return 'forestFloor';
+ if(/ground|terrain|grass|prairie|field|rock|cliff|mountain|earth|sol|herbe|roche|falaise|montagne/.test(s))return 'terrain';
+ return null;
+}
+window.ASTREA_PBR_TEXTURE_INFO={
+ source:'Poly Haven',
+ license:'CC0',
+ resolution:astreaTextureResolution,
+ assets:Object.fromEntries(Object.entries(astreaPbrDefinitions).map(([key,v])=>[key,{id:v.id,url:'https://polyhaven.com/a/'+v.id}])),
+ getTexture:astreaGetPbrTexture
+};
+window.ASTREA_GET_PBR_TEXTURE=astreaGetPbrTexture;
+window.ASTREA_LOAD_PBR_FAMILY=astreaLoadPbrFamily;
+window.applyAstreaTextures=(root)=>{
+ if(!root||!root.traverse)return;
+ root.traverse(obj=>{
    if(!obj.isMesh||!obj.material)return;
    const mats=Array.isArray(obj.material)?obj.material:[obj.material];
    const next=mats.map(mat=>{
-    if(mat.map)return mat; // preserve original textured GLB materials and hero skin
-    const clone=mat.clone();clone.map=makeTile(choose((obj.name||'')+' '+(mat.name||'')));
-    if(clone.color)clone.color.set(0xffffff);clone.needsUpdate=true;return clone;
+     if(mat.map)return mat; // garde les cartes PBR d'origine des GLB/personnage
+     const key=astreaChoosePbr((obj.name||'')+' '+(mat.name||''));
+     if(!key)return mat; // ne plaque aucune texture sur peau, vêtements, armes ou effets
+     const clone=mat.clone();
+     astreaUsePbrMaterial(clone,key);
+     return clone;
    });
-   obj.material=Array.isArray(obj.material)?next:next[0];
-  });
- };
- if(window.ASTREA_APPLY_PENDING)window.ASTREA_APPLY_PENDING();
+   if(next.some((mat,i)=>mat!==mats[i]))obj.material=Array.isArray(obj.material)?next:next[0];
+ });
 };
-astreaAtlasImage.onerror=()=>{console.warn('ASTREA atlas indisponible; les matériaux PBR originaux restent actifs.')};
-astreaAtlasImage.src=astreaAtlasUrl;
+if(window.ASTREA_APPLY_PENDING)window.ASTREA_APPLY_PENDING();
+
 
 const path=new THREE.Mesh(new THREE.PlaneGeometry(5,130),pathMat);path.rotation.x=-Math.PI/2;path.position.set(0,-.025,-54);scene.add(path);
 const crossRoads=[];for(const z of [-12,-24,-36,-48,-60,-72,-84,-96,-108]){const road=new THREE.Mesh(new THREE.PlaneGeometry(36,2.8),pathMat);road.rotation.x=-Math.PI/2;road.position.set(0,-.022,z);scene.add(road);crossRoads.push(road)}
@@ -617,12 +657,8 @@ jobs.push(Promise.resolve('arsenal 3D ASTREA chargé depuis le catalogue procéd
  jobs.push(loadGLB('02-MODELS/buildings/small-house.glb').then(g=>{
    const model=g.scene;normalizeModel(model,3.2);cityLots.forEach((lot,i)=>{const clone=model.clone(true);clone.position.x=lot.x;clone.position.z=lot.z;if(i%2===1)clone.rotation.y=Math.PI;scene.add(clone)});loadedHouse=true;return cityLots.length+' maisons 3D';
  }).catch(e=>{console.error('Modèle 3D des maisons indisponible',e);hint.textContent='Maisons 3D non chargées : modèles réels indisponibles.';return 'maisons 3D indisponibles'}));
- jobs.push(new Promise(resolve=>{
-   const timer=setTimeout(()=>{console.warn('Délai texture herbe dépassé');resolve('herbe provisoire')},10000);new THREE.TextureLoader().load(asset('03-TEXTURES/terrain/grass-1.jpg'),t=>{clearTimeout(timer);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(32,32);groundMat.map=t;groundMat.needsUpdate=true;resolve('texture herbe')},undefined,e=>{clearTimeout(timer);console.warn('Grass texture indisponible',e);resolve('herbe provisoire')});
- }));
- jobs.push(new Promise(resolve=>{
-   const timer=setTimeout(()=>{console.warn('Délai texture pavage dépassé');resolve('pavage provisoire')},10000);new THREE.TextureLoader().load(asset('03-TEXTURES/terrain/paving-village-1.jpg'),t=>{clearTimeout(timer);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(2,24);pathMat.map=t;pathMat.needsUpdate=true;resolve('pavage')},undefined,e=>{clearTimeout(timer);console.warn('Paving texture indisponible',e);resolve('pavage provisoire')});
- }));
+ jobs.push(astreaLoadPbrFamily('terrain').then(()=>{astreaUsePbrMaterial(groundMat,'terrain');return 'terrain PBR Poly Haven';}));
+ jobs.push(astreaLoadPbrFamily('paving').then(()=>{astreaUsePbrMaterial(pathMat,'paving');return 'pavage PBR Poly Haven';}));
  const result=await Promise.all(jobs);
  status.textContent='Ville médiévale chargée';hint.textContent='ASTREA REBORN : chargement des vrais modèles 3D et animations…';
 }
