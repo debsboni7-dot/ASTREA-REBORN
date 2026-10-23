@@ -129,6 +129,8 @@ const astreaPbrDefinitions={
  paving:{id:'cobblestone_01',repeat:[2,54]},
  wood:{id:'brown_planks_03',repeat:[1,1]},
  stone:{id:'rustic_stone_wall_02',repeat:[1,1]},
+ roofClay:{id:'clay_roof_tiles_03',repeat:[1,1]},
+ roofSlate:{id:'grey_roof_tiles',repeat:[1,1]},
  dirt:{id:'dirt',repeat:[1,1]},
  dirtTrail:{id:'dirt',repeat:[2.5,48]},
  soilSurface:{id:'dirt',repeat:[48,48]}
@@ -179,6 +181,7 @@ function astreaChoosePbr(label){
  const s=String(label||'').toLowerCase();
  if(/player|hero|character|personnage|npc|villager|villageois|horse|cheval|skin|hair|face|eye|cloth|fabric|weapon|sword|epee|magic|effect|vfx|creature|animal|dragon/.test(s))return null;
  if(/path|road|cobble|pav|street|route|chemin|pave/.test(s))return 'paving';
+ if(/roof|shingle|tile|toit|tuile/.test(s))return /blue|slate|grey|gray|night/.test(s)?'roofSlate':'roofClay';
  if(/wood|bark|plank|door|crate|chest|barrel|boat|ship|timber|bois|planche|porte|coffre|charrette/.test(s))return 'wood';
  if(/wall|stone|castle|brick|tower|fortress|building|house|masonry|pierre|mur|chateau|tour|batiment|maison/.test(s))return 'stone';
  if(/sand|soil|dirt|mud|beach|sable|terre|boue/.test(s))return 'dirt';
@@ -524,11 +527,11 @@ function addVillageAtmosphere(){
 const fireFlames=[],fireLights=[],ambienceParticles=[];
 
 function addTownLandmarks(){
- const stone=new THREE.MeshStandardMaterial({color:0x8b897d,roughness:.94});
- const paleStone=new THREE.MeshStandardMaterial({color:0xc5b99e,roughness:.9});
- const timber=new THREE.MeshStandardMaterial({color:0x65442c,roughness:.9});
- const roofMat=new THREE.MeshStandardMaterial({color:0x71453a,roughness:.9});
- const roofBlue=new THREE.MeshStandardMaterial({color:0x3d526a,roughness:.88});
+ const stone=new THREE.MeshStandardMaterial({color:0x8b897d,roughness:.94});stone.name='stone wall';
+ const paleStone=new THREE.MeshStandardMaterial({color:0xc5b99e,roughness:.9});paleStone.name='stone wall';
+ const timber=new THREE.MeshStandardMaterial({color:0x65442c,roughness:.9});timber.name='wood timber';
+ const roofMat=new THREE.MeshStandardMaterial({color:0x71453a,roughness:.9});roofMat.name='roof tile clay';
+ const roofBlue=new THREE.MeshStandardMaterial({color:0x3d526a,roughness:.88});roofBlue.name='roof tile slate';
  const iron=new THREE.MeshStandardMaterial({color:0x393e43,metalness:.5,roughness:.48});
  function part(g,geo,mat,x,y,z){const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);g.add(m);return m}
  function sign(label,color){
