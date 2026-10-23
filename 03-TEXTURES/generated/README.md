@@ -1,10 +1,15 @@
-# Atlas ASTREA Reborn — 200 textures
+# Textures PBR haute résolution — ASTREA Reborn
 
-Fichier : `astrea-atlas-200.svg`.
+L'ancien atlas procédural de 200 tuiles a été retiré : il ne fait plus partie du rendu du jeu.
 
-- 200 tuiles de matériaux différentes, disposées en 10 colonnes × 20 lignes.
-- Format vectoriel SVG, léger, sans images externes ni CDN.
-- Matériaux couverts : terrain, herbe, terre, bois, pierre, château, tuiles, tissu, métal, gemmes, eau et matériaux magiques.
-- Taille d'une tuile : 102,4 × 102,4 px dans un atlas 1024 × 2048.
+Le moteur utilise désormais des matériaux photographiques PBR issus de **Poly Haven**, sous licence **CC0** :
+- Terrain rocheux : [Rocky Terrain 02](https://polyhaven.com/a/rocky_terrain_02)
+- Pavés usés : [Cobblestone 01](https://polyhaven.com/a/cobblestone_01)
+- Pierre de murs : [Rustic Stone Wall 02](https://polyhaven.com/a/rustic_stone_wall_02)
+- Planches de bois : [Brown Planks 03](https://polyhaven.com/a/brown_planks_03)
+- Sol forestier : [Forest Ground 03](https://polyhaven.com/a/forrest_ground_03)
+- Terre : [Dirt](https://polyhaven.com/a/dirt)
 
-**Note d'intégration :** cet atlas est une bibliothèque d'assets. Les matériaux doivent être référencés par UV/atlas pour être affichés sur les modèles. L'ajout du fichier seul ne remappe pas automatiquement les matériaux des modèles GLB existants.
+Le moteur charge les cartes **diffuse, normal OpenGL et roughness** depuis les fichiers JPG de la bibliothèque Poly Haven. Il utilise 2K sur les écrans tactiles/petits appareils pour limiter la mémoire graphique et 4K sur les grands écrans. Les matériaux déjà texturés des modèles GLB, notamment le héros, sont conservés.
+
+**Note technique :** ces textures sont chargées depuis le CDN officiel de Poly Haven au démarrage du jeu ; elles ne sont pas encore copiées localement dans le dépôt. Une connexion internet est donc nécessaire pour les charger, sauf si les cartes sont ensuite mirorées dans le dépôt.
