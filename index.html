@@ -41,6 +41,9 @@ renderer.outputColorSpace=THREE.SRGBColorSpace;
 renderer.toneMapping=THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure=1.12;
 document.body.appendChild(renderer.domElement);
+scene.traverse(obj=>{if(window.applyAstreaTextures)window.applyAstreaTextures(obj)});
+window.ASTREA_APPLY_PENDING=()=>scene.traverse(obj=>{if(window.applyAstreaTextures)window.applyAstreaTextures(obj)});
+
 // Lumière diffuse du ciel : ombres colorées fraîches et tons chauds sous les objets.
 scene.add(new THREE.HemisphereLight(0xdcefff,0x66503b,1.28));
 scene.add(new THREE.AmbientLight(0xfff0d8,0.16));
@@ -116,6 +119,60 @@ const collisionBoxes=[];function addCollider(x,z,hw,hz,tag='obstacle'){const col
 const groundMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1});
 const ground=new THREE.Mesh(new THREE.PlaneGeometry(260,260),groundMat);ground.rotation.x=-Math.PI/2;ground.position.y=-.06;scene.add(ground);
 const pathMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1});
+// ASTREA texture atlas: 200 variations in a 10x20 grid.
+// Existing authored PBR maps on the hero/GLB assets are preserved; every untextured
+// world material receives a suitable atlas tile, and ground/path use dedicated tiles.
+const astreaAtlasUrl=asset('03-TEXTURES/generated/astrea-atlas-200.svg');
+const astreaTextureCache=new Map();
+let astreaAtlasReady=false;
+const astreaAtlasImage=new Image();
+astreaAtlasImage.onload=()=>{
+ astreaAtlasReady=true;
+ const makeTile=(index)=>{
+  if(astreaTextureCache.has(index))return astreaTextureCache.get(index);
+  const canvas=document.createElement('canvas');canvas.width=256;canvas.height=256;
+  const ctx=canvas.getContext('2d');
+  const col=index%10,row=Math.floor(index/10);
+  ctx.drawImage(astreaAtlasImage,col*102.4,row*102.4,102.4,102.4,0,0,256,256);
+  const tex=new THREE.CanvasTexture(canvas);tex.colorSpace=THREE.SRGBColorSpace;
+  tex.wrapS=tex.wrapT=THREE.RepeatWrapping;tex.anisotropy=1;
+  astreaTextureCache.set(index,tex);return tex;
+ };
+ window.ASTREA_TEXTURES_200=Array.from({length:200},(_,i)=>makeTile(i));
+ groundMat.map=makeTile(0);groundMat.color.set(0xffffff);groundMat.needsUpdate=true;
+ pathMat.map=makeTile(13);pathMat.color.set(0xffffff);pathMat.needsUpdate=true;
+ const choose=(label)=>{
+  const s=String(label||'').toLowerCase();
+  if(/ground|terrain|grass|herb|prairie|leaf|tree|bush|foliage|nature|forest/.test(s))return 0+(Math.abs(s.length*7)%8);
+  if(/path|road|pav|cobble|stone|rock|wall|castle|brick|floor|tower|fortress/.test(s))return 13+(Math.abs(s.length*3)%18);
+  if(/wood|tree|bark|plank|door|crate|chest|barrel|boat|ship/.test(s))return 6+(Math.abs(s.length*5)%8);
+  if(/sand|desert|dune|beach/.test(s))return 15+(Math.abs(s.length*11)%6);
+  if(/water|river|ocean|lake|wave/.test(s))return 20+(Math.abs(s.length*13)%8);
+  if(/metal|iron|steel|armor|weapon|sword|gate/.test(s))return 38+(Math.abs(s.length*17)%12);
+  if(/cloth|fabric|banner|robe|cape|shirt|carpet/.test(s))return 58+(Math.abs(s.length*19)%12);
+  if(/magic|rune|crystal|gem|arcane|portal|spell/.test(s))return 43+(Math.abs(s.length*23)%20);
+  if(/roof|tile|shingle|thatch/.test(s))return 28+(Math.abs(s.length*29)%8);
+  return Math.abs((String(label||'ASTREA').split('').reduce((a,ch)=>a+ch.charCodeAt(0),0)*31))%200;
+ };
+ window.ASTREA_TEXTURE_INDEX=choose;
+ window.applyAstreaTextures=(root)=>{
+  if(!root||!root.traverse)return;
+  root.traverse(obj=>{
+   if(!obj.isMesh||!obj.material)return;
+   const mats=Array.isArray(obj.material)?obj.material:[obj.material];
+   const next=mats.map(mat=>{
+    if(mat.map)return mat; // preserve original textured GLB materials and hero skin
+    const clone=mat.clone();clone.map=makeTile(choose((obj.name||'')+' '+(mat.name||'')));
+    if(clone.color)clone.color.set(0xffffff);clone.needsUpdate=true;return clone;
+   });
+   obj.material=Array.isArray(obj.material)?next:next[0];
+  });
+ };
+ if(window.ASTREA_APPLY_PENDING)window.ASTREA_APPLY_PENDING();
+};
+astreaAtlasImage.onerror=()=>{console.warn('ASTREA atlas indisponible; les matériaux PBR originaux restent actifs.')};
+astreaAtlasImage.src=astreaAtlasUrl;
+
 const path=new THREE.Mesh(new THREE.PlaneGeometry(5,130),pathMat);path.rotation.x=-Math.PI/2;path.position.set(0,-.025,-54);scene.add(path);
 const crossRoads=[];for(const z of [-12,-24,-36,-48,-60,-72,-84,-96,-108]){const road=new THREE.Mesh(new THREE.PlaneGeometry(36,2.8),pathMat);road.rotation.x=-Math.PI/2;road.position.set(0,-.022,z);scene.add(road);crossRoads.push(road)}
 const plaza=new THREE.Mesh(new THREE.CircleGeometry(7,20),new THREE.MeshStandardMaterial({color:0xb7a58b,roughness:1}));plaza.rotation.x=-Math.PI/2;plaza.position.set(0,-.018,-8);scene.add(plaza);
