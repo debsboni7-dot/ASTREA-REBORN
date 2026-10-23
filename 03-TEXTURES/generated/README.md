@@ -7,6 +7,8 @@ Le moteur utilise désormais des matériaux photographiques PBR issus de **Poly 
 - Pavés usés : [Cobblestone 01](https://polyhaven.com/a/cobblestone_01)
 - Pierre de murs : [Rustic Stone Wall 02](https://polyhaven.com/a/rustic_stone_wall_02)
 - Planches de bois : [Brown Planks 03](https://polyhaven.com/a/brown_planks_03)
+- Tuiles de terre cuite : [Clay Roof Tiles 03](https://polyhaven.com/a/clay_roof_tiles_03)
+- Ardoises grises : [Grey Roof Tiles](https://polyhaven.com/a/grey_roof_tiles)
 - Sol forestier : [Forest Ground 03](https://polyhaven.com/a/forrest_ground_03)
 - Terre : [Dirt](https://polyhaven.com/a/dirt)
 
