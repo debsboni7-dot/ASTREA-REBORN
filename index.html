@@ -780,7 +780,7 @@ function playCharacterAnimation(kind){
 
 let selectedWeapon=ASTREA_WEAPONS.find(w=>w.id===savedGame.selectedWeapon)||ASTREA_WEAPONS.find(w=>w.id==='unarmed')||ASTREA_WEAPONS[0];
 function equipWeapon(id){
- const next=ASTREA_WEAPONS.find(w=>w.id===id);if(!next)return;selectedWeapon=next;if(swordVisual.parent)swordVisual.parent.remove(swordVisual);swordVisual=null;if(next.id!=='unarmed'){const model=createWeaponModel(THREE,next);model.position.set(0,-.12,0);model.rotation.set(0,0,0);swordVisual=model;weaponMount.add(model);}
+ const next=ASTREA_WEAPONS.find(w=>w.id===id);if(!next)return;selectedWeapon=next;if(swordVisual?.parent)swordVisual.parent.remove(swordVisual);swordVisual=null;if(next.id!=='unarmed'){const model=createWeaponModel(THREE,next);model.position.set(0,-.12,0);model.rotation.set(0,0,0);swordVisual=model;weaponMount.add(model);}else{swordVisual=new THREE.Group();swordVisual.visible=false;weaponMount.add(swordVisual);}
  weaponAura.material.color.set(next.color||0xd8d8d8);weaponAura.material.opacity=next.id==='unarmed'?0:next.rank==='Divine'?.82:.48;const meshPath=next.id==='unarmed'?null:next.id==='basic-sword'?'02-MODELS/weapons/sword-meshy.glb':next.id==='divine-sword'?'02-MODELS/weapons/converted/divine-red-sword-4643.glb':null;if(meshPath){loadGLB(meshPath).then(g=>{if(selectedWeapon.id!==next.id)return;const actual=g.scene;normalizeModel(actual,next.id==='divine-sword'?1.25:1.02);actual.position.set(0,-.12,0);actual.rotation.set(0,0,0);if(swordVisual.parent)swordVisual.parent.remove(swordVisual);swordVisual=actual;weaponMount.add(actual)}).catch(e=>console.warn('Modèle Meshy indisponible, géométrie 3D de secours conservée',e))}
  const info=document.getElementById('weaponInfo');
  if(info)info.innerHTML='<strong>'+next.name+'</strong><br>Niveau : '+next.level+' — Rang '+next.rank+'<br>Dégâts : '+next.damage+' • Portée : '+next.reach+'<br>Vitesse : '+next.speed.toFixed(2)+' • Technique : '+next.skill;
@@ -998,7 +998,7 @@ function updateCombatSequence(){
  swordVisual.rotation.y=elapsed<seq.config.duration?Math.sin(elapsed*7)*.25:0;
  if(elapsed>=seq.config.duration){
    const wasCombo=['fistCombo','swordCombo','rangedCombo','fistMagicCombo','swordMagicCombo'].includes(seq.name);
-   combatSequence=null;attackTimer=0;swordVisual.rotation.set(0,0,0);
+   combatSequence=null;attackTimer=0;if(swordVisual)swordVisual.rotation.set(0,0,0);
    setProceduralPose(moveAnim.moving?'walk':'idle');
    if(comboQueued&&wasCombo){
      comboQueued=false;attackCooldown=0;
@@ -1103,7 +1103,14 @@ function updateVillageNPCs(dt){
  }
 }
 function frame(){
- requestAnimationFrame(frame);const dt=Math.min(clock.getDelta(),.04);if(mixer)mixer.update(dt);updateCombatSequence();updateProceduralRig();updateWeaponVFX(dt);weaponAura.rotation.z+=dt*.9;for(let i=0;i<fireFlames.length;i++){const fl=fireFlames[i];fl.scale.y=.82+Math.sin(clock.elapsedTime*8+i*1.7)*.24;fl.rotation.y=clock.elapsedTime*.8+i;}for(const l of fireLights)l.intensity=1.05+Math.sin(clock.elapsedTime*7)*.3;for(const p of ambienceParticles){p.mesh.position.y=p.base.y+Math.sin(clock.elapsedTime*.8+p.phase)*.28;p.mesh.position.x=p.base.x+Math.sin(clock.elapsedTime*.35+p.phase)*.22;}updateVillageNPCs(dt);attackCooldown=Math.max(0,attackCooldown-dt);specialCooldown=Math.max(0,specialCooldown-dt);ultimateCooldown=Math.max(0,ultimateCooldown-dt);ultimateUltimateCooldown=Math.max(0,ultimateUltimateCooldown-dt);enemyAttackTimer=Math.max(0,enemyAttackTimer-dt);if(!enemyDefeated&&enemy.visible&&Math.hypot(player.position.x-enemy.position.x,player.position.z-enemy.position.z)<2.15&&enemyAttackTimer<=0){enemyAttackTimer=2.1;takeDamage(8);hint.textContent='La cible te frappe : -8 PV !'}let f=0,s=0;
+ requestAnimationFrame(frame);
+ // Cadence mobile : limiter toute la simulation, pas seulement le rendu, afin d'éviter
+ // de calculer deux fois les PNJ, VFX et collisions entre deux images affichées.
+ const renderNow=performance.now(),fpsLimit=Math.max(24,Math.min(60,Number(astreaSettings.targetFps)||30));
+ const frameInterval=1000/fpsLimit;
+ if(renderNow-astreaLastRender<frameInterval)return;
+ const dt=Math.min(clock.getDelta(),Math.min(.05,frameInterval/1000*1.6));
+ astreaLastRender=renderNow;if(mixer)mixer.update(dt);updateCombatSequence();updateProceduralRig();updateWeaponVFX(dt);weaponAura.rotation.z+=dt*.9;for(let i=0;i<fireFlames.length;i++){const fl=fireFlames[i];fl.scale.y=.82+Math.sin(clock.elapsedTime*8+i*1.7)*.24;fl.rotation.y=clock.elapsedTime*.8+i;}for(const l of fireLights)l.intensity=1.05+Math.sin(clock.elapsedTime*7)*.3;for(const p of ambienceParticles){p.mesh.position.y=p.base.y+Math.sin(clock.elapsedTime*.8+p.phase)*.28;p.mesh.position.x=p.base.x+Math.sin(clock.elapsedTime*.35+p.phase)*.22;}updateVillageNPCs(dt);attackCooldown=Math.max(0,attackCooldown-dt);specialCooldown=Math.max(0,specialCooldown-dt);ultimateCooldown=Math.max(0,ultimateCooldown-dt);ultimateUltimateCooldown=Math.max(0,ultimateUltimateCooldown-dt);enemyAttackTimer=Math.max(0,enemyAttackTimer-dt);if(!enemyDefeated&&enemy.visible&&Math.hypot(player.position.x-enemy.position.x,player.position.z-enemy.position.z)<2.15&&enemyAttackTimer<=0){enemyAttackTimer=2.1;takeDamage(8);hint.textContent='La cible te frappe : -8 PV !'}let f=0,s=0;
  if(keys.w||keys.z||keys.arrowup||touchMove.forward)f+=1;
  if(keys.s||keys.arrowdown||touchMove.back)f-=1;
  if(keys.d||keys.arrowright||touchMove.right)s+=1;
@@ -1126,9 +1133,9 @@ function frame(){
  camera.position.set(target.x+Math.sin(yaw)*dist,target.y+2.4+pitch*5,target.z+Math.cos(yaw)*dist);camera.lookAt(target);
  // Scintillement très discret des lumières du village : effet vivant sans bloom ni ombres dynamiques.
  const lightTime=clock.elapsedTime;for(let i=0;i<villageLights.length;i++){villageLights[i].intensity=1.05+Math.sin(lightTime*5.2+i*1.7)*.10+Math.sin(lightTime*8.1+i)*.035}
- const renderNow=performance.now(),fpsLimit=Number(astreaSettings.targetFps||30);if(fpsLimit===30&&renderNow-astreaLastRender<1000/30)return;astreaLastRender=renderNow;renderer.render(scene,camera);astreaFrameCounter++;if(renderNow-astreaFpsSample>=1000){fpsBadge.textContent='FPS '+astreaFrameCounter;astreaFrameCounter=0;astreaFpsSample=renderNow;}
+ renderer.render(scene,camera);astreaFrameCounter++;if(renderNow-astreaFpsSample>=1000){fpsBadge.textContent='FPS '+astreaFrameCounter;astreaFrameCounter=0;astreaFpsSample=renderNow;}
 }
-addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setPixelRatio(Math.min((devicePixelRatio||1)*Math.max(.5,Math.min(1,Number(astreaSettings.resolutionScale||70)/100)),1.15));renderer.setSize(innerWidth,innerHeight)});
 addVillageAtmosphere();addTownLandmarks();window.ASTREA_WORLD=initAstreaWorld({THREE,scene,player,hint,collisionBoxes,equipWeapon,addItem,renderer});if(window.applyAstreaTextures)window.applyAstreaTextures(scene);status.textContent='Chargement des GLB…';frame();loadVillageNPCs().catch(e=>console.warn('Chargement des PNJ interrompu',e));loadPrimaryAssets().catch(e=>{console.error(e);status.textContent='Mode de secours actif';hint.textContent='Certains assets sont indisponibles, formes provisoires conservées.'});
 })();
 </script>
