@@ -169,8 +169,8 @@ function astreaUsePbrMaterial(material,type){
  material.map=astreaGetPbrTexture(type,'diff');
  material.normalMap=astreaGetPbrTexture(type,'nor_gl');
  material.roughnessMap=astreaGetPbrTexture(type,'rough');
- material.color.set(0xffffff);
- material.roughness=1;
+ if(material.color)material.color.set(0xffffff);
+ if('roughness' in material)material.roughness=1;
  material.needsUpdate=true;
 }
 astreaUsePbrMaterial(groundMat,'terrain');
