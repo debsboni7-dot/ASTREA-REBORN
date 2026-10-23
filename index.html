@@ -95,7 +95,7 @@ async function loadPrimaryCharacter(){
   const JSZipModule=await import('https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm');
   const JSZip=JSZipModule.default||JSZipModule;
   const zip=await JSZip.loadAsync(await zipResponse.arrayBuffer());
-  const fbxEntries=Object.values(zip.files).filter(f=>!f.dir&&/\\.fbx$/i.test(f.name));
+  const fbxEntries=Object.values(zip.files).filter(f=>!f.dir&&/\.fbx$/i.test(f.name));
   if(!fbxEntries.length)throw new Error('Aucun FBX trouvé dans l’archive Meshy');
   fbxEntries.sort((a,b)=>Number(/character_output/i.test(b.name))-Number(/character_output/i.test(a.name)));
   const fbxEntry=fbxEntries[0],blobUrls=new Map();
