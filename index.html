@@ -65,22 +65,8 @@ const asset=(p)=>new URL(p,document.baseURI).href;
 const loadGLB=(p)=>new Promise((resolve,reject)=>{let settled=false;const timer=setTimeout(()=>{if(!settled){settled=true;reject(new Error('Délai dépassé : '+p))}},15000);loader.load(asset(p),g=>{if(!settled){settled=true;clearTimeout(timer);resolve(g)}},undefined,e=>{if(!settled){settled=true;clearTimeout(timer);reject(e)}})});
 const loadFBX=(p)=>new Promise((resolve,reject)=>{let settled=false;const timer=setTimeout(()=>{if(!settled){settled=true;reject(new Error('Délai FBX dépassé : '+p))}},20000);fbxLoader.load(asset(p),o=>{if(!settled){settled=true;clearTimeout(timer);resolve(o)}},undefined,e=>{if(!settled){settled=true;clearTimeout(timer);reject(e)}})});
 async function loadPrimaryCharacter(){
- // Personnage principal : modèle masculin Kimi en priorité. On n'utilise plus
- // 02-MODELS/characters/hero.glb comme personnage de secours.
- const kimiCharacterUrl='https://raw.githubusercontent.com/Aywen1/3-ia-genshin/main/kimi/public/assets/models/hero.glb';
- try{
-  const kimi=await new Promise((resolve,reject)=>{
-   const loader=new GLTFLoader();
-   const timeout=setTimeout(()=>reject(new Error('Délai dépassé pour le modèle Kimi')),12000);
-   loader.load(kimiCharacterUrl,g=>{clearTimeout(timeout);resolve(g)},undefined,e=>{clearTimeout(timeout);reject(e)});
-  });
-  const model=kimi.scene;
-  model.userData.astreaSource='Kimi — personnage principal masculin';
-  model.userData.astreaAttribution='Aywen1/3-ia-genshin — dossier kimi';
-  return {scene:model,animations:kimi.animations||[],source:'Kimi — modèle masculin'};
- }catch(kimiError){
-  console.warn('Modèle Kimi indisponible, essai du personnage Meshy riggé avec textures.',kimiError);
- }
+ // Personnage principal : modèle masculin Meshy riggé et texturé, déjà présent dans le dépôt.
+ // Le modèle Kimi est volontairement retiré de la sélection du héros.
  // Repli autorisé : archive Meshy du personnage utilisateur, avec ses textures.
  try{
   const zipUrl=asset('02-MODELS/characters/astrea-meshy-character-upload.zip');
@@ -505,10 +491,10 @@ function normalizeModel(object,targetHeight){
 async function loadPrimaryAssets(){
  const jobs=[];
  jobs.push((async()=>{
-   // Priorité au personnage masculin Kimi, puis à l'archive Meshy et aux GLB masculins locaux. hero.glb n'est jamais utilisé.
+   // Priorité au personnage masculin Meshy riggé/texturé. hero.glb et le modèle Kimi ne sont jamais utilisés.
    const g=await loadPrimaryCharacter();
    const model=g.scene;normalizeModel(model,1.78);player.add(model);player.visible=true;visualRoot=model;loadedHero=true;cacheProceduralRig(model);
-   if(savedCharacter && !String(g.source||'').startsWith('Meshy FBX')){
+   if(savedCharacter && !/^(Meshy FBX|Kimi)/i.test(String(g.source||''))){
      player.scale.y=savedCharacter.height/190;
      const outfit=new THREE.Color(outfitColors[savedCharacter.outfit]||0x315c9b);
      const buildScale=[.88,1,1.13][Math.max(0,Math.min(2,Number(savedCharacter.buildIndex??({fine:0,normal:1,robust:2}[savedCharacter.build]??1))))];
@@ -1006,7 +992,7 @@ function frame(){
  const moving=!!(f||s);
  if(moving!==moveAnim.moving){moveAnim.moving=moving;if(loadedHero)playCharacterAnimation(moving?'walk':'idle')}
  const len=Math.hypot(f,s)||1;f/=len;s/=len;const speed=4.2*dt;
- const dx=(-Math.sin(yaw)*f+Math.cos(yaw)*s)*speed;const dz=(-Math.cos(yaw)*f-Math.sin(yaw)*s)*speed;if(moving&&Math.hypot(dx,dz)>.0001)player.rotation.y=Math.atan2(-dx,-dz);if(!insideHouse){const radius=.46;const blocked=(x,z)=>collisionBoxes.some(b=>b.active!==false&&x+radius>b.x-b.hw&&x-radius<b.x+b.hw&&z+radius>b.z-b.hz&&z-radius<b.z+b.hz);const bounds=window.ASTREA_BOUNDS||{minX:-21,maxX:21,minZ:-117,maxZ:1};const nx=Math.max(bounds.minX,Math.min(bounds.maxX,player.position.x+dx));if(!blocked(nx,player.position.z))player.position.x=nx;const nz=Math.max(bounds.minZ,Math.min(bounds.maxZ,player.position.z+dz));if(!blocked(player.position.x,nz))player.position.z=nz;for(const obj of [guide,enemy]){if(!obj.visible)continue;const ox=player.position.x-obj.position.x,oz=player.position.z-obj.position.z,d=Math.hypot(ox,oz);if(d<.85){player.position.x=obj.position.x+(ox/(d||1))*.85;player.position.z=obj.position.z+(oz/(d||1))*.85}}}else{player.position.x=Math.max(9.1,Math.min(14.9,player.position.x+dx));player.position.z=Math.max(-12.2,Math.min(-7.8,player.position.z+dz))}if(moving)player.rotation.y=Math.atan2(-dx,-dz);
+ const dx=(-Math.sin(yaw)*f+Math.cos(yaw)*s)*speed;const dz=(-Math.cos(yaw)*f-Math.sin(yaw)*s)*speed;if(moving&&Math.hypot(dx,dz)>.0001)player.rotation.y=Math.atan2(-dx,-dz);if(!insideHouse){const radius=.46;const blocked=(x,z)=>collisionBoxes.some(b=>b.active!==false&&x+radius>b.x-b.hw&&x-radius<b.x+b.hw&&z+radius>b.z-b.hz&&z-radius<b.z+b.hz);const bounds=window.ASTREA_BOUNDS||{minX:-118,maxX:118,minZ:-238,maxZ:112};const nx=Math.max(bounds.minX,Math.min(bounds.maxX,player.position.x+dx));if(!blocked(nx,player.position.z))player.position.x=nx;const nz=Math.max(bounds.minZ,Math.min(bounds.maxZ,player.position.z+dz));if(!blocked(player.position.x,nz))player.position.z=nz;for(const obj of [guide,enemy]){if(!obj.visible)continue;const ox=player.position.x-obj.position.x,oz=player.position.z-obj.position.z,d=Math.hypot(ox,oz);if(d<.85){player.position.x=obj.position.x+(ox/(d||1))*.85;player.position.z=obj.position.z+(oz/(d||1))*.85}}}else{player.position.x=Math.max(9.1,Math.min(14.9,player.position.x+dx));player.position.z=Math.max(-12.2,Math.min(-7.8,player.position.z+dz))}if(moving)player.rotation.y=Math.atan2(-dx,-dz);
  vy-=14*dt;player.position.y+=vy*dt;if(player.position.y<=0){player.position.y=0;vy=0;onGround=true}
  if(attackTimer>0){attackTimer-=dt;if(attackTimer<=0){swordVisual.rotation.z=0;swordVisual.rotation.x=0;swordVisual.rotation.y=0}}
  
