@@ -130,15 +130,15 @@ astreaAtlasImage.onload=()=>{
  astreaAtlasReady=true;
  const makeTile=(index)=>{
   if(astreaTextureCache.has(index))return astreaTextureCache.get(index);
-  const canvas=document.createElement('canvas');canvas.width=256;canvas.height=256;
+  const canvas=document.createElement('canvas');canvas.width=128;canvas.height=128;
   const ctx=canvas.getContext('2d');
   const col=index%10,row=Math.floor(index/10);
-  ctx.drawImage(astreaAtlasImage,col*102.4,row*102.4,102.4,102.4,0,0,256,256);
+  ctx.drawImage(astreaAtlasImage,col*102.4,row*102.4,102.4,102.4,0,0,128,128);
   const tex=new THREE.CanvasTexture(canvas);tex.colorSpace=THREE.SRGBColorSpace;
   tex.wrapS=tex.wrapT=THREE.RepeatWrapping;tex.anisotropy=1;
   astreaTextureCache.set(index,tex);return tex;
  };
- window.ASTREA_TEXTURES_200=Array.from({length:200},(_,i)=>makeTile(i));
+ window.ASTREA_TEXTURES_200=Array.from({length:200},(_,i)=>({index:i,getTexture:()=>makeTile(i)}));
  groundMat.map=makeTile(0);groundMat.color.set(0xffffff);groundMat.needsUpdate=true;
  pathMat.map=makeTile(13);pathMat.color.set(0xffffff);pathMat.needsUpdate=true;
  const choose=(label)=>{
