@@ -660,9 +660,9 @@ async function loadPrimaryAssets(){
    // Utiliser les clips réellement intégrés au personnage Meshy, lorsqu'ils existent.
    // On retire le root-motion des pistes de position des hanches pour éviter que le clip
    // déplace le modèle hors du contrôleur de déplacement du jeu.
-   mixer=new THREE.AnimationMixer(model);currentAction=null;heroClips={};
-   (g.animations||[]).forEach((clip,i)=>{heroClips[clip.name||('animation_'+i)]=clip;});
-   for(const clip of g.animations||[]){
+   mixer=null;currentAction=null;heroClips={};
+   /* Les clips d'animation du personnage ne sont plus utilisés. */
+   for(const clip of []){
      for(const track of clip.tracks||[]){
        if(/\.position$/.test(track.name)&&/hips|pelvis|root/i.test(track.name)){
          const values=track.values;
@@ -802,12 +802,6 @@ function addItem(name,count=1){inventory[name]=(inventory[name]||0)+count;render
 function renderInventory(){const root=document.getElementById('inventoryItems');const entries=Object.entries(inventory);root.innerHTML=entries.length?entries.map(([name,count])=>'<p>• '+name+' : <strong>'+count+'</strong></p>').join(''):'<p>Ton sac est vide.</p>';if((inventory['Potion de soin']||0)>0){const b=document.createElement('button');b.textContent='UTILISER UNE POTION (+35 PV)';b.disabled=playerHP>=MAX_PLAYER_HP;b.style.opacity=b.disabled?'.5':'1';b.addEventListener('click',usePotion);root.appendChild(b)}}
 document.getElementById('inventoryToggle').addEventListener('click',()=>{const panel=document.getElementById('inventoryPanel');panel.hidden=!panel.hidden;renderInventory()});
 document.getElementById('inventoryClose').addEventListener('click',()=>{document.getElementById('inventoryPanel').hidden=true});
-const weaponSelect=document.getElementById('weaponSelect');
-for(const w of ASTREA_WEAPONS){const opt=document.createElement('option');opt.value=w.id;opt.textContent='Niv. '+w.level+' · '+w.rank+' — '+w.name;weaponSelect.appendChild(opt)}
-document.getElementById('armoryToggle').addEventListener('click',()=>{const p=document.getElementById('armoryPanel');p.hidden=!p.hidden;if(!p.hidden){weaponSelect.value=selectedWeapon.id;document.getElementById('weaponInfo').innerHTML='<strong>'+selectedWeapon.name+'</strong><br>Niveau unique : '+selectedWeapon.level+' — Rang '+selectedWeapon.rank+'<br>Dégâts : '+selectedWeapon.damage+' • Portée : '+selectedWeapon.reach+'<br>Vitesse : '+selectedWeapon.speed.toFixed(2)+' • Technique : '+selectedWeapon.skill}});
-document.getElementById('weaponSelect').addEventListener('change',()=>{const w=ASTREA_WEAPONS.find(x=>x.id===weaponSelect.value);if(w)document.getElementById('weaponInfo').innerHTML='<strong>'+w.name+'</strong><br>Niveau unique : '+w.level+' — Rang '+w.rank+'<br>Dégâts : '+w.damage+' • Portée : '+w.reach+'<br>Vitesse : '+w.speed.toFixed(2)+' • Technique : '+w.skill});
-document.getElementById('equipWeapon').addEventListener('click',()=>equipWeapon(weaponSelect.value));
-document.getElementById('armoryClose').addEventListener('click',()=>document.getElementById('armoryPanel').hidden=true);
 const chests=[];
 function makeChest(x,z,reward){
  const group=new THREE.Group();group.position.set(x,0,z);scene.add(group);
