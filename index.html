@@ -13,7 +13,7 @@
 </style>
 </head>
 <body>
-<div id="hud"><div class="brand">ASTREA <span style="color:#b4dfc2">REBORN</span></div><div class="hint" id="hint">Chargement des assets ASTREA…</div><div class="health" id="health"><div class="health-label">❤️ VIE <strong id="healthText">100 / 100</strong></div><div class="health-track"><div id="healthFill"></div></div></div><div class="quest" id="quest">Objectif : <strong>vaincre l’entraînement</strong><br><span id="enemyStatus">Cible : 100 PV</span><br><span id="questStatus">Approche la cible et attaque.</span></div><div class="status" id="status">Initialisation…</div><a class="customize" href="08-UI/character-creator.html">PERSONNAGE ⚙</a><a class="settings-button" href="08-UI/settings.html">PARAMÈTRES ⚙</a><button class="inventory-button" id="inventoryToggle">SAC 🎒</button><button class="armory-button" id="armoryToggle">ARMES ⚔</button><div class="armory-panel" id="armoryPanel" hidden><h3>Arsenal d’Astrea</h3><label for="weaponSelect">Arme équipée</label><select id="weaponSelect"></select><div id="weaponInfo"></div><button id="equipWeapon">ÉQUIPER</button><p class="armory-note">Chaque arme possède son propre modèle 3D, son niveau unique, ses dégâts, sa portée, sa vitesse et sa technique.</p><button id="armoryClose">FERMER</button></div><div class="inventory-panel" id="inventoryPanel" hidden><h3>Inventaire d’Astrea</h3><div id="inventoryItems"><p>Ton sac est vide.</p></div><button id="inventoryClose">FERMER</button></div>
+<div id="hud"><div class="brand">ASTREA <span style="color:#b4dfc2">REBORN</span></div><div class="hint" id="hint">Chargement des assets ASTREA…</div><div class="health" id="health"><div class="health-label">❤️ VIE <strong id="healthText">100 / 100</strong></div><div class="health-track"><div id="healthFill"></div></div></div><div class="quest" id="quest">Objectif : <strong>vaincre l’entraînement</strong><br><span id="enemyStatus">Cible : 100 PV</span><br><span id="questStatus">Approche la cible et attaque.</span></div><div class="status" id="status">Initialisation…</div><a class="customize" href="08-UI/character-creator.html">PERSONNAGE ⚙</a><a class="settings-button" href="08-UI/settings.html">PARAMÈTRES ⚙</a><button class="inventory-button" id="inventoryToggle">SAC 🎒</button><div class="inventory-panel" id="inventoryPanel" hidden><h3>Inventaire d’Astrea</h3><div id="inventoryItems"><p>Ton sac est vide.</p></div><button id="inventoryClose">FERMER</button></div>
 <div class="joystick" id="joystick" aria-label="Joystick de déplacement"><div class="joystick-ring"><div class="joystick-knob" id="joystickKnob"></div></div><span>JOYSTICK</span></div>
 <div class="actions"><button id="interact">PARLER</button><button id="jump">SAUT</button><button id="attack">COMBO</button><button id="specialAttack">ULTIME</button><button id="ultimateUltimate">ULTIME+</button></div><div class="dialogue" id="dialogue" hidden><h2 id="dialogueTitle">Guide du village</h2><p id="dialogueText"></p><button id="dialogueClose">CONTINUER</button></div><div class="notice">ZQSD / WASD • Espace : saut • glisser : tourner la caméra</div></div>
 <script>
@@ -27,7 +27,7 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.m
 import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js';
 import { FBXLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/FBXLoader.js';
 import { clone as cloneSkeleton } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/utils/SkeletonUtils.js';
-import { ASTREA_WEAPONS, createWeaponModel } from './02-MODELS/weapons/weapon-catalog.js';
+// Le héros combat à mains nues dans cette version.
 import { initAstreaWorld } from './07-SYSTEMS/astrea-world-expansion.js';
 (()=>{
 const ASTREA_SETTINGS_KEY='astrea-reborn.settings.v1';
@@ -274,7 +274,7 @@ function addExplorationNature(){
  crownInstances.forEach((m,i)=>{m.count=ci[i];m.instanceMatrix.needsUpdate=true;scene.add(m)});
  // Herbe en petits bouquets instanciés, surtout dans les zones hors routes et bâtiments.
  const grassGeo=new THREE.ConeGeometry(.055,.42,3);
- const grassMat=[0x4d8b43,0x6c9c4a,0x3d773d].map(color=>new THREE.MeshStandardMaterial({color,roughness:1,side:THREE.DoubleSide}));
+ const grassMat=[0x72c957,0x9be36a,0x54b94b].map(color=>new THREE.MeshStandardMaterial({color,emissive:color,emissiveIntensity:.12,roughness:.78,metalness:.02,side:THREE.DoubleSide}));
  const grass=grassMat.map(m=>new THREE.InstancedMesh(grassGeo,m,420));
  let seed=9137;const rand=()=>{seed=(seed*16807)%2147483647;return(seed-1)/2147483646};
  for(let i=0;i<420;i++){
@@ -340,10 +340,8 @@ let savedCharacter=null;try{savedCharacter=JSON.parse(localStorage.getItem('astr
 const outfitColors={blue:0x315c9b,red:0x9d3939,green:0x327b58,black:0x252b38,white:0xe5e6df,purple:0x6e4bb0};
 // Aucun personnage en primitives : seuls les modèles 3D réels sont affichés.
 player.visible=false;
-let swordVisual=new THREE.Group();
-weaponMount.add(swordVisual);
-const weaponAura=new THREE.Mesh(new THREE.TorusGeometry(.16,.018,5,18),new THREE.MeshBasicMaterial({color:0xffe58b,transparent:true,opacity:.5,blending:THREE.AdditiveBlending,depthWrite:false}));
-weaponAura.position.set(0,.48,.015);weaponAura.rotation.x=Math.PI/2;weaponMount.add(weaponAura);
+let swordVisual=new THREE.Group();swordVisual.visible=false;weaponMount.add(swordVisual);
+const weaponAura=new THREE.Group();weaponAura.visible=false;weaponMount.add(weaponAura);
 let visualRoot=null,loadedHero=false,loadedHouse=false;
 const guide=new THREE.Group();guide.position.set(-1.2,0,.8);guide.visible=false;scene.add(guide);
 const guideMarker=new THREE.Mesh(new THREE.OctahedronGeometry(.16,0),new THREE.MeshStandardMaterial({color:0xf2ce74,emissive:0x60410c}));
@@ -682,7 +680,7 @@ async function loadPrimaryAssets(){
    model.updateMatrixWorld(true);
    if(handBone){const handPos=new THREE.Vector3();handBone.getWorldPosition(handPos);player.worldToLocal(handPos);weaponMount.position.copy(handPos);weaponMount.position.y-=.015;weaponHandAttached=true}
    else{weaponMount.position.set(.58,1.23,.02);weaponHandAttached=false}
-   weaponMount.rotation.set(0,0,0);playCharacterAnimation('idle');
+   weaponMount.rotation.set(0,0,0);
    return handBone?'personnage 3D chargé; arme attachée à la main droite':'personnage 3D chargé; support d’arme de secours actif';
  })().catch(e=>{player.visible=false;visualRoot=null;console.error('Personnage 3D réel indisponible',e);hint.textContent='Personnage 3D non chargé : vérifie les fichiers Meshy.';return 'personnage 3D indisponible'}));
 jobs.push(Promise.resolve('arsenal 3D ASTREA chargé depuis le catalogue procédural'));
@@ -692,7 +690,7 @@ jobs.push(Promise.resolve('arsenal 3D ASTREA chargé depuis le catalogue procéd
  jobs.push(astreaLoadPbrFamily('terrain').then(()=>{astreaUsePbrMaterial(groundMat,'terrain');return 'terrain PBR Poly Haven';}));
  jobs.push(astreaLoadPbrFamily('paving').then(()=>{astreaUsePbrMaterial(pathMat,'paving');return 'pavage PBR Poly Haven';}));
  const result=await Promise.all(jobs);
- status.textContent='Ville médiévale chargée';hint.textContent='ASTREA REBORN : chargement des vrais modèles 3D et animations…';
+ status.textContent='Ville médiévale chargée';hint.textContent='ASTREA REBORN : modèles 3D chargés ; animations désactivées ; combat à mains nues.';
 }
 function setProceduralPose(kind){proceduralPose=kind;proceduralPoseStart=clock.elapsedTime}
 function cacheProceduralRig(model){
@@ -796,16 +794,9 @@ function playCharacterAnimation(kind){
 // Les clips externes walk/idle/attack 1–3 sont chargés à la demande puis retargetés
 // sur le rig du personnage ; un clip incompatible est ignoré sans bloquer le prototype.
 
-let selectedWeapon=ASTREA_WEAPONS.find(w=>w.id===savedGame.selectedWeapon)||ASTREA_WEAPONS.find(w=>w.id==='unarmed')||ASTREA_WEAPONS[0];
-function equipWeapon(id){
- const next=ASTREA_WEAPONS.find(w=>w.id===id);if(!next)return;selectedWeapon=next;if(swordVisual?.parent)swordVisual.parent.remove(swordVisual);swordVisual=null;if(next.id!=='unarmed'){const model=createWeaponModel(THREE,next);model.position.set(0,-.12,0);model.rotation.set(0,0,0);swordVisual=model;weaponMount.add(model);}else{swordVisual=new THREE.Group();swordVisual.visible=false;weaponMount.add(swordVisual);}
- weaponAura.material.color.set(next.color||0xd8d8d8);weaponAura.material.opacity=next.id==='unarmed'?0:next.rank==='Divine'?.82:.48;const meshPath=next.id==='unarmed'?null:next.id==='basic-sword'?'02-MODELS/weapons/sword-meshy.glb':next.id==='divine-sword'?'02-MODELS/weapons/converted/divine-red-sword-4643.glb':null;if(meshPath){loadGLB(meshPath).then(g=>{if(selectedWeapon.id!==next.id)return;const actual=g.scene;normalizeModel(actual,next.id==='divine-sword'?1.25:1.02);actual.position.set(0,-.12,0);actual.rotation.set(0,0,0);if(swordVisual.parent)swordVisual.parent.remove(swordVisual);swordVisual=actual;weaponMount.add(actual)}).catch(e=>console.warn('Modèle Meshy indisponible, géométrie 3D de secours conservée',e))}
- const info=document.getElementById('weaponInfo');
- if(info)info.innerHTML='<strong>'+next.name+'</strong><br>Niveau : '+next.level+' — Rang '+next.rank+'<br>Dégâts : '+next.damage+' • Portée : '+next.reach+'<br>Vitesse : '+next.speed.toFixed(2)+' • Technique : '+next.skill;
- const select=document.getElementById('weaponSelect');if(select)select.value=next.id;
- saveProgress();hint.textContent=next.id==='unarmed'?'Tu commences à mains nues. Termine des quêtes pour acheter une arme à la forge.':'Arme équipée : '+next.name+' (Niv. '+next.level+' — '+next.rank+').';
-}
-const inventory={};
+const selectedWeapon={id:'unarmed',name:'Poings',type:'fists',rank:'Débutant',level:1,damage:8,reach:1.65,speed:1,skill:'Combat à mains nues',color:0xd8d8d8};
+ function equipWeapon(){ selectedWeapon.type='fists'; selectedWeapon.id='unarmed'; swordVisual.visible=false; weaponAura.visible=false; }
+ const inventory={};
 if(savedGame.inventory&&typeof savedGame.inventory==='object')for(const [name,count] of Object.entries(savedGame.inventory)){if(typeof name==='string'&&Number.isFinite(count)&&count>0)inventory[name]=Math.floor(count)}
 function addItem(name,count=1){inventory[name]=(inventory[name]||0)+count;renderInventory();saveProgress()}
 function renderInventory(){const root=document.getElementById('inventoryItems');const entries=Object.entries(inventory);root.innerHTML=entries.length?entries.map(([name,count])=>'<p>• '+name+' : <strong>'+count+'</strong></p>').join(''):'<p>Ton sac est vide.</p>';if((inventory['Potion de soin']||0)>0){const b=document.createElement('button');b.textContent='UTILISER UNE POTION (+35 PV)';b.disabled=playerHP>=MAX_PLAYER_HP;b.style.opacity=b.disabled?'.5':'1';b.addEventListener('click',usePotion);root.appendChild(b)}}
@@ -836,9 +827,9 @@ makeChest(3.5,-7,'Potion de soin');
 makeChest(-3.8,-13,'Cristal d’Astrea');
 makeChest(3.6,-19,'Pièces d’or');
 function saveProgress(){
- try{localStorage.setItem('astrea-save-v1',JSON.stringify({version:1,inventory,openedChests:chests.filter(c=>c.opened).map(c=>c.reward),enemyHP,enemyDefeated,playerHP,selectedWeapon:selectedWeapon.id,playerPosition:insideHouse?null:{x:player.position.x,z:player.position.z}}))}catch(e){console.warn('Sauvegarde locale indisponible',e)}
+ try{localStorage.setItem('astrea-save-v1',JSON.stringify({version:1,inventory,openedChests:chests.filter(c=>c.opened).map(c=>c.reward),enemyHP,enemyDefeated,playerHP,playerPosition:insideHouse?null:{x:player.position.x,z:player.position.z}}))}catch(e){console.warn('Sauvegarde locale indisponible',e)}
 }
-equipWeapon(selectedWeapon.id);
+equipWeapon();
 function nearestChest(){let best=null,dist=2.35;for(const chest of chests){if(chest.opened)continue;const d=Math.hypot(player.position.x-chest.group.position.x,player.position.z-chest.group.position.z);if(d<dist){best=chest;dist=d}}return best}
 function nearestVillageNPC(maxDistance=2.8){
  let best=null,bestDistance=maxDistance;
@@ -1128,17 +1119,17 @@ function frame(){
  const frameInterval=1000/fpsLimit;
  if(renderNow-astreaLastRender<frameInterval)return;
  const dt=Math.min(clock.getDelta(),Math.min(.05,frameInterval/1000*1.6));
- astreaLastRender=renderNow;if(mixer)mixer.update(dt);updateCombatSequence();updateProceduralRig();updateWeaponVFX(dt);weaponAura.rotation.z+=dt*.9;for(let i=0;i<fireFlames.length;i++){const fl=fireFlames[i];fl.scale.y=.82+Math.sin(clock.elapsedTime*8+i*1.7)*.24;fl.rotation.y=clock.elapsedTime*.8+i;}for(const l of fireLights)l.intensity=1.05+Math.sin(clock.elapsedTime*7)*.3;for(const p of ambienceParticles){p.mesh.position.y=p.base.y+Math.sin(clock.elapsedTime*.8+p.phase)*.28;p.mesh.position.x=p.base.x+Math.sin(clock.elapsedTime*.35+p.phase)*.22;}updateVillageNPCs(dt);attackCooldown=Math.max(0,attackCooldown-dt);specialCooldown=Math.max(0,specialCooldown-dt);ultimateCooldown=Math.max(0,ultimateCooldown-dt);ultimateUltimateCooldown=Math.max(0,ultimateUltimateCooldown-dt);enemyAttackTimer=Math.max(0,enemyAttackTimer-dt);if(!enemyDefeated&&enemy.visible&&Math.hypot(player.position.x-enemy.position.x,player.position.z-enemy.position.z)<2.15&&enemyAttackTimer<=0){enemyAttackTimer=2.1;takeDamage(8);hint.textContent='La cible te frappe : -8 PV !'}let f=0,s=0;
+ astreaLastRender=renderNow;/* Animations de personnages et VFX d'armes désactivés. */for(let i=0;i<fireFlames.length;i++){const fl=fireFlames[i];fl.scale.y=.82+Math.sin(clock.elapsedTime*8+i*1.7)*.24;fl.rotation.y=clock.elapsedTime*.8+i;}for(const l of fireLights)l.intensity=1.05+Math.sin(clock.elapsedTime*7)*.3;for(const p of ambienceParticles){p.mesh.position.y=p.base.y+Math.sin(clock.elapsedTime*.8+p.phase)*.28;p.mesh.position.x=p.base.x+Math.sin(clock.elapsedTime*.35+p.phase)*.22;}updateVillageNPCs(dt);attackCooldown=Math.max(0,attackCooldown-dt);specialCooldown=Math.max(0,specialCooldown-dt);ultimateCooldown=Math.max(0,ultimateCooldown-dt);ultimateUltimateCooldown=Math.max(0,ultimateUltimateCooldown-dt);enemyAttackTimer=Math.max(0,enemyAttackTimer-dt);if(!enemyDefeated&&enemy.visible&&Math.hypot(player.position.x-enemy.position.x,player.position.z-enemy.position.z)<2.15&&enemyAttackTimer<=0){enemyAttackTimer=2.1;takeDamage(8);hint.textContent='La cible te frappe : -8 PV !'}let f=0,s=0;
  if(keys.w||keys.z||keys.arrowup||touchMove.forward)f+=1;
  if(keys.s||keys.arrowdown||touchMove.back)f-=1;
  if(keys.d||keys.arrowright||touchMove.right)s+=1;
  if(keys.a||keys.q||keys.arrowleft||touchMove.left)s-=1;
  const moving=!!(f||s);
- if(moving!==moveAnim.moving){moveAnim.moving=moving;if(loadedHero)playCharacterAnimation(moving?'walk':'idle')}
+ if(moving!==moveAnim.moving){moveAnim.moving=moving;}
  const len=Math.hypot(f,s)||1;f/=len;s/=len;const speed=4.2*dt;
  const dx=(-Math.sin(yaw)*f+Math.cos(yaw)*s)*speed;const dz=(-Math.cos(yaw)*f-Math.sin(yaw)*s)*speed;if(moving&&Math.hypot(dx,dz)>.0001)player.rotation.y=Math.atan2(-dx,-dz);if(!insideHouse){const radius=.46;const blocked=(x,z)=>collisionBoxes.some(b=>b.active!==false&&x+radius>b.x-b.hw&&x-radius<b.x+b.hw&&z+radius>b.z-b.hz&&z-radius<b.z+b.hz);const bounds=window.ASTREA_BOUNDS||{minX:-118,maxX:118,minZ:-238,maxZ:112};const nx=Math.max(bounds.minX,Math.min(bounds.maxX,player.position.x+dx));if(!blocked(nx,player.position.z))player.position.x=nx;const nz=Math.max(bounds.minZ,Math.min(bounds.maxZ,player.position.z+dz));if(!blocked(player.position.x,nz))player.position.z=nz;for(const obj of [guide,enemy]){if(!obj.visible)continue;const ox=player.position.x-obj.position.x,oz=player.position.z-obj.position.z,d=Math.hypot(ox,oz);if(d<.85){player.position.x=obj.position.x+(ox/(d||1))*.85;player.position.z=obj.position.z+(oz/(d||1))*.85}}}else{player.position.x=Math.max(9.1,Math.min(14.9,player.position.x+dx));player.position.z=Math.max(-12.2,Math.min(-7.8,player.position.z+dz))}if(moving)player.rotation.y=Math.atan2(-dx,-dz);
  vy-=14*dt;player.position.y+=vy*dt;const groundY=astreaTerrainHeight(player.position.x,player.position.z);if(player.position.y<=groundY){player.position.y=groundY;vy=0;onGround=true}
- if(attackTimer>0){attackTimer-=dt;if(attackTimer<=0){swordVisual.rotation.z=0;swordVisual.rotation.x=0;swordVisual.rotation.y=0}}
+ if(attackTimer>0)attackTimer=Math.max(0,attackTimer-dt);
  
  const guideDistance=Math.hypot(player.position.x-guide.position.x,player.position.z-guide.position.z);
  const homeDistance=Math.hypot(player.position.x+5.5,player.position.z+3.35);
