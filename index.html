@@ -754,6 +754,8 @@ function updateProceduralRig(){
  }
 }
 function playCharacterAnimation(kind){
+ // Animations de personnages désactivées à la demande.
+ return false;
  if(!mixer||!visualRoot)return false;
  const names=Object.keys(heroClips);
  const aliases={
@@ -914,6 +916,8 @@ function spawnWeaponVFX(special=false,atTarget=false){
  activeWeaponVFX.push({group,age:0,duration:special?.72:heavy?.5:.38,arc,ring,orb,slashSprite,points,velocities,special});
 }
 function updateWeaponVFX(dt){
+ // Les VFX d'armes sont désactivés avec le système d'armes.
+ return;
  for(let n=activeWeaponVFX.length-1;n>=0;n--){
   const fx=activeWeaponVFX[n];fx.age+=dt;const k=Math.min(1,fx.age/fx.duration),fade=1-k;
   if(fx.arc){fx.arc.rotation.z+=dt*(fx.special?4.8:7);fx.arc.scale.setScalar(1+k*(fx.special?.85:.42));fx.arc.material.opacity=.94*fade}
@@ -1039,6 +1043,8 @@ addEventListener('pagehide',saveProgress);addEventListener('blur',saveProgress);
 let dragging=false,lastX=0,lastY=0,cameraPointer=null;renderer.domElement.style.touchAction='none';renderer.domElement.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;dragging=true;cameraPointer=e.pointerId;lastX=e.clientX;lastY=e.clientY;try{renderer.domElement.setPointerCapture(e.pointerId)}catch(_){}});renderer.domElement.addEventListener('pointermove',e=>{if(!dragging||e.pointerId!==cameraPointer)return;const dx=e.clientX-lastX,dy=e.clientY-lastY;yaw+=dx*.008*(Number(astreaSettings.cameraSensitivity||50)/50);pitch=Math.max(-.08,Math.min(.72,pitch-dy*.004*(Number(astreaSettings.cameraSensitivity||50)/50)*(astreaSettings.invertY?-1:1)));lastX=e.clientX;lastY=e.clientY});function stopCameraDrag(e){if(cameraPointer===null||e.pointerId===cameraPointer){dragging=false;cameraPointer=null}}renderer.domElement.addEventListener('pointerup',stopCameraDrag);renderer.domElement.addEventListener('pointercancel',stopCameraDrag);
 const moveAnim={moving:false};
 function updateVillageNPCs(dt){
+ // Les animations des personnages non-joueurs sont désactivées ; leurs modèles restent visibles.
+ return;
  const t=clock.elapsedTime;
  for(const npc of npcGroups){
    const dist=Math.hypot(player.position.x-npc.group.position.x,player.position.z-npc.group.position.z);
