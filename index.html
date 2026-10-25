@@ -29,6 +29,7 @@ import { FBXLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/j
 import { clone as cloneSkeleton } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/utils/SkeletonUtils.js';
 // Le héros combat à mains nues dans cette version.
 import { initAstreaWorld } from './07-SYSTEMS/astrea-world-expansion.js';
+import { initAstreaVisualUpgrade } from './07-SYSTEMS/astrea-visual-upgrade.js';
 (()=>{
 const ASTREA_SETTINGS_KEY='astrea-reborn.settings.v1';
 const astreaSettings=(()=>{const d={targetFps:30,resolutionScale:70,shadows:false,joystickLeft:true,joystickSize:100,buttonSize:100,cameraSensitivity:50,invertY:false,showFps:false};try{return {...d,...JSON.parse(localStorage.getItem(ASTREA_SETTINGS_KEY)||'{}')}}catch(_){return d}})();
@@ -1145,7 +1146,7 @@ function frame(){
  renderer.render(scene,camera);astreaFrameCounter++;if(renderNow-astreaFpsSample>=1000){fpsBadge.textContent='FPS '+astreaFrameCounter;astreaFrameCounter=0;astreaFpsSample=renderNow;}
 }
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setPixelRatio(Math.min((devicePixelRatio||1)*Math.max(.5,Math.min(1,Number(astreaSettings.resolutionScale||70)/100)),1.15));renderer.setSize(innerWidth,innerHeight)});
-addVillageAtmosphere();addTownLandmarks();window.ASTREA_WORLD=initAstreaWorld({THREE,scene,player,hint,collisionBoxes,equipWeapon,addItem,renderer});if(window.applyAstreaTextures)window.applyAstreaTextures(scene);status.textContent='Chargement des GLB…';frame();loadVillageNPCs().catch(e=>console.warn('Chargement des PNJ interrompu',e));loadPrimaryAssets().catch(e=>{console.error(e);status.textContent='Mode de secours actif';hint.textContent='Certains assets sont indisponibles, formes provisoires conservées.'});
+addVillageAtmosphere();addTownLandmarks();initAstreaVisualUpgrade({THREE,scene,renderer});window.ASTREA_WORLD=initAstreaWorld({THREE,scene,player,hint,collisionBoxes,equipWeapon,addItem,renderer});if(window.applyAstreaTextures)window.applyAstreaTextures(scene);status.textContent='Chargement des GLB…';frame();loadVillageNPCs().catch(e=>console.warn('Chargement des PNJ interrompu',e));loadPrimaryAssets().catch(e=>{console.error(e);status.textContent='Mode de secours actif';hint.textContent='Certains assets sont indisponibles, formes provisoires conservées.'});
 })();
 </script>
 </body>
