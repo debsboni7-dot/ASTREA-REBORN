@@ -30,6 +30,7 @@ import { clone as cloneSkeleton } from 'https://cdn.jsdelivr.net/npm/three@0.160
 // Le héros combat à mains nues dans cette version.
 import { initAstreaWorld } from './07-SYSTEMS/astrea-world-expansion.js';
 import { initAstreaVisualUpgrade } from './07-SYSTEMS/astrea-visual-upgrade.js';
+import { initAstreaGroundFX } from './07-SYSTEMS/astrea-ground-fx.js';
 (()=>{
 const ASTREA_SETTINGS_KEY='astrea-reborn.settings.v1';
 const astreaSettings=(()=>{const d={targetFps:30,resolutionScale:70,shadows:false,joystickLeft:true,joystickSize:100,buttonSize:100,cameraSensitivity:50,invertY:false,showFps:false};try{return {...d,...JSON.parse(localStorage.getItem(ASTREA_SETTINGS_KEY)||'{}')}}catch(_){return d}})();
@@ -49,6 +50,7 @@ renderer.outputColorSpace=THREE.SRGBColorSpace;
 renderer.toneMapping=THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure=1.12;
 document.body.appendChild(renderer.domElement);
+window.ASTREA_RENDERER=renderer;
 const joySettingsEl=document.getElementById('joystick'),actionSettingsEl=document.querySelector('.actions');
 if(joySettingsEl){const js=Math.max(60,Math.min(140,Number(astreaSettings.joystickSize||100)))/100;joySettingsEl.style.transform='scale('+js+')';joySettingsEl.style.transformOrigin='bottom '+(astreaSettings.joystickLeft===false?'right':'left');if(astreaSettings.joystickLeft===false){joySettingsEl.style.left='auto';joySettingsEl.style.right='8px';if(actionSettingsEl)actionSettingsEl.style.left='8px';}}
 if(actionSettingsEl){const bs=Math.max(60,Math.min(140,Number(astreaSettings.buttonSize||100)))/100;actionSettingsEl.querySelectorAll('button').forEach(b=>{b.style.transform='scale('+bs+')';b.style.transformOrigin='center';});}
@@ -1143,10 +1145,10 @@ function frame(){
  camera.position.set(target.x+Math.sin(yaw)*dist,target.y+2.4+pitch*5,target.z+Math.cos(yaw)*dist);camera.lookAt(target);
  // Scintillement très discret des lumières du village : effet vivant sans bloom ni ombres dynamiques.
  const lightTime=clock.elapsedTime;for(let i=0;i<villageLights.length;i++){villageLights[i].intensity=1.05+Math.sin(lightTime*5.2+i*1.7)*.10+Math.sin(lightTime*8.1+i)*.035}
- renderer.render(scene,camera);astreaFrameCounter++;if(renderNow-astreaFpsSample>=1000){fpsBadge.textContent='FPS '+astreaFrameCounter;astreaFrameCounter=0;astreaFpsSample=renderNow;}
+ if(window.ASTREA_FX_TICK)window.ASTREA_FX_TICK(dt);renderer.render(scene,camera);astreaFrameCounter++;if(renderNow-astreaFpsSample>=1000){fpsBadge.textContent='FPS '+astreaFrameCounter;astreaFrameCounter=0;astreaFpsSample=renderNow;}
 }
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setPixelRatio(Math.min((devicePixelRatio||1)*Math.max(.5,Math.min(1,Number(astreaSettings.resolutionScale||70)/100)),1.15));renderer.setSize(innerWidth,innerHeight)});
-addVillageAtmosphere();addTownLandmarks();initAstreaVisualUpgrade({THREE,scene,renderer});window.ASTREA_WORLD=initAstreaWorld({THREE,scene,player,hint,collisionBoxes,equipWeapon,addItem,renderer});if(window.applyAstreaTextures)window.applyAstreaTextures(scene);status.textContent='Chargement des GLB…';frame();loadVillageNPCs().catch(e=>console.warn('Chargement des PNJ interrompu',e));loadPrimaryAssets().catch(e=>{console.error(e);status.textContent='Mode de secours actif';hint.textContent='Certains assets sont indisponibles, formes provisoires conservées.'});
+addVillageAtmosphere();addTownLandmarks();initAstreaVisualUpgrade({THREE,scene,renderer});initAstreaGroundFX({THREE,scene,player,renderer});window.ASTREA_WORLD=initAstreaWorld({THREE,scene,player,hint,collisionBoxes,equipWeapon,addItem,renderer});if(window.applyAstreaTextures)window.applyAstreaTextures(scene);status.textContent='Chargement des GLB…';frame();loadVillageNPCs().catch(e=>console.warn('Chargement des PNJ interrompu',e));loadPrimaryAssets().catch(e=>{console.error(e);status.textContent='Mode de secours actif';hint.textContent='Certains assets sont indisponibles, formes provisoires conservées.'});
 })();
 </script>
 </body>
