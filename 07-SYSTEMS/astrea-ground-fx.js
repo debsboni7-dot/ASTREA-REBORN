@@ -15,6 +15,7 @@ export function initAstreaGroundFX({THREE,scene,player}) {
   ];
   const groundGroup=new THREE.Group();groundGroup.name='ASTREA_Ground_Texture_Biomes';scene.add(groundGroup);
   let textureReady=0;
+  const terrainHeight=(x,z)=>{const central=Math.abs(x)<19&&z>-124&&z<18;let h=(Math.sin(x*.085+z*.021)*.12+Math.cos(z*.073-x*.018)*.10+Math.sin((x-z)*.047)*.07);if(!central){const hills=[[-27,-24,1.05,8],[27,-42,.9,10],[-30,-70,1.25,11],[29,-96,1.05,9],[-24,18,.72,10],[34,24,.9,12]];for(const q of hills){const dx=x-q[0],dz=z-q[1];h+=q[2]*Math.exp(-(dx*dx+dz*dz)/(q[3]*q[3]));}}else h*=.38;return h;};
   const patchShape=(cx,cz,rx,rz,seed)=>{
     const s=new THREE.Shape();const n=13;
     for(let i=0;i<n;i++){
@@ -23,7 +24,7 @@ export function initAstreaGroundFX({THREE,scene,player}) {
       const x=cx+Math.cos(a)*rx*wobble,z=cz+Math.sin(a)*rz*wobble;
       if(i===0)s.moveTo(x,-z);else s.lineTo(x,-z);
     }
-    s.closePath();return new THREE.ShapeGeometry(s,1);
+    s.closePath();const geo=new THREE.ShapeGeometry(s,1);const pos=geo.attributes.position;for(let k=0;k<pos.count;k++){const wx=pos.getX(k),wz=-pos.getY(k);pos.setZ(k,terrainHeight(wx,wz)+.014);}geo.computeVertexNormals();return geo;
   };
   textureDefs.forEach((def,di)=>{
     loader.load(def.url,tex=>{
@@ -31,7 +32,7 @@ export function initAstreaGroundFX({THREE,scene,player}) {
       const mat=new THREE.MeshStandardMaterial({map:tex,color:0xffffff,roughness:1,metalness:0,side:THREE.DoubleSide,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1});
       def.patches.forEach((p,i)=>{
         const mesh=new THREE.Mesh(patchShape(p[0],p[1],p[2],p[3],di*9+i),mat);
-        mesh.rotation.x=-Math.PI/2;mesh.position.y=-.018+di*.0007;mesh.renderOrder=2;mesh.name='ASTREA_Ground_'+def.name;groundGroup.add(mesh);
+        mesh.rotation.x=-Math.PI/2;mesh.position.y=-.06+di*.0007;mesh.renderOrder=2;mesh.name='ASTREA_Ground_'+def.name;groundGroup.add(mesh);
       });
       textureReady++;
       window.ASTREA_GROUND_TEXTURES={loaded:textureReady,total:textureDefs.length,names:textureDefs.filter(d=>groundGroup.children.some(o=>o.name==='ASTREA_Ground_'+d.name)).map(d=>d.name)};
