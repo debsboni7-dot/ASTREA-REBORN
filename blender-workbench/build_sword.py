@@ -220,7 +220,7 @@ area_light("Studio | fill", (-2.5,-1.0,1.6), 300, 2.5, (1.0,0.72,0.43))
 area_light("Studio | rim", (0.0,2.2,2.7), 650, 2.0, (0.35,0.62,1.0))
 
 scene = bpy.context.scene
-scene.render.engine = "BLENDER_EEVEE_NEXT"
+scene.render.engine = "BLENDER_EEVEE_NEXT" if bpy.app.version >= (4, 2, 0) else "BLENDER_EEVEE"
 scene.eevee.taa_render_samples = 48
 scene.render.resolution_x = 1200
 scene.render.resolution_y = 1200
