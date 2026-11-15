@@ -1,0 +1,33 @@
+name: Build ASTREA 3D asset with Blender
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "blender-pipeline/**"
+      - ".github/workflows/blender-build.yml"
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Checkout ASTREA
+        uses: actions/checkout@v4
+      - name: Install Blender
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y blender
+      - name: Generate sword, render and export
+        env:
+          ASTREA_OUT: \${{ github.workspace }}/build
+        run: |
+          mkdir -p "$ASTREA_OUT"
+          blender --background --factory-startup --python blender-pipeline/create_astrea_sword.py
+      - name: Upload Blender project and exports
+        uses: actions/upload-artifact@v4
+        with:
+          name: astrea-blender-sword
+          path: build/
+          if-no-files-found: error
+          retention-days: 14
