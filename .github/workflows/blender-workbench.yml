@@ -1,0 +1,47 @@
+name: ASTREA Blender Workbench
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/blender-cloud-workbench
+    paths:
+      - "blender-workbench/**"
+      - ".github/workflows/blender-workbench.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Checkout isolated workbench branch
+        uses: actions/checkout@v4
+
+      - name: Install Blender
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y blender
+
+      - name: Check Python syntax
+        run: python3 -m py_compile blender-workbench/build_sword.py
+
+      - name: Generate editable Blender scene, GLB and preview
+        run: |
+          set -euo pipefail
+          mkdir -p blender-workbench/output
+          blender --background --python blender-workbench/build_sword.py -- "$GITHUB_WORKSPACE/blender-workbench/output"
+          test -s blender-workbench/output/astrea-sword-source.blend
+          test -s blender-workbench/output/astrea-sword.glb
+          test -s blender-workbench/output/astrea-sword-preview.png
+          test -s blender-workbench/output/build-report.json
+
+      - name: Upload generated 3D assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: astrea-blender-workbench
+          path: blender-workbench/output/
+          if-no-files-found: error
+          retention-days: 14
