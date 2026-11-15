@@ -55,7 +55,7 @@ def area(n,loc,power,size,color):
  o.rotation_euler=(Vector((0,0,2.3))-o.location).to_track_quat("-Z","Y").to_euler()
 area("Key softbox",(4,-5,7),950,5,(.78,.86,1));area("Warm rim",(-4,2,5),1200,4,(1,.62,.32));area("Blade strip",(0,-3,2.8),500,3,(.65,.82,1))
 bpy.ops.object.camera_add(location=(6,-10,4.4));cam=bpy.context.object;cam.name="Product camera";cam.rotation_euler=(Vector((0,0,2.3))-cam.location).to_track_quat("-Z","Y").to_euler();cam.data.lens=62;bpy.context.scene.camera=cam
-sc=bpy.context.scene;sc.render.engine="BLENDER_EEVEE_NEXT" if hasattr(bpy.types,"EEVEE_NEXT") else "BLENDER_EEVEE"
+sc=bpy.context.scene;sc.render.engine="BLENDER_EEVEE_NEXT" if bpy.app.version >= (4,2,0) else "BLENDER_EEVEE"
 sc.render.resolution_x=1200;sc.render.resolution_y=1200;sc.render.resolution_percentage=100;sc.render.image_settings.file_format="PNG";sc.render.filepath=os.path.join(OUT,"astrea_sword_preview.png")
 sc.view_settings.view_transform="Standard"
 bpy.ops.object.select_all(action="DESELECT")
