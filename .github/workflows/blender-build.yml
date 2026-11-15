@@ -20,7 +20,7 @@ jobs:
           sudo apt-get install -y blender
       - name: Generate sword, render and export
         env:
-          ASTREA_OUT: \${{ github.workspace }}/build
+          ASTREA_OUT: ${{ github.workspace }}/build
         run: |
           mkdir -p "$ASTREA_OUT"
           blender --background --factory-startup --python blender-pipeline/create_astrea_sword.py
